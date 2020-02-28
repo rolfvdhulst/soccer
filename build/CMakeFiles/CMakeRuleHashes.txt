@@ -1,0 +1,2 @@
+# Hashes of file build rules.
+a22d2b4cd0fe99cfd7baec9b18e6661b src/protobuf/Vector2f.pb.cc
