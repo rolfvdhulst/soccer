@@ -39,7 +39,6 @@ class Circle {
      */
     constexpr Circle(const Circle& other) = default;
 
-
     /**
      * @brief Checks whether the circle intersects with the given object
      * @param other The object to check intersection with
@@ -81,6 +80,5 @@ class Circle {
 };
 
 std::ostream& operator<<(std::ostream& out, const Circle& circle);
-
 
 #endif  // SOCCER_CIRCLE_H

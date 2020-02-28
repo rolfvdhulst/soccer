@@ -129,5 +129,4 @@ class Rectangle {
 
 std::ostream &operator<<(std::ostream &out, const Rectangle &rect);
 
-
 #endif  // SOCCER_RECTANGLE_H
