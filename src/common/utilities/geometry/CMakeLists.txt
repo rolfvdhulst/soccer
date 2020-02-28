@@ -12,6 +12,18 @@ add_library(geometry STATIC
         include/geometry/LineSegment.h
         Line.cpp
         include/geometry/Line.h
+        Circle.cpp
+        include/geometry/Circle.h
+        Triangle.cpp
+        include/geometry/Triangle.h
+        Polygon.cpp
+        include/geometry/Polygon.h
+        Rectangle.cpp
+        include/geometry/Rectangle.h
+        Triangle.cpp
+        include/geometry/Triangle.h
+        Tube.cpp
+        include/geometry/Tube.h
         )
 target_link_libraries(geometry
         PUBLIC protobuf
