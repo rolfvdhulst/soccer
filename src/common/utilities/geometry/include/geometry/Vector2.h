@@ -1,5 +1,5 @@
-#ifndef VECTOR2_H
-#define VECTOR2_H
+#ifndef SOCCER_VECTOR2_H
+#define SOCCER_VECTOR2_H
 
 #include <protobuf/Vector2f.pb.h>
 #include <iostream>
@@ -247,4 +247,4 @@ template<> struct std::hash<Vector2>{
     }
 };
 
-#endif // VECTOR2_H
+#endif // SOCCER_VECTOR2_H

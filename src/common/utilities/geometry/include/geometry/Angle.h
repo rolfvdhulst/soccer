@@ -2,8 +2,8 @@
 // Created by thijs on 28-2-19.
 //
 
-#ifndef ANGLE_H
-#define ANGLE_H
+#ifndef SOCCER_ANGLE_H
+#define SOCCER_ANGLE_H
 
 class Vector2;
 
@@ -232,4 +232,4 @@ class Angle {
 
 };
 
-#endif //ANGLE_H
+#endif //SOCCER_ANGLE_H
