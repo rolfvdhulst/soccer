@@ -1,4 +1,4 @@
-find_package(Protobuf 3.9.1 REQUIRED)
+find_package(Protobuf 3.0.0 REQUIRED)
 
 
 
