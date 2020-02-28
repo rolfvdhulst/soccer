@@ -15,3 +15,16 @@ target_link_libraries(allTests
         PRIVATE geometry
         PRIVATE gtest
         )
+
+option(CODE_COVERAGE "Enable coverage reports" OFF)
+if (CODE_COVERAGE)
+    #don't use  optimized code and set debug info, link coverage
+    target_compile_options(allTests
+            -0
+            -g
+            --coverage
+            )
+    target_link_libraries(allTests
+            PRIVATE --coverage
+            )
+endif(CODE_COVERAGE)
