@@ -20,7 +20,7 @@ option(CODE_COVERAGE "Enable coverage reports" OFF)
 if (CODE_COVERAGE)
     #don't use  optimized code and set debug info, link coverage
     target_compile_options(allTests
-            -0
+            -O0
             -g
             --coverage
             )
