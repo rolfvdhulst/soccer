@@ -5,9 +5,13 @@
 #ifndef SOCCER_ROTATION_H
 #define SOCCER_ROTATION_H
 
-//TODO: implement
-class Rotation {
 
+class Rotation {
+    private:
+        /**
+         * @brief Current angle stored
+         */
+        double angle;
 };
 
 #endif //SOCCER_ROTATION_H

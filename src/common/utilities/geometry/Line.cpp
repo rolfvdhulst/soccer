@@ -5,7 +5,7 @@
 #include "Line.h"
 #include "LineSegment.h"
 
-Line::Line(const LineSegment &other) noexcept {
+Line::Line(const LineSegment &other)  {
     start=other.start;
     end=other.end;
 }
