@@ -29,8 +29,17 @@ target_link_libraries(geometry
         PUBLIC protobuf
         PUBLIC Eigen3::Eigen
         )
+
 target_include_directories(geometry
         INTERFACE include
         PRIVATE include/geometry
         )
 target_compile_features(geometry PUBLIC cxx_std_17)
+
+if(CODE_COVERAGE)
+    target_compile_options(geometry PRIVATE
+            -O0
+            -g
+            --coverage
+    )
+endif()
