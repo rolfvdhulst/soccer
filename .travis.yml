@@ -1,0 +1,30 @@
+language: cpp
+os: linux
+dist: bionic
+compiler:
+  - clang
+
+addons:
+  apt:
+    packages:
+      - cmake
+      - libprotobuf-dev
+      - protobuf-compiler
+install:
+  - cd ~/
+  - git clone https://github.com/google/googletest.git
+  - cd googletest
+  - mkdir install
+  - cd install
+  - cmake ../
+  - make
+  - sudo make install
+
+script:
+  - cd $TRAVIS_BUID_DIR
+  - mkdir build && cd build
+  - cmake ..
+  - make
+  - ./test/allTests
+
+
