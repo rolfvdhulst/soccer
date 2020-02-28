@@ -16,6 +16,7 @@ addons:
     packages:
       - cmake
       - libprotobuf-dev
+      - libeigen3-dev
       - protobuf-compiler
 install:
   - cd ~/
