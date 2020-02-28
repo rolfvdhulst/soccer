@@ -19,7 +19,7 @@ target_link_libraries(allTests
 option(CODE_COVERAGE "Enable coverage reports" OFF)
 if (CODE_COVERAGE)
     #don't use  optimized code and set debug info, link coverage
-    target_compile_options(allTests
+    target_compile_options(allTests PRIVATE
             -O0
             -g
             --coverage

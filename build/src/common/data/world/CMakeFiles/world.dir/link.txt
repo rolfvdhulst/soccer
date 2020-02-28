@@ -1,2 +1,0 @@
-/usr/bin/ar qc libworld.a  CMakeFiles/world.dir/Robot.cpp.o CMakeFiles/world.dir/Ball.cpp.o CMakeFiles/world.dir/World.cpp.o CMakeFiles/world.dir/RobotID.cpp.o
-/usr/bin/ranlib libworld.a
