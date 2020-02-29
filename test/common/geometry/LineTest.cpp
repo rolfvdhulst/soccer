@@ -20,7 +20,7 @@ TEST(LineTests, direction) {
     Vector2 v4(0.0, 0.0), v5(0.0, 10.0), v6(2.0, 0.0), v7(2.0, 9.0);
     Vector2 v8(2.0, 0.0), v9(3.0, 10.0), v10(0.0+std::numeric_limits<double>::epsilon(),10);
     Line l4(v4, v5), l5(v6, v7);
-    Line l6(v4, v8), l7(v5, v9);
+    LineSegment l6(v4, v8), l7(v5, v9);
     Line l8(v4,v10);
     EXPECT_TRUE(l4.isParallel(l5));
     EXPECT_TRUE(l5.isParallel(l4));
@@ -162,6 +162,12 @@ TEST(LineTests, Intersections) {
     LineSegment LS1(P1, P2), LS2(P3, P4), LS3(P3, P5), LS4(P1, P5), LS5(P1, P4);
     Vector2 intersect(2.0, 2.0);
 
+    //Test constructors
+    EXPECT_EQ(Line(LS1),L1);
+    EXPECT_NE(Line(LS1),L2);
+    EXPECT_EQ(LineSegment(L1),LS1);
+    EXPECT_NE(LineSegment(L1),LS2);
+
     ASSERT_NE(L1.intersects(L2), std::nullopt);
     ASSERT_TRUE(L1.doesIntersect(L2));
     EXPECT_EQ(*L1.intersects(L2), intersect);
@@ -219,6 +225,9 @@ TEST(LineTests, Intersections) {
 //test converse
     EXPECT_EQ(LS5.intersects(LS3), std::nullopt);
     EXPECT_FALSE(LS5.doesIntersect(LS3));
+
+    EXPECT_EQ(L2.intersects(LS1),std::nullopt);
+    EXPECT_FALSE(L2.doesIntersect(LS1));
 
 }
 TEST(LineTests, IntersectionsDifferentTypes) {
