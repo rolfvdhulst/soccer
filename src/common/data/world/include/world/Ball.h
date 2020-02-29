@@ -7,10 +7,9 @@
 
 #include <geometry/Vector2.h>
 class Ball {
-    private:
-        Vector2 position;
-        Vector2 velocity;
-
+   private:
+    Vector2 position;
+    Vector2 velocity;
 };
 
-#endif //SOCCER_BALL_H
+#endif  // SOCCER_BALL_H

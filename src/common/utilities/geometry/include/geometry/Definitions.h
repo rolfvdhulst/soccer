@@ -12,7 +12,6 @@
  * used.
  */
 
-
 /**
  * This header has all of the most useful functions for mathematics provided by STL in it (e.g. absolute, min, max cos, sin) etc.
  * We define it here because it tends to be used in many places implicitly later and we want consistency.
@@ -24,6 +23,6 @@
  * If instances from Vector2 or Angle match to this degree we consider them 'equal' in length as a precaution against
  * floating point errors.
  */
-constexpr static double VECTOR_PRECISION=0.00001;
+constexpr static double VECTOR_PRECISION = 0.00001;
 
-#endif //SOCCER_DEFINITIONS_H
+#endif  // SOCCER_DEFINITIONS_H
