@@ -104,7 +104,7 @@ Vector2 Vector2::operator*=(const Vector2 &other) { return {this->x *= other.x, 
 Vector2 Vector2::operator*=(const double &scalar) { return {x *= scalar, y *= scalar}; }
 
 Vector2 Vector2::operator/=(const Vector2 &other) {
-    assert(other == Vector2() && "Division by zero");
+    assert(!(other == Vector2()) && "Division by zero");
     return {this->x /= other.x, this->y /= other.y};
 }
 

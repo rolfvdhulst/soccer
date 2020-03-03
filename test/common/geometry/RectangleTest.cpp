@@ -81,12 +81,12 @@ TEST(Rectangle,simpleFunctions){
     auto lines = rectangle.lines();
     EXPECT_DOUBLE_EQ(corners[0].x,-1.0);
     EXPECT_DOUBLE_EQ(corners[0].y,-1.0);
-    EXPECT_DOUBLE_EQ(corners[1].x,1.0);
-    EXPECT_DOUBLE_EQ(corners[1].y,-1.0);
+    EXPECT_DOUBLE_EQ(corners[1].x,-1.0);
+    EXPECT_DOUBLE_EQ(corners[1].y,0.0);
     EXPECT_DOUBLE_EQ(corners[2].x,1.0);
     EXPECT_DOUBLE_EQ(corners[2].y,0.0);
-    EXPECT_DOUBLE_EQ(corners[3].x,-1.0);
-    EXPECT_DOUBLE_EQ(corners[3].y,0.0);
+    EXPECT_DOUBLE_EQ(corners[3].x,1.0);
+    EXPECT_DOUBLE_EQ(corners[3].y,-1.0);
 
     for (int i = 0; i < 4; ++ i) {
         EXPECT_EQ(lines[i].start,corners[i]);
@@ -99,6 +99,6 @@ TEST(Rectangle,simpleFunctions){
     }
 
     Vector2 centre =rectangle.center();
-    EXPECT_DOUBLE_EQ(centre.x,0.5);
-    EXPECT_DOUBLE_EQ(centre.y,0.0);
+    EXPECT_DOUBLE_EQ(centre.x,0.0);
+    EXPECT_DOUBLE_EQ(centre.y,-0.5);
 }
