@@ -101,7 +101,4 @@ TEST(Rectangle,simpleFunctions){
     Vector2 centre =rectangle.center();
     EXPECT_DOUBLE_EQ(centre.x,0.5);
     EXPECT_DOUBLE_EQ(centre.y,0.0);
-
-
-
 }
