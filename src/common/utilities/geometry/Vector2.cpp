@@ -56,24 +56,6 @@ bool Vector2::isNotNaN() const {
     return x == x && y == y;
 }
 
-Vector2 Vector2::closestPointOnVector(const Vector2 &startPoint, const Vector2 &point) const {
-    Vector2 vectorToPoint = point - startPoint;
-    Angle me = this->toAngle();
-    Angle vtp = vectorToPoint.toAngle();
-    Angle a = me - vtp;
-    double angle = a.getAngle();
-    double projectionLength = vectorToPoint.length() * cos(angle);
-
-    Vector2 closestPoint;
-    if (projectionLength > this->length()) {
-        closestPoint = *this + startPoint;
-    } else if (projectionLength < 0) {
-        closestPoint = startPoint;
-    } else {
-        closestPoint = this->scale(projectionLength / this->length()) + startPoint;
-    }
-    return closestPoint;
-}
 
 Vector2 Vector2::stretchToLength(double desiredLength) const {
     if (length() == 0.0) {

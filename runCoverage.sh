@@ -4,9 +4,10 @@ cd build
 cmake -DCODE_COVERAGE=ON ..
 make
 ./test/allTests
-lcov --directory . --capture --output-file coverage.info
-lcov --remove coverage.info '**/soccer/test/*' '/usr/*' "${HOME}" --output-file coverage.info
+lcov --directory . --capture --rc lcov_branch_coverage=1 --output-file coverage.info
+lcov --remove coverage.info '**/soccer/test/*' '/usr/*' "${HOME}" --output-file coverage.info --rc lcov_branch_coverage=1
 cd ..
+rm -rf coverage
 mkdir coverage
 genhtml build/coverage.info --output-directory coverage
 firefox ./coverage/index.html

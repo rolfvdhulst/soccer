@@ -4,6 +4,8 @@ SET(geometryTests
         common/geometry/TriangleTest.cpp
         common/geometry/TubeTest.cpp
         common/geometry/Vector2Test.cpp
+        common/geometry/PolygonTest.cpp
+        common/geometry/CircleTest.cpp
         )
 
 add_executable(allTests

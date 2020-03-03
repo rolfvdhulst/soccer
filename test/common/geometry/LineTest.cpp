@@ -9,7 +9,7 @@
 TEST(LineTests, direction) {
     Vector2 v1(0.0, 0.0), v2(1.0, 1.0), v3(0.0, 0.0);
     Line l1(v1, v2), l2(v2, v1);
-    l1.direction();
+
     EXPECT_EQ(l1.direction(), v2);
     EXPECT_EQ(l2.direction(), v2 * -1.0);
     EXPECT_NE(l1.direction(), l2.direction());
@@ -19,8 +19,8 @@ TEST(LineTests, direction) {
     EXPECT_FALSE(l2.isPoint());
     Vector2 v4(0.0, 0.0), v5(0.0, 10.0), v6(2.0, 0.0), v7(2.0, 9.0);
     Vector2 v8(2.0, 0.0), v9(3.0, 10.0), v10(0.0 + std::numeric_limits<double>::epsilon(), 10);
-    Line l4(v4, v5), l5(v6, v7);
-    LineSegment l6(v4, v8), l7(v5, v9);
+    Line l4(v4, v5), l5(v6, v7), l11(v4,v8);
+    LineSegment l6(v4, v8), l7(v5, v9),l9(v4,v5),l10(v6,v7);
     Line l8(v4, v10);
     EXPECT_TRUE(l4.isParallel(l5));
     EXPECT_TRUE(l5.isParallel(l4));
@@ -40,10 +40,22 @@ TEST(LineTests, direction) {
     EXPECT_FALSE(l7.isParallel(l4));
     EXPECT_FALSE(l7.isParallel(l5));
     EXPECT_FALSE(l4.isParallel(l8));
+
+    EXPECT_TRUE(l9.isParallel(l10));
+    EXPECT_TRUE(l10.isParallel(l9));
+    EXPECT_FALSE(l9.isParallel(l6));
+    EXPECT_FALSE(l6.isParallel(l9));
+
+    EXPECT_TRUE(l9.isParallel(l5));
+    EXPECT_TRUE(l10.isParallel(l4));
+    EXPECT_FALSE(l9.isParallel(l11));
+    EXPECT_TRUE(l6.isParallel(l11));
+    EXPECT_FALSE(l6.isParallel(l8));
 }
 TEST(LineTests, slopeAndIntercept) {
     Vector2 Av(1.0, 1.0), Bv(2.0, 2.0), Cv(2.0, 3.0), Dv(1.0, 4.0), Ev(2.0, 0.0);
-    Line D(Av, Bv), E(Av, Cv), F(Av, Dv), G(Dv, Av), H(Av, Ev);
+    Line D(Av, Bv), E(Av, Cv), H(Av, Ev);
+    LineSegment  F(Av, Dv), G(Dv, Av);
     Line Dcopy(Bv, Av), Ecopy(Cv, Av), Hcopy(Ev, Av);
 
     // test normal slopes
@@ -234,6 +246,28 @@ TEST(LineTests, Intersections) {
 
     EXPECT_EQ(L2.intersects(LS1), std::nullopt);
     EXPECT_FALSE(L2.doesIntersect(LS1));
+    //two collinear lines
+    LineSegment one(Vector2(0, 0), Vector2(1, 1));
+    LineSegment two(Vector2(2, 2), Vector2(3, 3));
+    LineSegment three(Vector2(1,1),Vector2(2,2));
+    LineSegment four(Vector2(0,0),Vector2(4,4));
+    EXPECT_FALSE(one.doesIntersect(two));
+    EXPECT_FALSE(two.doesIntersect(one));
+    EXPECT_TRUE(one.doesIntersect(three));
+    EXPECT_TRUE(three.doesIntersect(one));
+    EXPECT_TRUE(three.doesIntersect(two));
+    EXPECT_TRUE(two.doesIntersect(three));
+
+    EXPECT_TRUE(four.doesIntersect(three));
+    EXPECT_TRUE(four.doesIntersect(one));
+    EXPECT_TRUE(four.doesIntersect(two));
+    EXPECT_TRUE(three.doesIntersect(four));
+    EXPECT_TRUE(one.doesIntersect(four));
+    EXPECT_TRUE(two.doesIntersect(four));
+
+    EXPECT_EQ(one.intersects(three),Vector2(1,1));
+    EXPECT_EQ(three.intersects(one),Vector2(1,1));
+
 }
 TEST(LineTests, IntersectionsDifferentTypes) {
     Vector2 P1(0.0, 0.0), P2(2.0, 2.0), P3(2.0, 0.0), P4(0.0, 2.0);

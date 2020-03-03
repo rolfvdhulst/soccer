@@ -34,8 +34,15 @@ class LineSegment {
      */
     explicit LineSegment(const Line &line);
     /**
+     * @brief Destroy the Line Segment object
+     *
+     */
+     ~LineSegment() = default;
+
+    /**
      * @brief Start of the line
      */
+
     Vector2 start;
 
     /**
@@ -206,12 +213,6 @@ class LineSegment {
      * @return std::shared_ptr<Vector2> Returns a shared_ptr to a Vector2 that represents the intersection
      */
     [[nodiscard]] std::optional<Vector2> nonSimpleIntersects(const LineSegment &line) const;
-
-    /**
-     * @brief Destroy the Line Segment object
-     *
-     */
-    virtual ~LineSegment() = default;
 };
 
 #endif  // SOCCER_LINESEGMENT_H
