@@ -119,6 +119,23 @@ TEST(VectorTests, moreOperators) {
     b += a;
     EXPECT_DOUBLE_EQ(b.x, 5);
     EXPECT_DOUBLE_EQ(b.y, 6);
+
+    Vector2 c=b+2;
+    EXPECT_DOUBLE_EQ(c.x,7);
+    EXPECT_DOUBLE_EQ(c.y,8);
+    Vector2 d=b-1;
+    EXPECT_DOUBLE_EQ(d.x,4);
+    EXPECT_DOUBLE_EQ(d.y,5);
+
+    Vector2 test(0,0);
+    EXPECT_TRUE(test.isNotNaN());
+    double nan=std::numeric_limits<double>::quiet_NaN();
+    Vector2 test2(nan,0);
+    EXPECT_FALSE(test2.isNotNaN());
+    Vector2 test3(nan,nan);
+    Vector2 test4(0,nan);
+    EXPECT_FALSE(test3.isNotNaN());
+    EXPECT_FALSE(test4.isNotNaN());
 }
 
 TEST(VectorTests, protoVector) {
@@ -127,7 +144,11 @@ TEST(VectorTests, protoVector) {
     EXPECT_DOUBLE_EQ(x.x(), f.x);
     EXPECT_DOUBLE_EQ(x.y(), f.y);
     Vector2 checkF = x;
+    Vector2 b =Vector2(1,1);
+    b = x;
     EXPECT_DOUBLE_EQ(checkF.x, f.x);
     EXPECT_DOUBLE_EQ(checkF.y, f.y);
+    EXPECT_DOUBLE_EQ(b.x, f.x);
+    EXPECT_DOUBLE_EQ(b.y, f.y);
     std::cout << checkF << std::endl;  // testing print functionality
 }

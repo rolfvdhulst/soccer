@@ -36,10 +36,3 @@ target_include_directories(geometry
         )
 target_compile_features(geometry PUBLIC cxx_std_17)
 
-if(CODE_COVERAGE)
-    target_compile_options(geometry PRIVATE
-            -O0
-            -g
-            --coverage
-    )
-endif()

@@ -1,0 +1,12 @@
+#This script builds all tests, does coverage on them and opens a webbrowser page with the coverage results in it
+mkdir build
+cd build
+cmake -DCODE_COVERAGE=ON ..
+make
+./test/allTests
+lcov --directory . --capture --output-file coverage.info
+lcov --remove coverage.info '**/soccer/test/*' '/usr/*' "${HOME}" --output-file coverage.info
+cd ..
+mkdir coverage
+genhtml build/coverage.info --output-directory coverage
+firefox ./coverage/index.html

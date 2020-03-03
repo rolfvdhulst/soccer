@@ -151,6 +151,10 @@ TEST(LineTests, pointOnLine) {
     EXPECT_TRUE(ls3.isOnLine(D));
     EXPECT_TRUE(l3.isOnLine(A));
     EXPECT_TRUE(ls3.isOnLine(A));
+
+    Vector2 point7(0.0,1.0), point8(0.0,2.0);
+    EXPECT_FALSE(ls1.isOnLine(point7));
+    EXPECT_FALSE(ls1.isOnLine(point8));
 }
 
 TEST(LineTests, Intersections) {
