@@ -1,4 +1,3 @@
-#This script builds all tests, does coverage on them and opens a webbrowser page with the coverage results in it
 mkdir build
 cd build
 cmake -DCODE_COVERAGE=ON ..
@@ -11,3 +10,4 @@ rm -rf coverage
 mkdir coverage
 genhtml build/coverage.info --output-directory coverage
 firefox ./coverage/index.html && disown
+# This script builds all tests, does coverage on them and opens a webbrowser page with the coverage results in it
