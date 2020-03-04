@@ -10,4 +10,4 @@ cd ..
 rm -rf coverage
 mkdir coverage
 genhtml build/coverage.info --output-directory coverage
-firefox ./coverage/index.html
+firefox ./coverage/index.html && disown

@@ -310,3 +310,20 @@ TEST(LineTests, IntersectionsDifferentTypes) {
     EXPECT_TRUE(AS1.doesIntersect(AS4));
     EXPECT_EQ(*AS1.intersects(AS4), R2);
 }
+
+TEST(LineTests,reverse){
+    Vector2 A(1,1),B(2,2);
+    LineSegment x(A,B);
+    EXPECT_EQ(x.start,A);
+    EXPECT_EQ(x.end,B);
+    x.reverse();
+    EXPECT_EQ(x.start,B);
+    EXPECT_EQ(x.end,A);
+
+    LineSegment y(A,B);
+    EXPECT_EQ(y.start,A);
+    EXPECT_EQ(y.end,B);
+    LineSegment z= y.reversed();
+    EXPECT_EQ(z.start,B);
+    EXPECT_EQ(z.end,A);
+}

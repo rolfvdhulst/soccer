@@ -5,6 +5,8 @@
 #include <gtest/gtest.h>
 #include <geometry/Rectangle.h>
 #include <geometry/LineSegment.h>
+#include <geometry/Polygon.h>
+#include <geometry/Line.h>
 static Rectangle rect(Vector2(-1,1),Vector2(1,2));
 static Rectangle nullExample(Vector2(0,0),Vector2(0,0));
 TEST(Rectangle, cohenCodes){
@@ -101,4 +103,33 @@ TEST(Rectangle,simpleFunctions){
     Vector2 centre =rectangle.center();
     EXPECT_DOUBLE_EQ(centre.x,0.0);
     EXPECT_DOUBLE_EQ(centre.y,-0.5);
+
+    Polygon polygon=rectangle.asPolygon();
+    for (int i = 0; i<4; ++i){
+        EXPECT_EQ(polygon.vertices.at(i),corners[i]);
+    }
+
+    std::cout<<rectangle<<std::endl;
+
+}
+
+TEST(Rectangle, LineIntersections){
+    Rectangle test(Vector2(0,0),Vector2(3,4));
+
+    Line test1(Vector2(2,-1),Vector2(2,5));
+
+    auto intersects=test.intersects(test1);
+    EXPECT_EQ(intersects.size(),2);
+
+    //Note the intersections are not ordered in any way!
+    EXPECT_EQ(intersects[0],Vector2(2,4));
+    EXPECT_EQ(intersects[1],Vector2(2,0));
+    EXPECT_TRUE(test.doesIntersect(test1));
+
+    Line test2(Vector2(4,-1),Vector2(4,5));
+
+    EXPECT_EQ(test.intersects(test2).size(),0);
+    EXPECT_FALSE(test.doesIntersect(test2));
+    //Boundary points might return multiple intersections of the same point, unfortunately
+    //We don't have tests for this yet.
 }

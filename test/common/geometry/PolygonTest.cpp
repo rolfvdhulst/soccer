@@ -7,7 +7,7 @@
 #include <geometry/Vector2.h>
 #include <gtest/gtest.h>
 
-TEST(constructors, PolygonTest) {
+TEST(PolygonTest,constructors) {
     Vector2 leftCorner(1.0, 1.0), rightBottom(3.0, 1.0), rightTop(3.0, 4.0), leftTop(1.0, 4.0);
     Polygon rect(leftCorner, 2.0, 3.0);
     Polygon rect2({leftCorner, rightBottom, rightTop, leftTop});
@@ -22,7 +22,7 @@ TEST(constructors, PolygonTest) {
     EXPECT_EQ(rect[3], rect2[3]);
 }
 
-TEST(basicFunctions, PolygonTest) {
+TEST(PolygonTest,simpleFunctions) {
     Vector2 leftCorner(1.0, 1.0), rightBottom(3.0, 1.0), rightTop(3.0, 4.0), leftTop(1.0, 4.0);
     Polygon rect(leftCorner, 2.0, 3.0);
     Polygon rect2({leftCorner, rightBottom, rightTop, leftTop});
@@ -49,7 +49,7 @@ TEST(basicFunctions, PolygonTest) {
         }
     }
 }
-TEST(isSimple, PolygonTest) {
+TEST(PolygonTest,isSimple) {
     Vector2 leftCorner(1.0, 1.0), rightBottom(3.0, 1.0), rightTop(3.0, 4.0), leftTop(1.0, 4.0);
     // should be simple
     Polygon rect(leftCorner, 2.0, 3.0);
@@ -72,7 +72,7 @@ TEST(isSimple, PolygonTest) {
     EXPECT_FALSE(rect6.isSimple());
     EXPECT_FALSE(rect7.isSimple());
 }
-TEST(isConvex, PolygonTest) {
+TEST(PolygonTest,isConvex) {
     Vector2 leftCorner(1.0, 1.0), rightBottom(3.0, 1.0), rightTop(3.0, 4.0), leftTop(1.0, 4.0), convexPoint(4.0, 2.0), nonConvexPoint(2.0, 2.0);
     Polygon convexPentagon({leftCorner, rightBottom, convexPoint, rightTop, leftTop});
     Polygon convexPentagonCCW({leftCorner, leftTop, rightTop, convexPoint, rightBottom});
@@ -107,14 +107,14 @@ TEST(isConvex, PolygonTest) {
     EXPECT_FALSE(P3Last.isConvex());
     EXPECT_TRUE(P4.isConvex());
 }
-TEST(boundaryTests, PolygonTest) {
+TEST(PolygonTest,boundaryTests) {
     Vector2 leftCorner(1.0, 1.0), rightBottom(3.0, 1.0), rightTop(3.0, 4.0), leftTop(1.0, 4.0);
     double width = 2.0;
     double height = 3.0;
     Polygon rect(leftCorner, width, height);
     Polygon rect2({leftCorner, rightBottom, rightTop, leftTop});
     Polygon triangle({leftCorner, rightBottom, leftTop});
-    std::vector<Polygon> objects;
+    std::vector<Polygon> objects ={rect,rect2,triangle};
     for (const Polygon &obj : objects) {
         std::vector<LineSegment> lines = obj.getBoundary();
         for (int i = 0; i < lines.size(); ++i) {
@@ -136,7 +136,7 @@ TEST(boundaryTests, PolygonTest) {
     EXPECT_EQ(rect2.perimeterLength(), 2 * (width + height));
     EXPECT_EQ(triangle.perimeterLength(), 2.0 + sqrt(13) + 3.0);
 }
-TEST(areas, PolygonTest) {
+TEST(PolygonTest,areas) {
     double width = 4.0;
     double height = 4.0;
     double sideOffset = 1.0;
@@ -158,7 +158,7 @@ TEST(areas, PolygonTest) {
     Line l(A, D);
     EXPECT_EQ(triangleE.area(), 0.5 * l.length() * l.distanceToLine(G));
 }
-TEST(intersections, PolygonTest) {
+TEST(PolygonTest,intersections) {
     Vector2 leftCorner(1.0, 1.0), rightBottom(3.0, 1.0), rightTop(3.0, 3.0), leftTop(1.0, 3.0);
     Vector2 OP1(0.5, 2.0), OP2(2.0, 0.5), OP3(3.5, 2.0), OP4(2.0, 3.5);
     LineSegment L1(OP1, OP2), L2(OP2, OP3), L3(OP3, OP4), L4(OP4, OP1);
@@ -196,7 +196,7 @@ TEST(intersections, PolygonTest) {
     EXPECT_EQ(rect.intersections(LE3)[0], rightTop);
     EXPECT_EQ(rect.intersections(LE4)[0], leftTop);
 }
-TEST(contains, PolygonTest) {
+TEST(PolygonTest,contains) {
     Vector2 leftCorner(1.0, 1.0), rightBottom(3.0, 1.0), rightTop(3.0, 4.0), leftTop(1.0, 4.0);
     Polygon rect({leftCorner, rightBottom, rightTop, leftTop});
     Polygon triangle({leftCorner, rightBottom, leftTop});
@@ -218,7 +218,7 @@ TEST(contains, PolygonTest) {
     ASSERT_FALSE(triangle.contains(P6));
     ASSERT_FALSE(triangle.contains(P7));
 }
-TEST(centroid, PolygonTest) {
+TEST(PolygonTest,centroid) {
     Vector2 A(5.0, 3.0), B(6.0, 1.0), C(7.0, 8.0), D(1.0, 2.0);
     Polygon triangle({A, B, C}), triangle2({A, B, D}), quadrilateral({A, B, C, D});
     Vector2 centroid1(6, 4), centroid2(4.0, 2.0), centroid3(4 + 8.0 / 9.0, 4 + 2.0 / 9.0);

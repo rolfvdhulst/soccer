@@ -27,11 +27,19 @@ bool Circle::doesIntersectOrContain(const Rectangle &other) {
     distanceToCircle.x = abs(center.x - rectCenter.x);
     distanceToCircle.y = abs(center.y - rectCenter.y);
 
-    if (distanceToCircle.x > (rectWidth / 2 + radius)) return false;
-    if (distanceToCircle.y > (rectHeight / 2 + radius)) return false;
+    if (distanceToCircle.x > (rectWidth / 2 + radius)) {
+        return false;
+    }
+    if (distanceToCircle.y > (rectHeight / 2 + radius)) {
+        return false;
+    }
 
-    if (distanceToCircle.x <= (rectWidth / 2)) return true;
-    if (distanceToCircle.y <= (rectHeight / 2)) return true;
+    if (distanceToCircle.x <= (rectWidth / 2)) {
+        return true;
+    }
+    if (distanceToCircle.y <= (rectHeight / 2)) {
+        return true;
+    }
 
     double cornerDistance_sq = std::pow((distanceToCircle.x - rectWidth / 2), 2) + std::pow((distanceToCircle.y - rectHeight / 2), 2);
 

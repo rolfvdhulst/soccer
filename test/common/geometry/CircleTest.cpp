@@ -106,6 +106,20 @@ TEST(CircleTests, doesIntersectOrContainRectangle) {
     Rectangle rectOutside({4, 4}, {2, 2});
     EXPECT_FALSE(circle.doesIntersectOrContain(rectOutside));
     EXPECT_FALSE(circle.doesIntersectOrContain2(rectOutside));
+
+    Rectangle rectSide({0.5,0.5},{2,2});
+    EXPECT_TRUE(circle.doesIntersectOrContain(rectSide));
+    EXPECT_TRUE(circle.doesIntersectOrContain2(rectSide));
+    Rectangle rectSide2({0.5*sqrt(2),0.5*sqrt(2)},{2,2});
+    EXPECT_TRUE(circle.doesIntersectOrContain(rectSide2));
+    EXPECT_TRUE(circle.doesIntersectOrContain2(rectSide2));
+    Rectangle rectSide3({1,1},{2,2});
+    EXPECT_FALSE(circle.doesIntersectOrContain(rectSide3));
+    EXPECT_FALSE(circle.doesIntersectOrContain2(rectSide3));
+
+    Rectangle rectAbove({-1,2},{1,18});
+    EXPECT_FALSE(circle.doesIntersectOrContain2(rectAbove));
+    EXPECT_FALSE(circle.doesIntersectOrContain(rectAbove));
 }
 
 TEST(CircleTests, rectanglePerformance1) {
@@ -187,4 +201,33 @@ TEST(CircleTests, operatorDivide) {
     EXPECT_DOUBLE_EQ(circle2.radius, 1. / 9);
     circle2 /= 0;
     EXPECT_TRUE(std::isinf(circle2.radius));
+}
+TEST(CircleTests, print){
+    Circle circle({1, 1}, 1);
+    std::cout<<circle<<std::endl;
+}
+TEST(CircleTests,equalities){
+    Circle circle({1,1}, 1);
+    Circle circle2({1,1},2);
+    Circle circle3({1,2},1);
+    Circle copy=circle;
+    EXPECT_TRUE(circle == copy);
+    EXPECT_TRUE(copy == circle);
+    EXPECT_FALSE(circle != copy);
+    EXPECT_FALSE(copy != circle);
+
+    EXPECT_FALSE(circle == circle2);
+    EXPECT_FALSE(circle2 == circle);
+    EXPECT_TRUE(circle != circle2);
+    EXPECT_TRUE(circle2 != circle);
+
+    EXPECT_FALSE(circle == circle3);
+    EXPECT_FALSE(circle3 == circle);
+    EXPECT_TRUE(circle != circle3);
+    EXPECT_TRUE(circle3 != circle);
+
+    EXPECT_FALSE(circle3 == circle2);
+    EXPECT_FALSE(circle2 == circle3);
+    EXPECT_TRUE(circle3 != circle2);
+    EXPECT_TRUE(circle2 != circle3);
 }
