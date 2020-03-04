@@ -6,6 +6,7 @@ SET(geometryTests
         common/geometry/Vector2Test.cpp
         common/geometry/PolygonTest.cpp
         common/geometry/CircleTest.cpp
+        common/geometry/AngleTest.cpp
         )
 
 add_executable(allTests

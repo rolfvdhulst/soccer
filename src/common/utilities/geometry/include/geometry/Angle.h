@@ -5,6 +5,10 @@
 #ifndef SOCCER_ANGLE_H
 #define SOCCER_ANGLE_H
 
+//We only include this to forward CMath's M_PI constants clearly to all users of this class.
+// Whatever math header you use you should use should be consistent throughout your system.
+#include "Definitions.h"
+
 class Vector2;
 
 /**
@@ -15,7 +19,7 @@ class Angle {
    public:
     /**
      * @brief Default constructs an Angle
-     * sets angle to 0 and epsilon to 0.00001
+     * sets angle to 0.
      */
     Angle() = default;
 
@@ -29,14 +33,14 @@ class Angle {
      *
      * @param angle Angle to set the initial angle to
      */
-    Angle(double angle);
+    explicit Angle(double angle);
 
     /**
      * @brief Construct a new Angle object from an rtt::Vector2
      *
      * @param vec vector to construct from
      */
-    Angle(const Vector2 &vec);
+    explicit Angle(const Vector2 &vec);
 
     /**
      * @brief Get the Angle as double
@@ -54,35 +58,20 @@ class Angle {
 
     /**
      * @brief Gets the difference in angle between this angle and other
-     *
+     * is efectively the same as doing (this-other).angle
      * @param other Other angle
      * @return double angle
      */
     [[nodiscard]] double angleDiff(Angle const &other) const;
 
     /**
-     * @brief Gets the difference between this.angle and other
+     * @brief Gets the difference between this.angle and other.
+     * This is effectively the same as doing (this-other).angle
      *
      * @param other Other angle
      * @return double amount difference
      */
     [[nodiscard]] double angleDiff(double other) const;
-
-    /**
-     * @brief Gets the angleDiff of the shortest angle (*this vs other)
-     *
-     * @param other Other angle to get from
-     * @return double
-     */
-    [[nodiscard]] double shortestAngleDiff(Angle const &other) const;
-
-    /**
-     * @brief Gets the shortest angle difference between `other` and `*this`
-     *
-     * @param other Other angle to compare against
-     * @return double value of the shortest angle diff
-     */
-    double shortestAngleDiff(double &other) const;
 
     /**
      * @brief Converts the current Angle to a Vector2, does not consume
@@ -126,14 +115,6 @@ class Angle {
      */
     bool operator!=(const double &scalar) const;
 
-    /**
-     * @brief Smaller than operator
-     *
-     * @param other Other angle to compare against
-     * @return true If `this` is smaller than `other`
-     * @return false If `other` is bigger or equal to `this`
-     */
-    bool operator<(const Angle &other) const;
 
     /**
      * @brief Combines two angles
@@ -213,7 +194,7 @@ class Angle {
      *
      * @return double `this->angle`
      */
-    operator double() const;
+    explicit operator double() const;
 
    private:
     /**
@@ -222,7 +203,7 @@ class Angle {
     double angle;
 
     /**
-     * @brief Constrains the angle between 0 and 2 pi
+     * @brief Constrains the angle to the interval [-Pi,Pi)
      *
      * @return Angle A copy of `*this`
      */
