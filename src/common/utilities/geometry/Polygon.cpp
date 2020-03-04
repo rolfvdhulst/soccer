@@ -171,10 +171,7 @@ Vector2 Polygon::centroid() const {
         return verticeCentroid();
     }
     double signedAreaTwice = doubleSignedArea();
-    // calculation can still make sense in a geometric sense but this should probably raise a warning
-    if (signedAreaTwice == 0) {
-        std::cerr << "Computing the centroid for a polygon without area" << std::endl;
-    }
+    // calculation can still make sense in a geometric way if area is 0, e.g. it becomes finding the average of points on a line
     int n = vertices.size();
     Vector2 sum = {0, 0};
     for (int i = 0; i < n; i++) {

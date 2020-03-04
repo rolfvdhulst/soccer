@@ -4,6 +4,9 @@ SET(geometryTests
         common/geometry/TriangleTest.cpp
         common/geometry/TubeTest.cpp
         common/geometry/Vector2Test.cpp
+        common/geometry/PolygonTest.cpp
+        common/geometry/CircleTest.cpp
+        common/geometry/AngleTest.cpp
         )
 
 add_executable(allTests
@@ -17,14 +20,18 @@ target_link_libraries(allTests
         )
 
 option(CODE_COVERAGE "Enable coverage reports" OFF)
-if (CODE_COVERAGE)
-    #don't use  optimized code and set debug info, link coverage
-    target_compile_options(allTests PRIVATE
+function(target_add_coverage_flags TARGET)
+    target_compile_options(${TARGET} PRIVATE
             -O0
             -g
             --coverage
             )
+endfunction()
+if (CODE_COVERAGE)
+    #don't use  optimized code and set debug info, link coverage
     target_link_libraries(allTests
             PRIVATE --coverage
             )
+    target_add_coverage_flags(allTests)
+    target_add_coverage_flags(geometry)
 endif(CODE_COVERAGE)

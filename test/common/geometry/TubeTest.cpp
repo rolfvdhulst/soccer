@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 #include <geometry/Tube.h>
-
+#include <geometry/Circle.h>
 
 TEST(Tube,basic){
     Tube unitCircle;
@@ -65,11 +65,18 @@ TEST(Tube,doesIntersect){
     LineSegment test4(Vector2(0.5,3),Vector2(0.5,-3));// Intersects line segment around cap
     LineSegment test5(Vector2(9.5,-3),Vector2(9.5,3)); //similar as above
     LineSegment test6(Vector2(0,0),Vector2(0,2)); //only barely touches the tube at (1,0)
+
     EXPECT_TRUE(tube.doesIntersectOrContain(test1));
     EXPECT_TRUE(tube.doesIntersectOrContain(test2));
     EXPECT_FALSE(tube.doesIntersectOrContain(test3));
     EXPECT_TRUE(tube.doesIntersectOrContain(test4));
     EXPECT_TRUE(tube.doesIntersectOrContain(test5));
     EXPECT_TRUE(tube.doesIntersectOrContain(test6));
+
+    Circle unit(Vector2(0,0),1.0), touch(Vector2(0,0),sqrt(2)-1), away(Vector2(0,0),0.1);
+    EXPECT_TRUE(tube.doesIntersectOrContain(unit));
+    EXPECT_TRUE(tube.doesIntersectOrContain(touch));
+    EXPECT_FALSE(tube.doesIntersectOrContain(away));
+    EXPECT_TRUE(tube.doesIntersectOrContain(Circle(Vector2(1.5,1.5),0.01)));
 }
 
