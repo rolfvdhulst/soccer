@@ -7,10 +7,10 @@
 
 #include <geometry/Vector2.h>
 class BallState {
-   private:
-    Vector2 position;
-    Vector2 velocity;
-    bool isVisible;
+    private:
+        Vector2 position;
+        Vector2 velocity;
+        bool isVisible;
 };
 
 #endif  // SOCCER_BALLSTATE_H

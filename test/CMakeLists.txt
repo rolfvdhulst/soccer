@@ -12,15 +12,20 @@ SET(geometryTests
 SET(coreTests
         common/core/TimeTest.cpp
         )
+set(worldTests
+        common/world/RobotIDTest.cpp
+        )
 add_executable(allTests
         main.cpp
         ${geometryTests}
         ${coreTests}
+        ${worldTests}
         )
 
 target_link_libraries(allTests
         PRIVATE geometry
         PRIVATE core
+        PRIVATE world
         PRIVATE gtest
         )
 
@@ -40,4 +45,5 @@ if (CODE_COVERAGE)
     target_add_coverage_flags(allTests)
     target_add_coverage_flags(geometry)
     target_add_coverage_flags(core)
+    target_add_coverage_flags(world)
 endif(CODE_COVERAGE)

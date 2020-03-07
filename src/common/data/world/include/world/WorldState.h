@@ -10,11 +10,11 @@
 #include "RobotState.h"
 
 class WorldState {
-   private:
-    // TimePoint time;
-    std::optional<BallState> ball;
-    std::vector<RobotState> us;
-    std::vector<RobotState> them;
+    private:
+        // TimePoint time;
+        std::optional<BallState> ball;
+        std::vector<RobotState> us;
+        std::vector<RobotState> them;
 };
 
 #endif  // SOCCER_WORLDSTATE_H
