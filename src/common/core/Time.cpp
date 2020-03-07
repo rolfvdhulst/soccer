@@ -5,10 +5,10 @@
 #include "Time.h"
 
 Time::Time(std::chrono::nanoseconds time) : timePoint{time} {}
-Time Time::operator+(const Time &other) const { return {timePoint + other.timePoint}; }
-Time Time::operator-(const Time &other) const { return {timePoint - other.timePoint}; }
-Time Time::operator-=(const Time &other) { return timePoint -= other.timePoint; }
-Time Time::operator+=(const Time &other) { return timePoint += other.timePoint; }
+Time Time::operator+(const Time &other) const { return Time(timePoint + other.timePoint); }
+Time Time::operator-(const Time &other) const { return Time(timePoint - other.timePoint); }
+Time Time::operator-=(const Time &other) { return Time(timePoint -= other.timePoint); }
+Time Time::operator+=(const Time &other) { return Time(timePoint += other.timePoint); }
 bool Time::operator>(const Time &other) const { return timePoint > other.timePoint; }
 bool Time::operator>=(const Time &other) const { return timePoint >= other.timePoint; }
 bool Time::operator<=(const Time &other) const { return timePoint <= other.timePoint; }
@@ -21,5 +21,5 @@ long Time::asIntegerSeconds() const { return timePoint.count() / 1000000000; }
 long Time::asNanoSeconds() const { return timePoint.count(); }
 long Time::asMicroSeconds() const { return timePoint.count() / 1000; }
 long Time::asIntegerMilliSeconds() const { return timePoint.count() / 1000000; }
-Time Time::now() { return {std::chrono::steady_clock::now().time_since_epoch()}; }
-Time Time::timeSince() const { return (now() - timePoint); }
+Time Time::now() { return Time(std::chrono::steady_clock::now().time_since_epoch()); }
+Time Time::timeSince() const { return (now() - *this); }

@@ -7,15 +7,20 @@ SET(geometryTests
         common/geometry/PolygonTest.cpp
         common/geometry/CircleTest.cpp
         common/geometry/AngleTest.cpp
-        common/geometry/RotationTest.cpp)
-
+        common/geometry/RotationTest.cpp
+        )
+SET(coreTests
+        common/core/TimeTest.cpp
+        )
 add_executable(allTests
         main.cpp
         ${geometryTests}
+        ${coreTests}
         )
 
 target_link_libraries(allTests
         PRIVATE geometry
+        PRIVATE core
         PRIVATE gtest
         )
 
@@ -34,4 +39,5 @@ if (CODE_COVERAGE)
             )
     target_add_coverage_flags(allTests)
     target_add_coverage_flags(geometry)
+    target_add_coverage_flags(core)
 endif(CODE_COVERAGE)
