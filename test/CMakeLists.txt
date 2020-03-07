@@ -7,7 +7,7 @@ SET(geometryTests
         common/geometry/PolygonTest.cpp
         common/geometry/CircleTest.cpp
         common/geometry/AngleTest.cpp
-        )
+        common/geometry/RotationTest.cpp)
 
 add_executable(allTests
         main.cpp
