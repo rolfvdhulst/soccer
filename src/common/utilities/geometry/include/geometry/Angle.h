@@ -5,7 +5,7 @@
 #ifndef SOCCER_ANGLE_H
 #define SOCCER_ANGLE_H
 
-//We only include this to forward CMath's M_PI constants clearly to all users of this class.
+// We only include this to forward CMath's M_PI constants clearly to all users of this class.
 // Whatever math header you use you should use should be consistent throughout your system.
 #include "Definitions.h"
 
@@ -114,7 +114,6 @@ class Angle {
      * @return bool !(*this == scalar)
      */
     bool operator!=(const double &scalar) const;
-
 
     /**
      * @brief Combines two angles

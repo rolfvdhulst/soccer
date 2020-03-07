@@ -245,14 +245,10 @@ double LineSegment::distanceToLine(const LineSegment &line) const {
     return diff.length();
 }
 
-void LineSegment::reverse() {
-    std::swap(start,end);
-}
+void LineSegment::reverse() { std::swap(start, end); }
 
-//Disable clang diagnostic here because it (rightfully so) thinks the arguments are reversed.
+// Disable clang diagnostic here because it (rightfully so) thinks the arguments are reversed.
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "ArgumentSelectionDefectsInspection"
-LineSegment LineSegment::reversed() const {
-    return {end,start};
-}
+LineSegment LineSegment::reversed() const { return {end, start}; }
 #pragma clang diagnostic pop

@@ -37,7 +37,7 @@ class LineSegment {
      * @brief Destroy the Line Segment object
      *
      */
-     ~LineSegment() = default;
+    ~LineSegment() = default;
 
     /**
      * @brief Start of the line
@@ -217,7 +217,7 @@ class LineSegment {
      * @brief swaps the start and end of this LineSegment so that the direction is turned by 180 degrees
      */
     void reverse();
-    LineSegment  reversed() const;
+    LineSegment reversed() const;
 };
 
 #endif  // SOCCER_LINESEGMENT_H

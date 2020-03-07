@@ -56,7 +56,6 @@ bool Vector2::isNotNaN() const {
     return x == x && y == y;
 }
 
-
 Vector2 Vector2::stretchToLength(double desiredLength) const {
     if (length() == 0.0) {
         return {desiredLength, 0};

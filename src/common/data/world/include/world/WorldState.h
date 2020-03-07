@@ -17,4 +17,4 @@ class WorldState {
     std::vector<RobotState> them;
 };
 
-#endif  //SOCCER_WORLDSTATE_H
+#endif  // SOCCER_WORLDSTATE_H

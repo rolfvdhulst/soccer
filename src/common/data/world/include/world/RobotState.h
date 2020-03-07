@@ -6,6 +6,7 @@
 #define SOCCER_ROBOTSTATE_H
 
 #include <geometry/Angle.h>
+#include <geometry/Rotation.h>
 #include <geometry/Vector2.h>
 #include "RobotID.h"
 
@@ -15,7 +16,7 @@ class RobotState {
     Vector2 position;
     Angle angle;
     Vector2 velocity;
-    // Rotation angularVelocity
+    Rotation angularVelocity;
 };
 
 #endif  // SOCCER_ROBOTSTATE_H
