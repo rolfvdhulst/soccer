@@ -1,10 +1,10 @@
 add_library(world STATIC
-        Robot.cpp
-        include/world/Robot.h
-        Ball.cpp
-        include/world/Ball.h
-        World.cpp
-        include/world/World.h
+        RobotState.cpp
+        include/world/RobotState.h
+        BallState.cpp
+        include/world/BallState.h
+        WorldState.cpp
+        include/world/WorldState.h
         RobotID.cpp
         include/world/RobotID.h
         )
