@@ -8,10 +8,11 @@
 #include <optional>
 #include "BallState.h"
 #include "RobotState.h"
+#include <core/Time.h>
 
 class WorldState {
     private:
-        // TimePoint time;
+        Time time;
         std::optional<BallState> ball;
         std::vector<RobotState> us;
         std::vector<RobotState> them;

@@ -7,11 +7,14 @@ add_library(world STATIC
         include/world/WorldState.h
         RobotID.cpp
         include/world/RobotID.h
-        FieldState.cpp include/world/FieldState.h)
+        FieldState.cpp
+        include/world/FieldState.h
+        )
 
 
 target_link_libraries(world
         PUBLIC geometry
+        PUBLIC core
         )
 target_include_directories(world
         INTERFACE include

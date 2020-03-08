@@ -16,6 +16,7 @@ class Time {
         static Time now();
 
         [[nodiscard]] Time timeSince() const;
+        [[nodiscard]] Time timeTo() const;
         [[nodiscard]] long asNanoSeconds() const;
         [[nodiscard]] long asIntegerSeconds() const;
         [[nodiscard]] long asIntegerMilliSeconds() const;
