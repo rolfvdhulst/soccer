@@ -24,9 +24,11 @@ add_library(geometry STATIC
         include/geometry/Triangle.h
         Tube.cpp
         include/geometry/Tube.h
-        )
+        Vector3.cpp
+        include/geometry/Vector3.h
+        include/geometry/Flip.h)
 target_link_libraries(geometry
-        PUBLIC protobuf
+        PUBLIC proto
         PUBLIC Eigen3::Eigen
         )
 

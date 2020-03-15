@@ -20,6 +20,13 @@ To be consistent in the code style, we use clang-format. You can use clang-forma
 2. Run install.sh in the cloned 'formatting' folder with as working directory the cloned soccer folder. 
 This will make sure that the code is formatted during every commit from then on. 
 
+### Dependencies
+Eigen3,
+
+asio (libasio-dev)
+
+google protobuf
+
 ### CLion Formatting
 1. Open CLion and go to File->Settings->Tools->External Tools
 2. Click on Add and fill in without quotes: 

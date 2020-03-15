@@ -327,3 +327,10 @@ TEST(LineTests,reverse){
     EXPECT_EQ(z.start,B);
     EXPECT_EQ(z.end,A);
 }
+
+TEST(LineTests,center){
+    Vector2 A(1,2),B(3,6);
+    LineSegment line(A,B);
+    EXPECT_EQ(line.center().x,2);
+    EXPECT_EQ(line.center().y,4);
+}

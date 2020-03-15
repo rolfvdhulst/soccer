@@ -1,4 +1,4 @@
-SET(geometryTests
+set(geometryTests
         common/geometry/LineTest.cpp
         common/geometry/RectangleTest.cpp
         common/geometry/TriangleTest.cpp
@@ -9,7 +9,7 @@ SET(geometryTests
         common/geometry/AngleTest.cpp
         common/geometry/RotationTest.cpp
         )
-SET(coreTests
+set(coreTests
         common/core/TimeTest.cpp
         )
 set(worldTests
@@ -28,8 +28,15 @@ target_link_libraries(allTests
         PRIVATE world
         PRIVATE gtest
         )
+target_compile_options(allTests PRIVATE
+        -g
+        -O0
+        -std=c++17
+        -Wall
+        )
 
 option(CODE_COVERAGE "Enable coverage reports" OFF)
+
 function(target_add_coverage_flags TARGET)
     target_compile_options(${TARGET} PRIVATE
             -O0
@@ -37,6 +44,7 @@ function(target_add_coverage_flags TARGET)
             --coverage
             )
 endfunction()
+
 if (CODE_COVERAGE)
     #don't use  optimized code and set debug info, link coverage
     target_link_libraries(allTests

@@ -217,7 +217,14 @@ class LineSegment {
      * @brief swaps the start and end of this LineSegment so that the direction is turned by 180 degrees
      */
     void reverse();
-    LineSegment reversed() const;
+    /**
+     * @return The same LineSegment but with end and start reversed
+     */
+    [[nodiscard]] LineSegment reversed() const;
+    /**
+     * @return The middle point of the end and start point (e.g. the exact middle)
+     */
+    [[nodiscard]] Vector2 center() const;
 };
 
 #endif  // SOCCER_LINESEGMENT_H

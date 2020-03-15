@@ -70,10 +70,10 @@ TEST(Rectangle,segmentIntersection){
 
 TEST(Rectangle,simpleFunctions){
     Rectangle rectangle(Vector2(-1,-1),2,1);
-    EXPECT_DOUBLE_EQ(rectangle.corner1.x,-1.0);
-    EXPECT_DOUBLE_EQ(rectangle.corner1.y,-1.0);
-    EXPECT_DOUBLE_EQ(rectangle.corner2.x,1.0);
-    EXPECT_DOUBLE_EQ(rectangle.corner2.y,0.0);
+    EXPECT_DOUBLE_EQ(rectangle.minX(),-1.0);
+    EXPECT_DOUBLE_EQ(rectangle.minY(),-1.0);
+    EXPECT_DOUBLE_EQ(rectangle.maxX(),1.0);
+    EXPECT_DOUBLE_EQ(rectangle.maxY(),0.0);
     EXPECT_DOUBLE_EQ(rectangle.width(),2.0);
     EXPECT_DOUBLE_EQ(rectangle.height(),1.0);
 

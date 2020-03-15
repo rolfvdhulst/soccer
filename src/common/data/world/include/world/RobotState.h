@@ -11,12 +11,12 @@
 #include "RobotID.h"
 
 class RobotState {
-    private:
-        RobotID id;
-        Vector2 position;
-        Angle angle;
-        Vector2 velocity;
-        Rotation angularVelocity;
+   private:
+    RobotID id;
+    Vector2 position;
+    Angle angle;
+    Vector2 velocity;
+    Rotation angularVelocity;
 };
 
 #endif  // SOCCER_ROBOTSTATE_H
