@@ -269,8 +269,10 @@ double FieldState::getLineThickness(const proto::SSL_GeometryFieldSize &sslGeome
             thicknesses.insert(std::pair<float, int>(thickness, 0));
         }
     }
-    bool valueCompare = [](std::map<float, int>::value_type &i1, std::map<float, int>::value_type &i2) { return i1.first < i2.second; };
-    auto iterator = std::max_element(thicknesses.begin(), thicknesses.end(), valueCompare);
+    auto iterator = std::max_element(thicknesses.begin(), thicknesses.end(),
+            [] (const std::map<float,int>::value_type & p1, const std::map<float,int>::value_type & p2){
+        return p1.second<p2.second;
+    });
     return iterator->first;
 }
 void FieldState::setOtherLines(const proto::SSL_GeometryFieldSize &sslGeometry) {
