@@ -18,6 +18,12 @@ class Camera {
     // All of the below functions are just Eigen3 implementations of the logic in SSL-Vision, so nothing here is really 'created' by us.
     // If you have problems understanding it I recommend looking further at camera_calibration.h in ssl-vision
     [[nodiscard]] Eigen::Vector2d fieldToImage(const Eigen::Vector3d& fieldPoint) const;
+    /**
+     * !!RETURNS position in millimeter!!
+     * @param imagePoint point in image that is used to determine object position
+     * @param assumedHeight height that object is assumed to be detected at
+     * @return 3d Position of the point in world coordinates (in mm!)
+     */
     [[nodiscard]] Eigen::Vector3d imageToField(const Eigen::Vector2d& imagePoint, double assumedHeight) const;
 
    private:

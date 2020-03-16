@@ -94,6 +94,8 @@ class KalmanFilter {
 
     /**
      * Manually set state[index]=value, modifying the state of the filter. Should only be used sparsely.
+     * In order for this to have effect you need to update the filter. This is only recommended when you are somehow using
+     * a filter which extrapolates a bit too aggressively and goes ' out of bounds' (for example for angular filters) after some observations.
      * @param index. Index of the state to be modified
      * @param value. Value to set state[index] to
      */
