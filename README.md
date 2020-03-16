@@ -23,8 +23,6 @@ This will make sure that the code is formatted during every commit from then on.
 ### Dependencies
 Eigen3,
 
-asio (libasio-dev)
-
 google protobuf
 
 ### CLion Formatting
