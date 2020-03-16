@@ -11,7 +11,9 @@ TEST(TimeTests,constructors){
     empty = Time::now();
     EXPECT_NE(empty.asNanoSeconds(),0);
     Time after=empty.timeSince();
+    Time before=empty.timeTo();
     EXPECT_GE(after.asNanoSeconds(),0);
+    EXPECT_LE(before.asNanoSeconds(),0);
     long nanosecs=1037450000;
     Time time(nanosecs);
     EXPECT_EQ(time.asNanoSeconds(),nanosecs);

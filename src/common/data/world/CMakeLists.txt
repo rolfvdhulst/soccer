@@ -12,6 +12,8 @@ add_library(world STATIC
 
 target_link_libraries(world
         PUBLIC geometry
+        PUBLIC proto
+        PUBLIC core
         )
 target_include_directories(world
         INTERFACE include
