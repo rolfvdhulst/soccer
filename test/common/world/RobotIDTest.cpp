@@ -12,7 +12,6 @@ TEST(RobotIDTest,constructor){
     EXPECT_EQ(id,8);
     EXPECT_EQ((unsigned int) id,8);
     EXPECT_EQ((uint8) id,8);
-
 }
 TEST(RobotIDTest,bounds){
     for (uint8 i = 0; i < 255; ++ i) {
