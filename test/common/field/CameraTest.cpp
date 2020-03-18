@@ -47,5 +47,4 @@ TEST(Camera, projections) {
         EXPECT_NEAR(inverseImagePos.x(),robot.pixel_x(),10);
         EXPECT_NEAR(inverseImagePos.y(),robot.pixel_y(),10);
     }
-
 }

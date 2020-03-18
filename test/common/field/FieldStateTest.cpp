@@ -232,7 +232,6 @@ TEST(FieldState, divisionATest) {
         EXPECT_TRUE(checkOtherLines(field));
         EXPECT_TRUE(checkGoals(field));
     }
-
 }
 
 TEST(FieldState, otherDefaultFields) {

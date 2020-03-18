@@ -33,6 +33,7 @@ class CameraMap {
      * @brief Clears all camera's from the map
      */
     void clear();
+
    private:
     std::map<int, Camera> map;
 };

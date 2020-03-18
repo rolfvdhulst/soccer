@@ -43,6 +43,4 @@ TEST(OneDimension, KalmanFilterTest){
     filter.update();
     //Base state is not near anymore after update.
     ASSERT_FALSE(abs(filter.basestate()[0]-outputs[9])<0.01);
-
-
 }

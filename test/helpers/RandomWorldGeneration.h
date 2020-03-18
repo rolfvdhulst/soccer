@@ -6,7 +6,6 @@
 #define SOCCER_RANDOMWORLDGENERATION_H
 
 class randomWorldGeneration {
-
 };
 
 #endif //SOCCER_RANDOMWORLDGENERATION_H
