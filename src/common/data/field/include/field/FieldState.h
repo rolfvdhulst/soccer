@@ -138,8 +138,8 @@ class FieldState {
     explicit FieldState(DefaultField fieldType);
 
    private:
-        friend FieldState flip(const FieldState& field);
-        // The following are all used in the constructor...
+    friend FieldState flip(const FieldState& field);
+    // The following are all used in the constructor...
     // rant why is this data type so complicated ugh.
     static double mmToM(double value);
     static Vector2 mmToM(const Vector2& value);

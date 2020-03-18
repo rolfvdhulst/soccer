@@ -8,10 +8,10 @@
 #include "Camera.h"
 class CameraMap {
    public:
-        /**
-         * @brief adds a camera to the map
-         * @param cam Camera to add
-         */
+    /**
+     * @brief adds a camera to the map
+     * @param cam Camera to add
+     */
     void addCamera(const Camera& cam);
     /**
      * Same as getCamera() but familiar syntax is nice.

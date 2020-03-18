@@ -40,13 +40,13 @@ Eigen::Vector3d Camera::imageToField(const Eigen::Vector2d &imagePoint, double a
     Eigen::Quaterniond fieldToCamInverse = orientation.inverse();
     Eigen::Vector3d rayInCam = fieldToCamInverse * ray;
     Eigen::Vector3d zeroInCam = fieldToCamInverse * (-translation);
-    rayInCam.normalize();    // We need to normalize for the below calculation
+    rayInCam.normalize();  // We need to normalize for the below calculation
     // Now compute the point where the ray intersects the field and return this point
     double t = rayPlaneIntersection(Eigen::Vector3d(0, 0, assumedHeight), Eigen::Vector3d(0, 0, 1), zeroInCam, rayInCam);
     return zeroInCam + rayInCam * t;
 }
 double Camera::radialDistortion(double radius) const {
-    if (distortion <= DBL_MIN){
+    if (distortion <= DBL_MIN) {
         return radius;
     }
     double rd = 0;

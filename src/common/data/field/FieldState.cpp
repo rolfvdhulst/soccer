@@ -12,7 +12,7 @@ const Rectangle &FieldState::getField() const { return field; }
 const Rectangle &FieldState::getMarginField() const { return fieldWithMargin; }
 const Rectangle &FieldState::getField(bool withMargin) const { return withMargin ? fieldWithMargin : field; }
 const Rectangle &FieldState::getOurGoalRectangle() const { return leftGoalRectangle; }
-const Rectangle &FieldState::getTheirGoalRectangle()  const { return rightGoalRectangle; }
+const Rectangle &FieldState::getTheirGoalRectangle() const { return rightGoalRectangle; }
 const Rectangle &FieldState::getGoalRectangle(bool us) const { return us ? leftGoalRectangle : rightGoalRectangle; }
 const Circle &FieldState::getCenterCircle() const { return centerCircle; }
 double FieldState::getFieldLength() const { return fieldLength; }
@@ -43,7 +43,7 @@ const LineSegment &FieldState::getTopLeftPenaltyStretch() const { return topLeft
 const LineSegment &FieldState::getBottomLeftPenaltyStretch() const { return bottomLeftPenaltyStretch; }
 const LineSegment &FieldState::getBottomRightPenaltyStretch() const { return bottomRightPenaltyStretch; }
 const LineSegment &FieldState::getTopRightPenaltyStretch() const { return topRightPenaltyStretch; }
-const LineSegment &FieldState::getLeftGoal() const{ return leftGoal; }
+const LineSegment &FieldState::getLeftGoal() const { return leftGoal; }
 const LineSegment &FieldState::getOurGoal() const { return leftGoal; }
 const LineSegment &FieldState::getRightGoal() const { return rightGoal; }
 const LineSegment &FieldState::getTheirGoal() const { return rightGoal; }
@@ -86,9 +86,9 @@ FieldState::FieldState(DefaultField fieldType)
       wallThickness{0.02},
       lineThickness{getLineThickness(fieldType)} {
     makeOutsideLines();
-    fixPenaltyFieldLines(false,false,fieldType);
+    fixPenaltyFieldLines(false, false, fieldType);
     makeOtherLines(false, false, false, false, false, false);
-    centerCircle = Circle(Vector2(0, 0), 0.5 +lineThickness);  // Default for both A and B league divisions
+    centerCircle = Circle(Vector2(0, 0), 0.5 + lineThickness);  // Default for both A and B league divisions
 
     defineDefenceRectangles();
     defineFieldRectangles();
@@ -271,9 +271,7 @@ double FieldState::getLineThickness(const proto::SSL_GeometryFieldSize &sslGeome
         }
     }
     auto iterator = std::max_element(thicknesses.begin(), thicknesses.end(),
-            [] (const std::map<float,int>::value_type & p1, const std::map<float,int>::value_type & p2){
-        return p1.second<p2.second;
-    });
+                                     [](const std::map<float, int>::value_type &p1, const std::map<float, int>::value_type &p2) { return p1.second < p2.second; });
     return mmToM(iterator->first);
 }
 void FieldState::setOtherLines(const proto::SSL_GeometryFieldSize &sslGeometry) {
@@ -370,12 +368,12 @@ void FieldState::setCenterCircle(const proto::SSL_GeometryFieldSize &sslGeometry
         if (fieldArc.name() == CenterCircleName) {
             Vector2 center(fieldArc.center());
             centerCircle = Circle(center,
-                                  mmToM(fieldArc.radius() + fieldArc.thickness())); //lines are part of the circle.
+                                  mmToM(fieldArc.radius() + fieldArc.thickness()));  // lines are part of the circle.
             centerCircleSet = true;
         }
     }
     if (!centerCircleSet) {
-        centerCircle = Circle(Vector2(0, 0), 0.5 +lineThickness);  // Default for both A and B league divisions
+        centerCircle = Circle(Vector2(0, 0), 0.5 + lineThickness);  // Default for both A and B league divisions
     }
 }
 void FieldState::defineDefenceRectangles() {
@@ -388,7 +386,7 @@ void FieldState::defineFieldRectangles() {
 }
 void FieldState::defineGoals() {
     double halfGoalWidth = 0.5 * goalWidth;
-    double x = leftX; //TODO: add linethickness (are goals ON or behind the lines?)
+    double x = leftX;  // TODO: add linethickness (are goals ON or behind the lines?)
     leftGoal = LineSegment(Vector2(x, -halfGoalWidth), Vector2(x, halfGoalWidth));
     leftGoalCenter = leftGoal.center();
     leftGoalRectangle = Rectangle(Vector2(x - goalDepth, -halfGoalWidth), Vector2(x, halfGoalWidth));
