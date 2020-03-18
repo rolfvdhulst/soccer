@@ -36,45 +36,45 @@ class FieldState {
     [[nodiscard]] double getTopMarginY() const;
     [[nodiscard]] double getBottomMarginY() const;
 
-    const Rectangle& getOurDefenceArea();
-    const Rectangle& getTheirDefenceArea();
-    const Rectangle& getDefenceArea(bool us);
+    const Rectangle& getOurDefenceArea() const;
+    const Rectangle& getTheirDefenceArea() const;
+    const Rectangle& getDefenceArea(bool us) const;
 
-    const Rectangle& getField();
-    const Rectangle& getMarginField();
-    const Rectangle& getField(bool withMargin);
+    const Rectangle& getField() const;
+    const Rectangle& getMarginField() const;
+    const Rectangle& getField(bool withMargin) const;
 
-    const Rectangle& getOurGoalRectangle();
-    const Rectangle& getTheirGoalRectangle();
-    const Rectangle& getGoalRectangle(bool us);
+    const Rectangle& getOurGoalRectangle() const;
+    const Rectangle& getTheirGoalRectangle() const;
+    const Rectangle& getGoalRectangle(bool us) const;
 
-    const Circle& getCenterCircle();
+    const Circle& getCenterCircle() const;
 
-    const LineSegment& getLeftGoal();
-    const LineSegment& getOurGoal();
-    const LineSegment& getGoal(bool us);
-    const LineSegment& getRightGoal();
-    const LineSegment& getTheirGoal();
+    const LineSegment& getLeftGoal() const;
+    const LineSegment& getOurGoal() const;
+    const LineSegment& getGoal(bool us) const;
+    const LineSegment& getRightGoal() const;
+    const LineSegment& getTheirGoal() const;
 
-    const Vector2& getLeftGoalCenter();
-    const Vector2& getOurGoalCenter();
-    const Vector2& getRightGoalCenter();
-    const Vector2& getTheirGoalCenter();
-    const Vector2& getGoalCenter(bool us);
+    const Vector2& getLeftGoalCenter() const;
+    const Vector2& getOurGoalCenter() const;
+    const Vector2& getRightGoalCenter() const;
+    const Vector2& getTheirGoalCenter() const;
+    const Vector2& getGoalCenter(bool us) const;
 
-    const LineSegment& getTopLine();
-    const LineSegment& getLeftLine();
-    const LineSegment& getBottomLine();
-    const LineSegment& getRightLine();
-    const LineSegment& getHalfLine();
-    const LineSegment& getCenterLine();
-    const LineSegment& getLeftPenaltyLine();
-    const LineSegment& getRightPenaltyLine();
+    const LineSegment& getTopLine() const;
+    const LineSegment& getLeftLine() const;
+    const LineSegment& getBottomLine() const;
+    const LineSegment& getRightLine() const;
+    const LineSegment& getHalfLine() const;
+    const LineSegment& getCenterLine() const;
+    const LineSegment& getLeftPenaltyLine() const;
+    const LineSegment& getRightPenaltyLine() const;
 
-    const LineSegment& getTopLeftPenaltyStretch();
-    const LineSegment& getBottomLeftPenaltyStretch();
-    const LineSegment& getBottomRightPenaltyStretch();
-    const LineSegment& getTopRightPenaltyStretch();
+    const LineSegment& getTopLeftPenaltyStretch() const;
+    const LineSegment& getBottomLeftPenaltyStretch() const;
+    const LineSegment& getBottomRightPenaltyStretch() const;
+    const LineSegment& getTopRightPenaltyStretch() const;
 
    private:
     double fieldLength;
@@ -136,9 +136,9 @@ class FieldState {
    public:
     explicit FieldState(const proto::SSL_GeometryFieldSize& sslGeometry, DefaultField fieldBackup = DefaultField::DivisionA);
     explicit FieldState(DefaultField fieldType);
-    friend FieldState flip(const FieldState& field);
 
    private:
+    friend FieldState flip(const FieldState& field);
     // The following are all used in the constructor...
     // rant why is this data type so complicated ugh.
     static double mmToM(double value);
@@ -150,6 +150,8 @@ class FieldState {
     void makeOutsideLines();
     void fixPenaltyFieldLines(bool leftPenaltyLineSet, bool rightPenaltyLineSet, DefaultField backupField);
     static double getLineThickness(const proto::SSL_GeometryFieldSize& sslGeometry);
+    /* Below static functions are just Default definitions for each FieldType.
+     */
     [[nodiscard]] static double getFieldLength(const DefaultField& field);
     [[nodiscard]] static double getFieldWidth(const DefaultField& field);
     [[nodiscard]] static double getGoalDepth(const DefaultField& field);

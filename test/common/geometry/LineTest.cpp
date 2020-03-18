@@ -19,8 +19,8 @@ TEST(LineTests, direction) {
     EXPECT_FALSE(l2.isPoint());
     Vector2 v4(0.0, 0.0), v5(0.0, 10.0), v6(2.0, 0.0), v7(2.0, 9.0);
     Vector2 v8(2.0, 0.0), v9(3.0, 10.0), v10(0.0 + std::numeric_limits<double>::epsilon(), 10);
-    Line l4(v4, v5), l5(v6, v7), l11(v4,v8);
-    LineSegment l6(v4, v8), l7(v5, v9),l9(v4,v5),l10(v6,v7);
+    Line l4(v4, v5), l5(v6, v7), l11(v4, v8);
+    LineSegment l6(v4, v8), l7(v5, v9), l9(v4, v5), l10(v6, v7);
     Line l8(v4, v10);
     EXPECT_TRUE(l4.isParallel(l5));
     EXPECT_TRUE(l5.isParallel(l4));
@@ -55,7 +55,7 @@ TEST(LineTests, direction) {
 TEST(LineTests, slopeAndIntercept) {
     Vector2 Av(1.0, 1.0), Bv(2.0, 2.0), Cv(2.0, 3.0), Dv(1.0, 4.0), Ev(2.0, 0.0);
     Line D(Av, Bv), E(Av, Cv), H(Av, Ev);
-    LineSegment  F(Av, Dv), G(Dv, Av);
+    LineSegment F(Av, Dv), G(Dv, Av);
     Line Dcopy(Bv, Av), Ecopy(Cv, Av), Hcopy(Ev, Av);
 
     // test normal slopes
@@ -164,7 +164,7 @@ TEST(LineTests, pointOnLine) {
     EXPECT_TRUE(l3.isOnLine(A));
     EXPECT_TRUE(ls3.isOnLine(A));
 
-    Vector2 point7(0.0,1.0), point8(0.0,2.0);
+    Vector2 point7(0.0, 1.0), point8(0.0, 2.0);
     EXPECT_FALSE(ls1.isOnLine(point7));
     EXPECT_FALSE(ls1.isOnLine(point8));
 }
@@ -246,11 +246,11 @@ TEST(LineTests, Intersections) {
 
     EXPECT_EQ(L2.intersects(LS1), std::nullopt);
     EXPECT_FALSE(L2.doesIntersect(LS1));
-    //two collinear lines
+    // two collinear lines
     LineSegment one(Vector2(0, 0), Vector2(1, 1));
     LineSegment two(Vector2(2, 2), Vector2(3, 3));
-    LineSegment three(Vector2(1,1),Vector2(2,2));
-    LineSegment four(Vector2(0,0),Vector2(4,4));
+    LineSegment three(Vector2(1, 1), Vector2(2, 2));
+    LineSegment four(Vector2(0, 0), Vector2(4, 4));
     EXPECT_FALSE(one.doesIntersect(two));
     EXPECT_FALSE(two.doesIntersect(one));
     EXPECT_TRUE(one.doesIntersect(three));
@@ -265,9 +265,8 @@ TEST(LineTests, Intersections) {
     EXPECT_TRUE(one.doesIntersect(four));
     EXPECT_TRUE(two.doesIntersect(four));
 
-    EXPECT_EQ(one.intersects(three),Vector2(1,1));
-    EXPECT_EQ(three.intersects(one),Vector2(1,1));
-
+    EXPECT_EQ(one.intersects(three), Vector2(1, 1));
+    EXPECT_EQ(three.intersects(one), Vector2(1, 1));
 }
 TEST(LineTests, IntersectionsDifferentTypes) {
     Vector2 P1(0.0, 0.0), P2(2.0, 2.0), P3(2.0, 0.0), P4(0.0, 2.0);
@@ -311,26 +310,26 @@ TEST(LineTests, IntersectionsDifferentTypes) {
     EXPECT_EQ(*AS1.intersects(AS4), R2);
 }
 
-TEST(LineTests,reverse){
-    Vector2 A(1,1),B(2,2);
-    LineSegment x(A,B);
-    EXPECT_EQ(x.start,A);
-    EXPECT_EQ(x.end,B);
+TEST(LineTests, reverse) {
+    Vector2 A(1, 1), B(2, 2);
+    LineSegment x(A, B);
+    EXPECT_EQ(x.start, A);
+    EXPECT_EQ(x.end, B);
     x.reverse();
-    EXPECT_EQ(x.start,B);
-    EXPECT_EQ(x.end,A);
+    EXPECT_EQ(x.start, B);
+    EXPECT_EQ(x.end, A);
 
-    LineSegment y(A,B);
-    EXPECT_EQ(y.start,A);
-    EXPECT_EQ(y.end,B);
-    LineSegment z= y.reversed();
-    EXPECT_EQ(z.start,B);
-    EXPECT_EQ(z.end,A);
+    LineSegment y(A, B);
+    EXPECT_EQ(y.start, A);
+    EXPECT_EQ(y.end, B);
+    LineSegment z = y.reversed();
+    EXPECT_EQ(z.start, B);
+    EXPECT_EQ(z.end, A);
 }
 
-TEST(LineTests,center){
-    Vector2 A(1,2),B(3,6);
-    LineSegment line(A,B);
-    EXPECT_EQ(line.center().x,2);
-    EXPECT_EQ(line.center().y,4);
+TEST(LineTests, center) {
+    Vector2 A(1, 2), B(3, 6);
+    LineSegment line(A, B);
+    EXPECT_EQ(line.center().x, 2);
+    EXPECT_EQ(line.center().y, 4);
 }

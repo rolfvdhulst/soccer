@@ -3,6 +3,8 @@
 //
 
 #include "Camera.h"
+#include <cfloat>
+
 Camera::Camera(const proto::SSL_GeometryCameraCalibration &protoCam)
     : position{Eigen::Vector3d(protoCam.derived_camera_world_tx(), protoCam.derived_camera_world_ty(), protoCam.derived_camera_world_tz())},
       translation{Eigen::Vector3d(protoCam.tx(), protoCam.ty(), protoCam.tz())},
@@ -44,6 +46,9 @@ Eigen::Vector3d Camera::imageToField(const Eigen::Vector2d &imagePoint, double a
     return zeroInCam + rayInCam * t;
 }
 double Camera::radialDistortion(double radius) const {
+    if (distortion <= DBL_MIN) {
+        return radius;
+    }
     double rd = 0;
     double a = distortion;
     double b = -9.0 * a * a * radius + a * sqrt(a * (12.0 + 81.0 * a * radius * radius));
