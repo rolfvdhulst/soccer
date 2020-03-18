@@ -5,7 +5,6 @@
 #ifndef SOCCER_RANDOMWORLDGENERATION_H
 #define SOCCER_RANDOMWORLDGENERATION_H
 
-class randomWorldGeneration {
-};
+class randomWorldGeneration {};
 
-#endif //SOCCER_RANDOMWORLDGENERATION_H
+#endif  // SOCCER_RANDOMWORLDGENERATION_H

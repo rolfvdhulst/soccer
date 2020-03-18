@@ -2,12 +2,12 @@
 // Created by emiel on 25-02-20.
 //
 
+#include <geometry/Circle.h>
+#include <geometry/Line.h>
+#include <geometry/LineSegment.h>
+#include <geometry/Rectangle.h>
 #include <gtest/gtest.h>
 #include <cmath>
-#include <geometry/Circle.h>
-#include <geometry/Rectangle.h>
-#include <geometry/LineSegment.h>
-#include <geometry/Line.h>
 
 TEST(CircleTests, instantiation) {
     // Test unit circle
@@ -107,17 +107,17 @@ TEST(CircleTests, doesIntersectOrContainRectangle) {
     EXPECT_FALSE(circle.doesIntersectOrContain(rectOutside));
     EXPECT_FALSE(circle.doesIntersectOrContain2(rectOutside));
 
-    Rectangle rectSide({0.5,0.5},{2,2});
+    Rectangle rectSide({0.5, 0.5}, {2, 2});
     EXPECT_TRUE(circle.doesIntersectOrContain(rectSide));
     EXPECT_TRUE(circle.doesIntersectOrContain2(rectSide));
-    Rectangle rectSide2({0.5*sqrt(2),0.5*sqrt(2)},{2,2});
+    Rectangle rectSide2({0.5 * sqrt(2), 0.5 * sqrt(2)}, {2, 2});
     EXPECT_TRUE(circle.doesIntersectOrContain(rectSide2));
     EXPECT_TRUE(circle.doesIntersectOrContain2(rectSide2));
-    Rectangle rectSide3({1,1},{2,2});
+    Rectangle rectSide3({1, 1}, {2, 2});
     EXPECT_FALSE(circle.doesIntersectOrContain(rectSide3));
     EXPECT_FALSE(circle.doesIntersectOrContain2(rectSide3));
 
-    Rectangle rectAbove({-1,2},{1,18});
+    Rectangle rectAbove({-1, 2}, {1, 18});
     EXPECT_FALSE(circle.doesIntersectOrContain2(rectAbove));
     EXPECT_FALSE(circle.doesIntersectOrContain(rectAbove));
 }
@@ -202,15 +202,15 @@ TEST(CircleTests, operatorDivide) {
     circle2 /= 0;
     EXPECT_TRUE(std::isinf(circle2.radius));
 }
-TEST(CircleTests, print){
+TEST(CircleTests, print) {
     Circle circle({1, 1}, 1);
-    std::cout<<circle<<std::endl;
+    std::cout << circle << std::endl;
 }
-TEST(CircleTests,equalities){
-    Circle circle({1,1}, 1);
-    Circle circle2({1,1},2);
-    Circle circle3({1,2},1);
-    Circle copy=circle;
+TEST(CircleTests, equalities) {
+    Circle circle({1, 1}, 1);
+    Circle circle2({1, 1}, 2);
+    Circle circle3({1, 2}, 1);
+    Circle copy = circle;
     EXPECT_TRUE(circle == copy);
     EXPECT_TRUE(copy == circle);
     EXPECT_FALSE(circle != copy);
