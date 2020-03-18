@@ -12,3 +12,13 @@ std::optional<const Camera> CameraMap::getCamera(int id) const {
     return std::nullopt;
 }
 std::optional<const Camera> CameraMap::operator[](int id) const { return getCamera(id); }
+void CameraMap::clear() {
+    map.clear();
+}
+bool CameraMap::hasCamera(int id) {
+    std::optional<Camera> cam =getCamera(id);
+    if (cam){
+        return true;
+    }
+    return false;
+}

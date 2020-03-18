@@ -11,7 +11,8 @@ class CameraMap {
     void addCamera(const Camera& cam);
     [[nodiscard]] std::optional<const Camera> operator[](int id) const;
     [[nodiscard]] std::optional<const Camera> getCamera(int id) const;
-
+    bool hasCamera(int id);
+    void clear();
    private:
     std::map<int, Camera> map;
 };

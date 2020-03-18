@@ -20,12 +20,12 @@ set(mathTests
         )
 set(fieldTests
         common/field/CameraTest.cpp
-        )
+        common/field/CameraMapTest.cpp)
 set(helperClasses
         helpers/ProtoExamples.h
         helpers/RandomWorldGeneration.cpp
         helpers/RandomWorldGeneration.h
-        )
+        helpers/ProtoExamples.cpp)
 add_executable(allTests
         main.cpp
         ${helperClasses}
