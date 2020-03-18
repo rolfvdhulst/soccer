@@ -27,21 +27,6 @@ void ApplicationManager::setupNetworking() {
 void ApplicationManager::handleVisionPackets() {
     proto::SSL_WrapperPacket visionPacket;
     while (visionReceiver->receive(visionPacket)) {
-        if (visionPacket.has_geometry() && visionPacket.geometry().has_field()){
-            std::cout<<visionPacket.geometry().calib_size()<<std::endl;
-            for (const auto& cam : visionPacket.geometry().calib()) {
-                cam.PrintDebugString();
-                std::string string = cam.SerializeAsString();
-                std::cout<<string<<std::endl;
-                std::cout<<std::endl;
-            }
-        }
-//        if(visionPacket.has_detection()&&visionPacket.detection().camera_id()==1){
-//            auto x=visionPacket.detection().robots_blue();
-//            for (const auto& robot : x){
-//                robot.PrintDebugString();
-//            }
-//        }
     }
 }
 void ApplicationManager::handleRefereePackets() {
