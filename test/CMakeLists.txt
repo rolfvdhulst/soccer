@@ -20,7 +20,7 @@ set(mathTests
         )
 set(fieldTests
         common/field/CameraTest.cpp
-        common/field/CameraMapTest.cpp)
+        common/field/CameraMapTest.cpp common/field/FieldStateTest.cpp)
 set(helperClasses
         helpers/ProtoExamples.h
         helpers/RandomWorldGeneration.cpp
@@ -74,6 +74,7 @@ if (CODE_COVERAGE)
     target_add_coverage_flags(geometry)
     target_add_coverage_flags(core)
     target_add_coverage_flags(world)
+    target_add_coverage_flags(field)
     target_compile_options(math INTERFACE
             -O0
             -g

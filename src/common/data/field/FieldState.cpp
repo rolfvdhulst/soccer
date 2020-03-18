@@ -5,16 +5,16 @@
 #include "FieldState.h"
 #include <geometry/Flip.h>
 
-const Rectangle &FieldState::getOurDefenceArea() { return leftDefenceArea; }
-const Rectangle &FieldState::getTheirDefenceArea() { return rightDefenceArea; }
-const Rectangle &FieldState::getDefenceArea(bool us) { return us ? leftDefenceArea : rightDefenceArea; }
-const Rectangle &FieldState::getField() { return field; }
-const Rectangle &FieldState::getMarginField() { return fieldWithMargin; }
-const Rectangle &FieldState::getField(bool withMargin) { return withMargin ? fieldWithMargin : field; }
-const Rectangle &FieldState::getOurGoalRectangle() { return leftGoalRectangle; }
-const Rectangle &FieldState::getTheirGoalRectangle() { return rightGoalRectangle; }
-const Rectangle &FieldState::getGoalRectangle(bool us) { return us ? leftGoalRectangle : rightGoalRectangle; }
-const Circle &FieldState::getCenterCircle() { return centerCircle; }
+const Rectangle &FieldState::getOurDefenceArea() const { return leftDefenceArea; }
+const Rectangle &FieldState::getTheirDefenceArea() const { return rightDefenceArea; }
+const Rectangle &FieldState::getDefenceArea(bool us) const { return us ? leftDefenceArea : rightDefenceArea; }
+const Rectangle &FieldState::getField() const { return field; }
+const Rectangle &FieldState::getMarginField() const { return fieldWithMargin; }
+const Rectangle &FieldState::getField(bool withMargin) const { return withMargin ? fieldWithMargin : field; }
+const Rectangle &FieldState::getOurGoalRectangle() const { return leftGoalRectangle; }
+const Rectangle &FieldState::getTheirGoalRectangle()  const { return rightGoalRectangle; }
+const Rectangle &FieldState::getGoalRectangle(bool us) const { return us ? leftGoalRectangle : rightGoalRectangle; }
+const Circle &FieldState::getCenterCircle() const { return centerCircle; }
 double FieldState::getFieldLength() const { return fieldLength; }
 double FieldState::getFieldWidth() const { return fieldWidth; }
 double FieldState::getGoalWidth() const { return goalWidth; }
@@ -31,28 +31,28 @@ double FieldState::getLeftMarginX() const { return leftMarginX; }
 double FieldState::getRightMarginX() const { return rightMarginX; }
 double FieldState::getTopMarginY() const { return topMarginY; }
 double FieldState::getBottomMarginY() const { return bottomMarginY; }
-const LineSegment &FieldState::getTopLine() { return topLine; }
-const LineSegment &FieldState::getLeftLine() { return leftLine; }
-const LineSegment &FieldState::getBottomLine() { return bottomLine; }
-const LineSegment &FieldState::getRightLine() { return rightLine; }
-const LineSegment &FieldState::getHalfLine() { return halfLine; }
-const LineSegment &FieldState::getCenterLine() { return centerLine; }
-const LineSegment &FieldState::getLeftPenaltyLine() { return leftPenaltyLine; }
-const LineSegment &FieldState::getRightPenaltyLine() { return rightPenaltyLine; }
-const LineSegment &FieldState::getTopLeftPenaltyStretch() { return topLeftPenaltyStretch; }
-const LineSegment &FieldState::getBottomLeftPenaltyStretch() { return bottomLeftPenaltyStretch; }
-const LineSegment &FieldState::getBottomRightPenaltyStretch() { return bottomRightPenaltyStretch; }
-const LineSegment &FieldState::getTopRightPenaltyStretch() { return topRightPenaltyStretch; }
-const LineSegment &FieldState::getLeftGoal() { return leftGoal; }
-const LineSegment &FieldState::getOurGoal() { return leftGoal; }
-const LineSegment &FieldState::getRightGoal() { return rightGoal; }
-const LineSegment &FieldState::getTheirGoal() { return rightGoal; }
-const LineSegment &FieldState::getGoal(bool us) { return us ? leftGoal : rightGoal; }
-const Vector2 &FieldState::getLeftGoalCenter() { return leftGoalCenter; }
-const Vector2 &FieldState::getOurGoalCenter() { return leftGoalCenter; }
-const Vector2 &FieldState::getRightGoalCenter() { return rightGoalCenter; }
-const Vector2 &FieldState::getTheirGoalCenter() { return rightGoalCenter; }
-const Vector2 &FieldState::getGoalCenter(bool us) { return us ? leftGoalCenter : rightGoalCenter; }
+const LineSegment &FieldState::getTopLine() const { return topLine; }
+const LineSegment &FieldState::getLeftLine() const { return leftLine; }
+const LineSegment &FieldState::getBottomLine() const { return bottomLine; }
+const LineSegment &FieldState::getRightLine() const { return rightLine; }
+const LineSegment &FieldState::getHalfLine() const { return halfLine; }
+const LineSegment &FieldState::getCenterLine() const { return centerLine; }
+const LineSegment &FieldState::getLeftPenaltyLine() const { return leftPenaltyLine; }
+const LineSegment &FieldState::getRightPenaltyLine() const { return rightPenaltyLine; }
+const LineSegment &FieldState::getTopLeftPenaltyStretch() const { return topLeftPenaltyStretch; }
+const LineSegment &FieldState::getBottomLeftPenaltyStretch() const { return bottomLeftPenaltyStretch; }
+const LineSegment &FieldState::getBottomRightPenaltyStretch() const { return bottomRightPenaltyStretch; }
+const LineSegment &FieldState::getTopRightPenaltyStretch() const { return topRightPenaltyStretch; }
+const LineSegment &FieldState::getLeftGoal() const{ return leftGoal; }
+const LineSegment &FieldState::getOurGoal() const { return leftGoal; }
+const LineSegment &FieldState::getRightGoal() const { return rightGoal; }
+const LineSegment &FieldState::getTheirGoal() const { return rightGoal; }
+const LineSegment &FieldState::getGoal(bool us) const { return us ? leftGoal : rightGoal; }
+const Vector2 &FieldState::getLeftGoalCenter() const { return leftGoalCenter; }
+const Vector2 &FieldState::getOurGoalCenter() const { return leftGoalCenter; }
+const Vector2 &FieldState::getRightGoalCenter() const { return rightGoalCenter; }
+const Vector2 &FieldState::getTheirGoalCenter() const { return rightGoalCenter; }
+const Vector2 &FieldState::getGoalCenter(bool us) const { return us ? leftGoalCenter : rightGoalCenter; }
 namespace {
 const std::string TopLineName = "TopTouchLine";
 const std::string BottomLineName = "BottomTouchLine";
@@ -81,13 +81,14 @@ FieldState::FieldState(DefaultField fieldType)
       leftMarginX{-0.5 * fieldLength - boundaryWidth},
       rightMarginX{0.5 * fieldLength + boundaryWidth},
       bottomMarginY{-0.5 * fieldWidth - boundaryWidth},
-      topMarginY{0.5 * fieldLength + boundaryWidth},
+      topMarginY{0.5 * fieldWidth + boundaryWidth},
       goalHeight{0.16},  // As defined in the rules, https://robocup-ssl.github.io/ssl-rules/sslrules.html#_field_setup see here.
       wallThickness{0.02},
       lineThickness{getLineThickness(fieldType)} {
     makeOutsideLines();
+    fixPenaltyFieldLines(false,false,fieldType);
     makeOtherLines(false, false, false, false, false, false);
-    centerCircle = Circle(Vector2(0, 0), 0.5);  // Default for both A and B league divisions
+    centerCircle = Circle(Vector2(0, 0), 0.5 +lineThickness);  // Default for both A and B league divisions
 
     defineDefenceRectangles();
     defineFieldRectangles();
@@ -106,7 +107,7 @@ FieldState::FieldState(const proto::SSL_GeometryFieldSize &sslGeometry, DefaultF
       leftMarginX{-0.5 * fieldLength - boundaryWidth},
       rightMarginX{0.5 * fieldLength + boundaryWidth},
       bottomMarginY{-0.5 * fieldWidth - boundaryWidth},
-      topMarginY{0.5 * fieldLength + boundaryWidth},
+      topMarginY{0.5 * fieldWidth + boundaryWidth},
       goalHeight{0.16},  // As defined in the rules, https://robocup-ssl.github.io/ssl-rules/sslrules.html#_field_setup see here.
       wallThickness{0.02} {
     // The order of the operations in these is crucial! Changing it will very likely result in bugs.
@@ -140,7 +141,7 @@ void FieldState::setCoreLines(const proto::SSL_GeometryFieldSize &sslGeometry, c
         } else if (fieldLine.name() == BottomLineName) {
             bottomLine = LineSegment(Vector2(fieldLine.p1()), Vector2(fieldLine.p2()));
             mmToM(bottomLine);
-            if (fieldLine.p1().x() > fieldLine.p2().x()) {
+            if (fieldLine.p1().x() < fieldLine.p2().x()) {
                 bottomLine.reverse();
             }
             bottomLineSet = true;
@@ -273,7 +274,7 @@ double FieldState::getLineThickness(const proto::SSL_GeometryFieldSize &sslGeome
             [] (const std::map<float,int>::value_type & p1, const std::map<float,int>::value_type & p2){
         return p1.second<p2.second;
     });
-    return iterator->first;
+    return mmToM(iterator->first);
 }
 void FieldState::setOtherLines(const proto::SSL_GeometryFieldSize &sslGeometry) {
     bool halfLineSet = false;
@@ -353,13 +354,13 @@ void FieldState::makeOtherLines(bool halfLineSet, bool centerLineSet, bool botto
         topLeftPenaltyStretch = LineSegment(leftTopLeft, leftTopRight);
     }
     if (!bottomRightPenaltyStretchSet) {
-        Vector2 rightBottomLeft(rightX, rightPenaltyLine.end.y);
-        Vector2 rightBottomRight = leftPenaltyLine.end;
+        Vector2 rightBottomRight(rightX, rightPenaltyLine.end.y);
+        Vector2 rightBottomLeft = rightPenaltyLine.end;
         bottomRightPenaltyStretch = LineSegment(rightBottomRight, rightBottomLeft);
     }
     if (!topRightPenaltyStretchSet) {
-        Vector2 rightTopLeft(rightX, rightPenaltyLine.start.y);
-        Vector2 rightTopRight = leftPenaltyLine.start;
+        Vector2 rightTopRight(rightX, rightPenaltyLine.start.y);
+        Vector2 rightTopLeft = rightPenaltyLine.start;
         topRightPenaltyStretch = LineSegment(rightTopRight, rightTopLeft);
     }
 }
@@ -369,12 +370,12 @@ void FieldState::setCenterCircle(const proto::SSL_GeometryFieldSize &sslGeometry
         if (fieldArc.name() == CenterCircleName) {
             Vector2 center(fieldArc.center());
             centerCircle = Circle(center,
-                                  mmToM(fieldArc.radius() + fieldArc.thickness() * 0.5));  // Half of line width included to circle
+                                  mmToM(fieldArc.radius() + fieldArc.thickness())); //lines are part of the circle.
             centerCircleSet = true;
         }
     }
     if (!centerCircleSet) {
-        centerCircle = Circle(Vector2(0, 0), 0.5);  // Default for both A and B league divisions
+        centerCircle = Circle(Vector2(0, 0), 0.5 +lineThickness);  // Default for both A and B league divisions
     }
 }
 void FieldState::defineDefenceRectangles() {
@@ -386,13 +387,13 @@ void FieldState::defineFieldRectangles() {
     fieldWithMargin = Rectangle(Vector2(leftMarginX, bottomMarginY), fieldLength + 2 * boundaryWidth, fieldWidth + 2 * boundaryWidth);
 }
 void FieldState::defineGoals() {
-    double halfGoalWidth = -0.5 * goalWidth;
-    double x = leftX - lineThickness * 0.5;
+    double halfGoalWidth = 0.5 * goalWidth;
+    double x = leftX; //TODO: add linethickness (are goals ON or behind the lines?)
     leftGoal = LineSegment(Vector2(x, -halfGoalWidth), Vector2(x, halfGoalWidth));
     leftGoalCenter = leftGoal.center();
     leftGoalRectangle = Rectangle(Vector2(x - goalDepth, -halfGoalWidth), Vector2(x, halfGoalWidth));
 
-    x = rightX + lineThickness * 0.5;
+    x = rightX;
     rightGoal = LineSegment(Vector2(x, halfGoalWidth), Vector2(x, -halfGoalWidth));
     rightGoalCenter = rightGoal.center();
     rightGoalRectangle = Rectangle(Vector2(x, -halfGoalWidth), Vector2(x + goalDepth, halfGoalWidth));

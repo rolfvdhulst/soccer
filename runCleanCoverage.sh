@@ -5,7 +5,7 @@ cmake -DCODE_COVERAGE=ON ..
 make
 ./test/allTests
 lcov --directory . --capture --rc lcov_branch_coverage=1 --output-file coverage.info
-lcov --remove coverage.info '**/soccer/test/*' '/usr/*' "${HOME}" --output-file coverage.info --rc lcov_branch_coverage=1
+lcov --remove coverage.info '**/soccer/test/*' '/usr/*' '**/soccer/build/src/protobuf/*' "${HOME}" --output-file coverage.info --rc lcov_branch_coverage=1
 cd ..
 rm -rf coverage
 mkdir coverage
