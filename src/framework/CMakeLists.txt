@@ -17,7 +17,6 @@ target_compile_options(soccer PRIVATE
         -O0
         -std=c++17
         -Wall
-        -Wpedantic
         )
 
 target_link_libraries(soccer

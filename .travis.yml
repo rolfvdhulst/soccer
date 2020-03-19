@@ -30,20 +30,9 @@ install:
 
 script:
   - cd $TRAVIS_BUILD_DIR
-  - mkdir build && cd build
-  - cmake .. -DCODE_COVERAGE=ON
-  - make
-  - ./test/allTests
+  - ./runCoverage.sh
 
 after_success:
-  # Create lcov report
-  # capture coverage info
-  - lcov --directory . --capture --output-file coverage.info
-  # filter out system and extra files.
-  # To also not include test code in coverage add them with full path to the patterns: '*/tests/*'
-  - lcov --remove coverage.info '**/soccer/test/*' '/usr/*' "${HOME}" --output-file coverage.info
-  # output coverage data for debugging (optional)
-  - lcov --list coverage.info
-  - bash <(curl -s https://codecov.io/bash) -f coverage.info || echo "Codecov did not collect coverage reports"
+  - bash <(curl -s https://codecov.io/bash) -f build/total.info || echo "Codecov did not collect coverage reports"
 
 
