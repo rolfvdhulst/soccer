@@ -1,8 +1,7 @@
 mkdir build
 cd build
 cmake -DCODE_COVERAGE=ON ..
-make application
-make allTests
+make
 rm -rf base.info coverage.info total.info
 lcov --directory src/ --capture -i --output-file base.info
 ./test/allTests

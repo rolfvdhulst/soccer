@@ -22,6 +22,7 @@ if (CODE_COVERAGE)
     target_add_coverage_flags(core)
     target_add_coverage_flags(world)
     target_add_coverage_flags(field)
+    target_add_coverage_flags(net)
     target_add_coverage_flags(application)
     target_compile_options(math INTERFACE
             -O0
