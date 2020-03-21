@@ -12,7 +12,8 @@
 struct BallObservation {
     explicit BallObservation(int cameraID, Time time, proto::SSL_DetectionBall detectionBall) : cameraID(cameraID), time(time), ball(std::move(detectionBall)) {}
     int cameraID;
-    Time time;
+    Time timeCaptured;
+    Time timeSent;
     proto::SSL_DetectionBall ball;
 };
 #endif  // RTT_BALLOBSERVATION_H

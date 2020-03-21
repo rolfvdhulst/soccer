@@ -1,8 +1,8 @@
-syntax = "proto3";
+syntax = "proto2";
 
 package proto;
 
 message Vector2f {
-    float x = 1;
-    float y = 2;
+    required float x = 1;
+    required float y = 2;
 }
