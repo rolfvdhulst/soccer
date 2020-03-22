@@ -19,4 +19,3 @@ target_include_directories(world
         INTERFACE include
         PRIVATE include/world
         )
-target_compile_features(world PUBLIC cxx_std_17)

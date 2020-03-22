@@ -12,7 +12,8 @@
 struct RobotObservation {
     explicit RobotObservation(int cameraID, const Time &time, proto::SSL_DetectionRobot detectionRobot) : cameraID(cameraID), time(time), bot(std::move(detectionRobot)) {}
     int cameraID;
-    Time time;
+    Time timeCaptured;
+    Time timeSent;
     proto::SSL_DetectionRobot bot;
 };
 #endif  // RTT_ROBOTOBSERVATION_H

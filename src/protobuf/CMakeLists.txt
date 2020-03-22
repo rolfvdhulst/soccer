@@ -6,12 +6,14 @@ find_package(Protobuf 3.0.0 REQUIRED)
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
         proto/Vector2f.proto
         proto/messages_robocup_ssl_detection.proto
-        proto/messages_robocup_ssl_game_event.proto
         proto/messages_robocup_ssl_geometry.proto
         proto/messages_robocup_ssl_geometry_legacy.proto
-        proto/messages_robocup_ssl_referee.proto
         proto/messages_robocup_ssl_wrapper.proto
         proto/messages_robocup_ssl_wrapper_legacy.proto
+        proto/ssl_game_controller_common.proto
+        proto/ssl_game_controller_team.proto
+        proto/ssl_game_event.proto
+        proto/ssl_referee.proto
         )
 
 add_library(proto SHARED
