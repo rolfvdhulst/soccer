@@ -3,12 +3,30 @@
 //
 
 #include "ApplicationManager.h"
+#include <interfaceAPI/API.h>
+void ApplicationManager::init() {
+    setupNetworking();
+}
+void ApplicationManager::run(bool &exit) {
+    while (!exit) {
+        std::vector<proto::SSL_WrapperPacket> packets;
+        proto::SSL_WrapperPacket visionPacket;
+        while (visionReceiver->receive(visionPacket)) {
+            packets.push_back(visionPacket);
+        }
+        proto::World worldState = visionFilter.process(packets);
+        std::string string = worldState.SerializeAsString();
+        std::cout<< "app update"<<std::endl;
+        std::cout<< packets.size()<<" packets"<<std::endl;
+        if (string != worldString){
+            std::cout<< "new app world"<<std::endl;
+            worldString = string;
+        }
+        std::cout<<"_________"<<std::endl;
+        API::instance()->setWorldState(worldState);
 
-void ApplicationManager::init() { setupNetworking(); }
-void ApplicationManager::run() {
-    while (true) {
-        handleVisionPackets();
         handleRefereePackets();
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 }
 void ApplicationManager::setupNetworking() {
@@ -25,12 +43,10 @@ void ApplicationManager::setupNetworking() {
     refereeReceiver->open(false);
 }
 void ApplicationManager::handleVisionPackets() {
-    proto::SSL_WrapperPacket visionPacket;
-    while (visionReceiver->receive(visionPacket)) {
-    }
+
 }
 void ApplicationManager::handleRefereePackets() {
-    proto::SSL_Referee refereePacket;
+    proto::Referee refereePacket;
     while (refereeReceiver->receive(refereePacket)) {
     }
 }

@@ -51,7 +51,7 @@ TEST(TimeTests, operators) {
 TEST(TimeTests, booleans) {
     long nanosecs = 1037450000;
     Time time(nanosecs), time2(nanosecs);
-    Time time3(1037450001);
+    Time time3((long) 1037450001);
     EXPECT_TRUE(time == time2);
     EXPECT_FALSE(time != time2);
 
@@ -73,4 +73,9 @@ TEST(TimeTests, booleans) {
     EXPECT_TRUE(time2 <= time);
     EXPECT_TRUE(time <= time3);
     EXPECT_TRUE(time <= time2);
+}
+TEST(TimTests,doubleConstructor){
+    double duration = 3.482930;
+    Time time(duration);
+    EXPECT_DOUBLE_EQ(time.asSeconds(),duration);
 }

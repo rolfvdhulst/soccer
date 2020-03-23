@@ -195,6 +195,11 @@ class Angle {
      */
     explicit operator double() const;
 
+    /**
+     *
+     * @return the angle in degrees
+     */
+    double degrees() const;
    private:
     /**
      * @brief Current angle stored
@@ -209,4 +214,6 @@ class Angle {
     Angle constrain();
 };
 
+double toDegrees(double angle);
+double toRadians(double angle);
 #endif  // SOCCER_ANGLE_H

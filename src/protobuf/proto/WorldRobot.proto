@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+import "Vector2f.proto";
+
+package proto;
+
+message WorldRobot {
+    required uint32 id = 1;
+    required Vector2f pos = 2;
+    required float angle = 3;
+    required Vector2f vel = 4;
+    required float w = 5;
+}

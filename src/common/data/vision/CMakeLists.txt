@@ -1,10 +1,12 @@
-add_library(vision INTERFACE)
+add_library(vision STATIC
+        BallObservation.cpp
+        RobotObservation.cpp)
 
 target_link_libraries(vision
-        INTERFACE proto
-        INTERFACE geometry
-        INTERFACE core
+        PUBLIC proto
+        PUBLIC core
         )
 target_include_directories(vision
         INTERFACE include
+        PRIVATE include/vision
 )

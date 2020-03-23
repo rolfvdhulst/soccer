@@ -7,7 +7,7 @@ message SSL_DetectionBall {
   optional uint32 area       = 2;
   required float  x          = 3;
   required float  y          = 4;
-  required float  z          = 5;
+  optional float  z          = 5;
   required float  pixel_x    = 6;
   required float  pixel_y    = 7;
 }

@@ -6,11 +6,9 @@
 #define RTT_BALLOBSERVATION_H
 #include <core/Time.h>
 #include <protobuf/messages_robocup_ssl_detection.pb.h>
-/**
- * A struct to keep Ball Data and time as one observation.
- */
+
 struct BallObservation {
-    explicit BallObservation(int cameraID, Time time, proto::SSL_DetectionBall detectionBall) : cameraID(cameraID), time(time), ball(std::move(detectionBall)) {}
+    explicit BallObservation(int cameraID, Time timeCaptured, Time timeSent, proto::SSL_DetectionBall detectionBall);
     int cameraID;
     Time timeCaptured;
     Time timeSent;

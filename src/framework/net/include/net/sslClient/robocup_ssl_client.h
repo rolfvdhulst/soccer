@@ -24,7 +24,7 @@
 #include "netraw.h"
 #include "protobuf/messages_robocup_ssl_detection.pb.h"
 #include "protobuf/messages_robocup_ssl_geometry.pb.h"
-#include "protobuf/messages_robocup_ssl_referee.pb.h"
+#include "protobuf/ssl_referee.pb.h"
 #include "protobuf/messages_robocup_ssl_wrapper.pb.h"
 #include "protobuf/messages_robocup_ssl_wrapper_legacy.pb.h"
 using namespace std;
@@ -46,7 +46,7 @@ class RoboCupSSLClient {
     void close();
     bool receive(proto::SSL_WrapperPacket& packet);
     bool receive(proto::RoboCup2014Legacy::Wrapper::SSL_WrapperPacket& packet);
-    bool receive(proto::SSL_Referee& packet);
+    bool receive(proto::Referee& packet);
 };
 
 #endif

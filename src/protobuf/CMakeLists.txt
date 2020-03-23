@@ -14,6 +14,10 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
         proto/ssl_game_controller_team.proto
         proto/ssl_game_event.proto
         proto/ssl_referee.proto
+        proto/World.proto
+        proto/WorldBall.proto
+        proto/WorldRobot.proto
+        proto/RobotInfo.proto
         )
 
 add_library(proto SHARED
