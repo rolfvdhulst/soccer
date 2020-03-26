@@ -68,12 +68,12 @@ proto::World WorldFilter::getWorld(Time time) {
     world.set_time(time.asSeconds());
     for (const auto &yellowBotsOneId : yellowBots) {
         if (! yellowBotsOneId.second.empty()) {
-            world.mutable_yellow()->Add(bestFilter(yellowBotsOneId.second)->asWorldRobot());
+            world.add_yellow()->CopyFrom(bestFilter(yellowBotsOneId.second)->asWorldRobot());
         }
     }
     for (const auto &blueBotsOneId : blueBots) {
         if (! blueBotsOneId.second.empty()) {
-            world.mutable_blue()->Add(bestFilter(blueBotsOneId.second)->asWorldRobot());
+            world.add_blue()->CopyFrom(bestFilter(blueBotsOneId.second)->asWorldRobot());
         }
     }
     if (! balls.empty()) {
