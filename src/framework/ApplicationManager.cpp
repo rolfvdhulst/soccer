@@ -19,7 +19,6 @@ void ApplicationManager::run(bool &exit) {
         //Send the new geometry to relevant entities
         if (visionFilter.hasNewGeometry()){
             const proto::SSL_GeometryData& geometry = visionFilter.getGeometry();
-
         }
         API::instance()->addDetectionFrames(packets);
         API::instance()->setWorldState(worldState);
