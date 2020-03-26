@@ -9,7 +9,5 @@ BallObservation::BallObservation(int cameraID, Time timeCaptured, Time timeSent,
         cameraID(cameraID),
         timeCaptured(timeCaptured),
         timeSent(timeSent),
-        ball(std::move(detectionBall)){
-
-}
+        ball(std::move(detectionBall)){ }
 

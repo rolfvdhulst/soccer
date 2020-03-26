@@ -259,9 +259,6 @@ void Visualizer::drawField(QPainter* painter) {
     const Rectangle& rect=field.getMarginField();
     QRectF drawnRect(QPointF(rect.minX(),-rect.minY()),QPointF(rect.maxX(),-rect.maxY())); //QT mirrors y-axis
     painter->drawRect(drawnRect);
-    
-
-
 }
 void Visualizer::createBall() {
     const float ballRadius = 0.021333f;

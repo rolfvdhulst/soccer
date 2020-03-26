@@ -8,6 +8,4 @@ RobotObservation::RobotObservation(int cameraID, Time timeCaptured, Time timeSen
         cameraID(cameraID),
         timeCaptured(timeCaptured),
         timeSent(timeSent),
-        bot(std::move(detectionRobot)) {
-
-}
+        bot(std::move(detectionRobot)) { }

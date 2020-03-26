@@ -46,6 +46,7 @@ class WorldFilter {
      * @param geometry to grab the cameras from
      */
     void updateCameras(const proto::SSL_GeometryData& geometry);
+
    private:
     typedef std::map<int, std::vector<std::unique_ptr<RobotFilter>>> robotMap;
     static const std::unique_ptr<RobotFilter> &bestFilter(const std::vector<std::unique_ptr<RobotFilter>> &filters);

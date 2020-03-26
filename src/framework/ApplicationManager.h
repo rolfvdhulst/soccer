@@ -25,7 +25,6 @@ class ApplicationManager {
     std::unique_ptr<RoboCupSSLClient> refereeReceiver = nullptr;
     VisionFilter visionFilter;
     std::string worldString = " ";
-
 };
 
 #endif  // SOCCER_APPLICATIONMANAGER_H

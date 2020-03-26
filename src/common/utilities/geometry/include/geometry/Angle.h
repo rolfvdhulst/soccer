@@ -194,12 +194,12 @@ class Angle {
      * @return double `this->angle`
      */
     explicit operator double() const;
-
     /**
      *
      * @return the angle in degrees
      */
-    double degrees() const;
+    [[nodiscard]] double degrees() const;
+
    private:
     /**
      * @brief Current angle stored

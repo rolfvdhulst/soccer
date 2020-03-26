@@ -24,15 +24,19 @@ class Visualizer : public QGraphicsView {
           void tryHide();
           void show();
         };
+
     public:
         explicit Visualizer(QWidget *parent = nullptr);
         ~Visualizer() override;
+
     protected:
         void wheelEvent(QWheelEvent *event) override;
         void drawForeground(QPainter *painter, const QRectF &rect) override;
         void drawBackground(QPainter *painter, const QRectF &rect) override;
+
     private slots:
         void updateAll();
+
     private:
         void updateWorld(const proto::World & world);
         void updateDetections(const std::vector<proto::SSL_WrapperPacket>& packets);
@@ -60,7 +64,6 @@ class Visualizer : public QGraphicsView {
         bool redrawField = true;
         FieldState field;
         CameraMap cameras;
-
 };
 
 #endif //SOCCER_VISUALIZER_H

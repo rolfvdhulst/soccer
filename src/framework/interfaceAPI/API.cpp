@@ -22,9 +22,7 @@ API* API::instance() {
     return staticInstance;
 }
 API::API() :
-worldState(proto::World()){
-
-}
+worldState(proto::World()){ }
 void API::addDetectionFrames(const std::vector<proto::SSL_WrapperPacket> &frames) {
     std::lock_guard<std::mutex> lock(detectionFramesMutex);
     detectionFrames.insert(detectionFrames.end(),frames.begin(),frames.end());
