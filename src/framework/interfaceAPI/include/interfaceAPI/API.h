@@ -7,6 +7,7 @@
 
 #include <protobuf/World.pb.h>
 #include <protobuf/messages_robocup_ssl_wrapper.pb.h>
+#include <mutex>
 
 class API {
     public:
