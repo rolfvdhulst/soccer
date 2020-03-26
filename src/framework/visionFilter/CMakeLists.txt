@@ -19,7 +19,6 @@ target_link_libraries(visionFilter
         PRIVATE core
         PUBLIC field
         PUBLIC proto
-
         )
 target_include_directories(visionFilter
         PRIVATE include/visionFilter

@@ -12,12 +12,16 @@
 class VisionFilter {
     public:
         proto::World process(const std::vector<proto::SSL_WrapperPacket>& packets);
-        const FieldState& getField();
+        bool hasNewGeometry();
+        const proto::SSL_GeometryData& getGeometry();
     private:
+        bool geometryUpdated = false;
         GeometryFilter geomFilter;
         WorldFilter worldFilter;
         Time lastPacketTime;
 
+        void processGeometry(const std::vector<proto::SSL_WrapperPacket> &packets);
+        void processDetections(const std::vector<proto::SSL_WrapperPacket> &packets);
 };
 
 #endif //SOCCER_VISIONFILTER_H

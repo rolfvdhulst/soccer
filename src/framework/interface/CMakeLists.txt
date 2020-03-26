@@ -15,6 +15,7 @@ target_link_libraries(interface
         PUBLIC proto
         PRIVATE geometry
         PUBLIC interfaceAPI
+        PRIVATE field
 )
 target_include_directories(interface
         PRIVATE include/interface

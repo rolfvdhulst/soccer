@@ -4,28 +4,41 @@
 
 #include "VisionFilter.h"
 proto::World VisionFilter::process(const std::vector<proto::SSL_WrapperPacket>& packets) {
-    bool timeUpdated = false;
-
-    for (const auto& packet : packets){
-        //First always send geometry packets to geometryFilter
-        if(packet.has_geometry()){
-            geomFilter.process(packet.geometry());
-        }
+    //We process geometry first since it contains information on the cameras
+    processGeometry(packets);
+    processDetections(packets);
+    return worldFilter.getWorld(lastPacketTime);//TODO: extrapolate based on robotCommands
+}
+void VisionFilter::processDetections(const std::vector<proto::SSL_WrapperPacket> &packets) {
+    if(hasNewGeometry()){
+        worldFilter.updateCameras(geomFilter.getGeometry());
+    }
+    for (const auto& packet : packets) {
         if(packet.has_detection()){
             worldFilter.addFrame(packet.detection());
             Time detectionTime(packet.detection().t_capture());
-            if (detectionTime>lastPacketTime){
+            if (detectionTime> lastPacketTime){
                 lastPacketTime = detectionTime;
-                timeUpdated = true;
             }
         }
     }
-
-    if (!timeUpdated && !packets.empty()){
-        std::cout<<"something fishy.."<<std::endl;
-    }
-    return worldFilter.getWorld(lastPacketTime);//TODO: extrapolate based on robotCommands
 }
-const FieldState& VisionFilter::getField() {
-    return geomFilter.getField();
+void VisionFilter::processGeometry(const std::vector<proto::SSL_WrapperPacket> &packets) {
+    geometryUpdated = false;
+    for (const auto& packet : packets){
+        if(packet.has_geometry()){
+            //We check if the geometry is not duplicate with an old one.
+            bool newGeometry = geomFilter.process(packet.geometry());
+            if (newGeometry){
+                geometryUpdated = true;
+            }
+        }
+    }
+}
+
+bool VisionFilter::hasNewGeometry() {
+    return geometryUpdated;
+}
+const proto::SSL_GeometryData &VisionFilter::getGeometry() {
+    return geomFilter.getGeometry();
 }

@@ -13,18 +13,14 @@
 
 class GeometryFilter {
     public:
-        void process(const proto::SSL_GeometryData &geometryData);
-        [[nodiscard]] bool receivedMessage() const;
+        bool process(const proto::SSL_GeometryData &geometryData);
+        const proto::SSL_GeometryData& getGeometry();
         [[nodiscard]] Time lastUpdateTime() const;
-        [[nodiscard]] const FieldState& getField() const;
-        [[nodiscard]] const CameraMap& getCameras() const;
     private:
-        FieldState field = FieldState(DefaultField::DivisionA);
         std::string lastGeometryString;
-        int geomUpdates = 0;
         Time lastGeomTime = Time(-1000000000000);
-        CameraMap cameraMap;
-
+        proto::SSL_GeometryData combinedGeometry;
+        std::map<uint,proto::SSL_GeometryCameraCalibration> cameras;
 };
 
 #endif //SOCCER_GEOMETRYFILTER_H

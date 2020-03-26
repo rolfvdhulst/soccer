@@ -5,7 +5,8 @@
 #include "WorldFilter.h"
 #include <memory>
 #include <protobuf/messages_robocup_ssl_detection.pb.h>
-
+#include <protobuf/messages_robocup_ssl_geometry.pb.h>
+#include <field/Camera.h>
 
 WorldFilter::WorldFilter() {
     blueBots.clear();
@@ -134,4 +135,10 @@ const std::unique_ptr<BallFilter> &WorldFilter::bestFilter(const std::vector<std
         }
     }
     return filters[bestIndex];
+}
+void WorldFilter::updateCameras(const proto::SSL_GeometryData &geometry) {
+    cameras.clear();
+    for (const auto& cam : geometry.calib()){
+        cameras.addCamera(Camera(cam));
+    }
 }

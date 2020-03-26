@@ -9,24 +9,23 @@ void ApplicationManager::init() {
 }
 void ApplicationManager::run(bool &exit) {
     while (!exit) {
+        Time before= Time::now();
         std::vector<proto::SSL_WrapperPacket> packets;
         proto::SSL_WrapperPacket visionPacket;
         while (visionReceiver->receive(visionPacket)) {
             packets.push_back(visionPacket);
         }
         proto::World worldState = visionFilter.process(packets);
-        std::string string = worldState.SerializeAsString();
-        std::cout<< "app update"<<std::endl;
-        std::cout<< packets.size()<<" packets"<<std::endl;
-        if (string != worldString){
-            std::cout<< "new app world"<<std::endl;
-            worldString = string;
-        }
-        std::cout<<"_________"<<std::endl;
-        API::instance()->setWorldState(worldState);
+        //Send the new geometry to relevant entities
+        if (visionFilter.hasNewGeometry()){
+            const proto::SSL_GeometryData& geometry = visionFilter.getGeometry();
 
+        }
+        API::instance()->addDetectionFrames(packets);
+        API::instance()->setWorldState(worldState);
+        Time after = Time::now();
+        std::cout<<"tickTime in ms: "<<(after-before).asMilliSeconds()<<std::endl;
         handleRefereePackets();
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 }
 void ApplicationManager::setupNetworking() {

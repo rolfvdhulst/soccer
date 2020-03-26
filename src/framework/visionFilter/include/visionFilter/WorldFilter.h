@@ -3,7 +3,8 @@
 
 #include <protobuf/World.pb.h>
 #include <protobuf/WorldRobot.pb.h>
-
+#include <protobuf/messages_robocup_ssl_geometry.pb.h>
+#include <field/CameraMap.h>
 #include "BallFilter.h"
 #include "RobotFilter.h"
 
@@ -40,7 +41,11 @@ class WorldFilter {
      * You should always set this to true if you plan on using data immediately.
      */
     void update(Time time, bool doLastPredict);
-
+    /**
+     * Updates the cameras which the worldFilter uses for calculations.
+     * @param geometry to grab the cameras from
+     */
+    void updateCameras(const proto::SSL_GeometryData& geometry);
    private:
     typedef std::map<int, std::vector<std::unique_ptr<RobotFilter>>> robotMap;
     static const std::unique_ptr<RobotFilter> &bestFilter(const std::vector<std::unique_ptr<RobotFilter>> &filters);
@@ -48,8 +53,9 @@ class WorldFilter {
 
     robotMap blueBots;
     robotMap yellowBots;
+    CameraMap cameras;
     std::vector<std::unique_ptr<BallFilter>> balls;
-    static void updateRobots(robotMap &robots, Time time, bool doLastPredict, const Time removeFilterTime);
+    static void updateRobots(robotMap &robots, Time time, bool doLastPredict, Time removeFilterTime);
     static void handleRobots(robotMap &robots, const google::protobuf::RepeatedPtrField<proto::SSL_DetectionRobot> &observations, double filterGrabDistance, const Time& timeCapture,
                              const Time& timeSent, uint cameraID);
     void handleBall(const google::protobuf::RepeatedPtrField<proto::SSL_DetectionBall> &observations, double filterGrabDistance, const Time& timeCapture, const Time& timeSent, uint cameraID);

@@ -78,8 +78,8 @@ void RobotFilter::predict(Time time, bool permanentUpdate, bool cameraSwitched) 
     kalman->u = Kalman::Vector::Zero();
 
     // Set Q
-    const double posNoise = 0.1;
-    const double rotNoise = 0.5;
+    const double posNoise = 0.05;
+    const double rotNoise = 0.05;
     Kalman::MatrixO G = Kalman::MatrixO::Zero();
     G(0, 0) = dt * posNoise;
     G(0, 3) = 1 * posNoise;
@@ -128,7 +128,7 @@ void RobotFilter::applyObservation(const RobotObservation &observation) {
     if (observation.cameraID == mainCamera) {
         // TODO: collect constants somewhere
         const double posVar = 0.006;  // variance in meters
-        const double rotVar = 0.01;
+        const double rotVar = 0.004;
         kalman->R(0, 0) = posVar;
         kalman->R(1, 1) = posVar;
         kalman->R(2, 2) = rotVar;
