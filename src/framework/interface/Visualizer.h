@@ -16,6 +16,7 @@
 
 class Visualizer : public QGraphicsView {
         Q_OBJECT
+
     private:
         struct Robot{
           QGraphicsPathItem *robot;

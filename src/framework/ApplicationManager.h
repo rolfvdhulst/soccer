@@ -20,7 +20,6 @@ class ApplicationManager {
    private:
     void setupNetworking();
     void handleRefereePackets();
-    void handleVisionPackets();
     std::unique_ptr<RoboCupSSLClient> visionReceiver = nullptr;
     std::unique_ptr<RoboCupSSLClient> refereeReceiver = nullptr;
     VisionFilter visionFilter;

@@ -41,7 +41,6 @@ void ApplicationManager::setupNetworking() {
     visionReceiver->open(false);  // boolean for blocking
     refereeReceiver->open(false);
 }
-void ApplicationManager::handleVisionPackets() { }
 void ApplicationManager::handleRefereePackets() {
     proto::Referee refereePacket;
     while (refereeReceiver->receive(refereePacket)) {
