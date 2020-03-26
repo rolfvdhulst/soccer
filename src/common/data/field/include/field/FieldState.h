@@ -36,45 +36,44 @@ class FieldState {
     [[nodiscard]] double getTopMarginY() const;
     [[nodiscard]] double getBottomMarginY() const;
 
-    const Rectangle& getOurDefenceArea() const;
-    const Rectangle& getTheirDefenceArea() const;
-    const Rectangle& getDefenceArea(bool us) const;
+    [[nodiscard]] const Rectangle& getOurDefenceArea() const;
+    [[nodiscard]] const Rectangle& getTheirDefenceArea() const;
+    [[nodiscard]] const Rectangle& getDefenceArea(bool us) const;
+    [[nodiscard]] const Rectangle& getField() const;
+    [[nodiscard]] const Rectangle& getMarginField() const;
+    [[nodiscard]] const Rectangle& getField(bool withMargin) const;
 
-    const Rectangle& getField() const;
-    const Rectangle& getMarginField() const;
-    const Rectangle& getField(bool withMargin) const;
+    [[nodiscard]] const Rectangle& getOurGoalRectangle() const;
+    [[nodiscard]] const Rectangle& getTheirGoalRectangle() const;
+    [[nodiscard]] const Rectangle& getGoalRectangle(bool us) const;
 
-    const Rectangle& getOurGoalRectangle() const;
-    const Rectangle& getTheirGoalRectangle() const;
-    const Rectangle& getGoalRectangle(bool us) const;
+    [[nodiscard]] const Circle& getCenterCircle() const;
 
-    const Circle& getCenterCircle() const;
+    [[nodiscard]] const LineSegment& getLeftGoal() const;
+    [[nodiscard]] const LineSegment& getOurGoal() const;
+    [[nodiscard]] const LineSegment& getGoal(bool us) const;
+    [[nodiscard]] const LineSegment& getRightGoal() const;
+    [[nodiscard]] const LineSegment& getTheirGoal() const;
 
-    const LineSegment& getLeftGoal() const;
-    const LineSegment& getOurGoal() const;
-    const LineSegment& getGoal(bool us) const;
-    const LineSegment& getRightGoal() const;
-    const LineSegment& getTheirGoal() const;
+    [[nodiscard]] const Vector2& getLeftGoalCenter() const;
+    [[nodiscard]] const Vector2& getOurGoalCenter() const;
+    [[nodiscard]] const Vector2& getRightGoalCenter() const;
+    [[nodiscard]] const Vector2& getTheirGoalCenter() const;
+    [[nodiscard]] const Vector2& getGoalCenter(bool us) const;
 
-    const Vector2& getLeftGoalCenter() const;
-    const Vector2& getOurGoalCenter() const;
-    const Vector2& getRightGoalCenter() const;
-    const Vector2& getTheirGoalCenter() const;
-    const Vector2& getGoalCenter(bool us) const;
+    [[nodiscard]] const LineSegment& getTopLine() const;
+    [[nodiscard]] const LineSegment& getLeftLine() const;
+    [[nodiscard]] const LineSegment& getBottomLine() const;
+    [[nodiscard]] const LineSegment& getRightLine() const;
+    [[nodiscard]] const LineSegment& getHalfLine() const;
+    [[nodiscard]] const LineSegment& getCenterLine() const;
+    [[nodiscard]] const LineSegment& getLeftPenaltyLine() const;
+    [[nodiscard]] const LineSegment& getRightPenaltyLine() const;
 
-    const LineSegment& getTopLine() const;
-    const LineSegment& getLeftLine() const;
-    const LineSegment& getBottomLine() const;
-    const LineSegment& getRightLine() const;
-    const LineSegment& getHalfLine() const;
-    const LineSegment& getCenterLine() const;
-    const LineSegment& getLeftPenaltyLine() const;
-    const LineSegment& getRightPenaltyLine() const;
-
-    const LineSegment& getTopLeftPenaltyStretch() const;
-    const LineSegment& getBottomLeftPenaltyStretch() const;
-    const LineSegment& getBottomRightPenaltyStretch() const;
-    const LineSegment& getTopRightPenaltyStretch() const;
+    [[nodiscard]] const LineSegment& getTopLeftPenaltyStretch() const;
+    [[nodiscard]] const LineSegment& getBottomLeftPenaltyStretch() const;
+    [[nodiscard]] const LineSegment& getBottomRightPenaltyStretch() const;
+    [[nodiscard]] const LineSegment& getTopRightPenaltyStretch() const;
 
    private:
     double fieldLength;

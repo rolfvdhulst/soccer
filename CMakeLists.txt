@@ -3,7 +3,6 @@ project(soccer)
 add_subdirectory(src)
 add_subdirectory(test)
 
-
 #Code coverage
 option(CODE_COVERAGE "Enable coverage reports" OFF)
 

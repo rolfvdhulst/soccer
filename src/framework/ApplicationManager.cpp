@@ -3,11 +3,27 @@
 //
 
 #include "ApplicationManager.h"
-
-void ApplicationManager::init() { setupNetworking(); }
-void ApplicationManager::run() {
-    while (true) {
-        handleVisionPackets();
+#include <interfaceAPI/API.h>
+void ApplicationManager::init() {
+    setupNetworking();
+}
+void ApplicationManager::run(bool &exit) {
+    while (!exit) {
+        Time before= Time::now();
+        std::vector<proto::SSL_WrapperPacket> packets;
+        proto::SSL_WrapperPacket visionPacket;
+        while (visionReceiver->receive(visionPacket)) {
+            packets.push_back(visionPacket);
+        }
+        proto::World worldState = visionFilter.process(packets);
+        //Send the new geometry to relevant entities
+        if (visionFilter.hasNewGeometry()){
+            const proto::SSL_GeometryData& geometry = visionFilter.getGeometry();
+        }
+        API::instance()->addDetectionFrames(packets);
+        API::instance()->setWorldState(worldState);
+        Time after = Time::now();
+        std::cout<<"tickTime in ms: "<<(after-before).asMilliSeconds()<<std::endl;
         handleRefereePackets();
     }
 }
@@ -24,13 +40,8 @@ void ApplicationManager::setupNetworking() {
     visionReceiver->open(false);  // boolean for blocking
     refereeReceiver->open(false);
 }
-void ApplicationManager::handleVisionPackets() {
-    proto::SSL_WrapperPacket visionPacket;
-    while (visionReceiver->receive(visionPacket)) {
-    }
-}
 void ApplicationManager::handleRefereePackets() {
-    proto::SSL_Referee refereePacket;
+    proto::Referee refereePacket;
     while (refereeReceiver->receive(refereePacket)) {
     }
 }

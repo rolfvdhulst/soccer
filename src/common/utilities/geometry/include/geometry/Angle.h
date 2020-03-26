@@ -194,6 +194,11 @@ class Angle {
      * @return double `this->angle`
      */
     explicit operator double() const;
+    /**
+     *
+     * @return the angle in degrees
+     */
+    [[nodiscard]] double degrees() const;
 
    private:
     /**
@@ -209,4 +214,6 @@ class Angle {
     Angle constrain();
 };
 
+double toDegrees(double angle);
+double toRadians(double angle);
 #endif  // SOCCER_ANGLE_H

@@ -21,6 +21,9 @@ long Time::asIntegerSeconds() const { return timePoint.count() / 1000000000; }
 long Time::asNanoSeconds() const { return timePoint.count(); }
 long Time::asMicroSeconds() const { return timePoint.count() / 1000; }
 long Time::asIntegerMilliSeconds() const { return timePoint.count() / 1000000; }
-Time Time::now() { return Time(std::chrono::steady_clock::now().time_since_epoch()); }
+Time Time::now() { return Time(std::chrono::system_clock::now().time_since_epoch()); }
 Time Time::timeSince() const { return (now() - *this); }
 Time Time::timeTo() const { return (*this - now()); }
+Time::Time(double seconds) :
+timePoint{std::chrono::nanoseconds((long)(seconds*1e9))} {
+}

@@ -12,6 +12,7 @@ class Time {
    public:
     Time() : timePoint{std::chrono::nanoseconds(0)} {};
     explicit Time(std::chrono::nanoseconds time);
+    explicit Time(double seconds);
     explicit Time(long nanoseconds) : timePoint{std::chrono::nanoseconds(nanoseconds)} {};
     static Time now();
 
