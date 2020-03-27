@@ -11,12 +11,23 @@ class LineSegment;
 class Line;
 class Polygon;
 /**
- * @brief Represents a rectangle (with horizontal and vertical lines) by storing 2 opposite corners
+ * @brief Represents a rectangle (with horizontal and vertical lines) by storing 2 opposite corners as the min and max
+ * values of the x and y dimensions.
  * @date 22-01-2020
  * @author Rolf van der Hulst
  */
 class Rectangle {
    public:
+    /**
+     * At construction we compute these because you need them for virtually every computation
+     */
+    Vector2 min;
+    Vector2 max;
+
+    /**
+     * @brief Default constructor, which is an empty rectangle which reduces to a point.
+     */
+    Rectangle() = default;
     /**
      * @brief Constructs a rectangle from two opposite corners
      * @param corner Primary corner
@@ -30,8 +41,6 @@ class Rectangle {
      * @param y Distance the rectangle stretches in positive y-direction
      */
     Rectangle(const Vector2 &bottomLeft, double x, double y);
-    Vector2 corner1;
-    Vector2 corner2;
 
     /**
      * @return The smallest X value of the rectangle
@@ -128,6 +137,5 @@ class Rectangle {
 };
 
 std::ostream &operator<<(std::ostream &out, const Rectangle &rect);
-
 
 #endif  // SOCCER_RECTANGLE_H
