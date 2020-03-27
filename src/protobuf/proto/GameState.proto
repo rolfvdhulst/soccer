@@ -1,0 +1,53 @@
+syntax = "proto2";
+
+package proto;
+
+import "ssl_referee.proto";
+import "Vector2f.proto";
+
+
+message GameState{
+    //When the referee message containing this information was sent in Nanoseconds since epoch
+    required uint64 timeStamp= 1;
+    //The gamestage of the referee corresponding to the stage of the game.
+    //These are the 'course states' of the game such 'first half' etc.
+    required Referee.Stage stage = 2;
+    //Time left in current stage in nanoseconds. Note this can be negative.
+    optional sint64 stage_time_left = 3;
+    enum Command{
+
+    }
+    //The command sent to the AI containing the game state.
+    required Command command = 4;
+    // The number of commands issued since startup (mod 2^32).
+    required uint32 command_counter = 5;
+    // The UNIX timestamp when the command was issued, in microseconds.
+    // This value changes only when a new command is issued, not on each packet.
+    required uint64 command_timestamp = 6;
+
+    //Various game info stats (goals, yellow cards etc.)
+    required Referee.TeamInfo us = 7;
+    required Referee.TeamInfo them = 8;
+
+    optional Vector2f designated_position = 9;
+
+    optional bool blue_team_on_positive_half = 10;
+
+    optional Command nextCommand = 11;
+
+    // All game events that were detected since the last RUNNING state.
+    // Will be cleared as soon as the game is continued.
+    repeated GameEvent game_events = 12;
+
+    // All non-finished proposed game events that may be processed next.
+    repeated ProposedGameEvent proposed_game_events = 13;
+
+    // The time in nanoseconds that is remaining until the current action times out
+    // The time will not be reset. It can get negative.
+    // An autoRef would raise an appropriate event, if the time gets negative.
+    // Possible actions where this time is relevant:
+    //  * free kicks
+    //  * kickoff, penalty kick, force start
+    //  * ball placement
+    optional uint64 current_action_time_remaining = 14;
+}

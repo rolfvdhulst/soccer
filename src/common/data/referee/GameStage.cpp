@@ -34,3 +34,12 @@ constexpr bool GameStage::isExtendedPlayTime() const {
     return value == EXTRA_FIRST_HALF ||
         value == EXTRA_SECOND_HALF;
 }
+
+constexpr bool GameStage::hasTime() const {
+    return value == NORMAL_FIRST_HALF ||
+            value == NORMAL_SECOND_HALF ||
+            value == EXTRA_TIME_BREAK ||
+            value == EXTRA_FIRST_HALF ||
+            value == EXTRA_SECOND_HALF ||
+            value == PENALTY_SHOOTOUT_BREAK;
+}

@@ -62,6 +62,7 @@ class GameStage {
         [[nodiscard]] constexpr bool isNormalPlayTime() const;
         [[nodiscard]] constexpr bool isExtendedPlayTime() const;
         [[nodiscard]] constexpr bool isBreak() const;
+        [[nodiscard]] constexpr bool hasTime() const;
 
     private:
         Stage value;
