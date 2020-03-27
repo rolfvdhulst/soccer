@@ -22,7 +22,11 @@ This will make sure that the code is formatted during every commit from then on.
 ### Dependencies
 Eigen3,
 
-google protobuf
+google protobuf,
+
+Google Test,
+
+Qt5
 
 ### CLion Formatting
 1. Open CLion and go to File->Settings->Tools->External Tools
