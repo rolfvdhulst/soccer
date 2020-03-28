@@ -45,10 +45,10 @@ class GameCommand {
           // it in the Designated Position.
                   BALL_PLACEMENT_BLUE = 17,
 
-                  KICKOFF_BLUE,
-                  KICKOFF_YELLOW,
-                  PENALTY_BLUE,
-                  PENALTY_YELLOW
+                  KICKOFF_BLUE = 18,
+                  KICKOFF_YELLOW = 19,
+                  PENALTY_BLUE = 20,
+                  PENALTY_YELLOW =21
         };
         constexpr GameCommand(Command command);
         operator Command() const;// Allow switches and comparisons.

@@ -1,0 +1,32 @@
+//
+// Created by rolf on 28-03-20.
+//
+
+#include "Team.h"
+
+constexpr Team::Team(proto::Team team) {
+    switch(team){
+    case proto::UNKNOWN: value = UNKNOWN; break;
+    case proto::YELLOW: value = YELLOW; break;
+    case proto::BLUE: value = BLUE; break;
+    }
+}
+Team::operator Value() const {
+    return value;
+}
+constexpr bool Team::operator==(Team other) const {
+    return value == other.value;
+}
+constexpr bool Team::operator!=(Team other) const {
+    return value != other.value;
+}
+Team::Team() :value(Team::UNKNOWN){ }
+std::string Team::toString() const {
+    switch(value){
+    case YELLOW: return "Yellow";
+    case BLUE: return "Blue";
+    case UNKNOWN:
+    default:
+        return "Unknown";
+    }
+}

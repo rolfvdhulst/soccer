@@ -27,6 +27,7 @@ class RobotID {
     [[nodiscard]] bool isValid() const;
     explicit operator unsigned int() const;
     explicit operator uint8() const;
+    [[nodiscard]] std::string toString() const;
 
    private:
     void bound(uint8 id);

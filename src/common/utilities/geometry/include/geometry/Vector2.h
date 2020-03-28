@@ -2,6 +2,7 @@
 #define SOCCER_VECTOR2_H
 
 #include <protobuf/Vector2f.pb.h>
+#include <protobuf/ssl_game_controller_common.pb.h>
 #include <Eigen/Eigen>
 #include <iostream>
 
@@ -29,6 +30,7 @@ class Vector2 {
 
     Vector2(const proto::Vector2f &msg) : Vector2(msg.x(), msg.y()) {}
 
+    Vector2(const proto::Location &msg) : Vector2(msg.x(), msg.y()) {};
     explicit Vector2(Angle &angle, const double &length = 1.0);
 
     /**
