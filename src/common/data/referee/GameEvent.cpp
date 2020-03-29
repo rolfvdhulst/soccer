@@ -3,7 +3,7 @@
 //
 
 #include <geometry/Angle.h>
-#include "gameEvent/GameEvent.h"
+#include "GameEvent.h"
 GameEvent::GameEvent(const proto::GameEvent &event) {
     type=getType(event);
     data = UnknownEvent();
@@ -58,122 +58,122 @@ void GameEvent::setData(const proto::GameEvent &event) {
     switch(event.event_case()){
     case proto::GameEvent::kPrepared:
         data = Prepared(event.prepared());
-        break;
+        return;
     case proto::GameEvent::kNoProgressInGame:
         data = NoProgressInGame(event.no_progress_in_game());
-        break;
+        return;
     case proto::GameEvent::kPlacementFailed:
         data = PlacementFailed(event.placement_failed());
-        break;
+        return;
     case proto::GameEvent::kPlacementSucceeded:
         data = PlacementSucceeded(event.placement_succeeded());
-        break;
+        return;
     case proto::GameEvent::kBotSubstitution:
         data = BotSubstitution(event.bot_substitution());
-        break;
+        return;
     case proto::GameEvent::kTooManyRobots:
         data = TooManyRobots(event.too_many_robots());
-        break;
+        return;
     case proto::GameEvent::kBallLeftFieldTouchLine:
         data = BallLeftField(event.ball_left_field_touch_line(),false);
-        break;
+        return;
     case proto::GameEvent::kBallLeftFieldGoalLine:
         data = BallLeftField(event.ball_left_field_touch_line(),true);
-        break;
+        return;
     case proto::GameEvent::kPossibleGoal:
         data = Goal(event.possible_goal());
-        break;
+        return;
     case proto::GameEvent::kGoal:
         data=Goal(event.goal());
-        break;
+        return;
     case proto::GameEvent::kIndirectGoal:
         data =IndirectGoal(event.indirect_goal());
-        break;
+        return;
     case proto::GameEvent::kChippedGoal:
         data=ChippedGoal(event.chipped_goal());
-        break;
+        return;
     case proto::GameEvent::kAimlessKick:
         data=AimlessKick(event.aimless_kick());
-        break;
+        return;
     case proto::GameEvent::kKickTimeout:
         data=KickTimeout(event.kick_timeout());
-        break;
+        return;
     case proto::GameEvent::kKeeperHeldBall:
         data=KeeperHeldBall(event.keeper_held_ball());
-        break;
+        return;
     case proto::GameEvent::kAttackerDoubleTouchedBall:
         data=AttackerDoubleTouchedBall(event.attacker_double_touched_ball());
-        break;
+        return;
     case proto::GameEvent::kAttackerTouchedBallInDefenseArea:
         data=AttackerTouchedBallInDefenseArea(event.attacker_touched_ball_in_defense_area());
-        break;
+        return;
     case proto::GameEvent::kAttackerTouchedOpponentInDefenseArea:
         data=AttackerTouchedOpponentInDefenseArea(event.attacker_touched_opponent_in_defense_area());
-        break;
+        return;
     case proto::GameEvent::kAttackerTouchedOpponentInDefenseAreaSkipped:
         data=AttackerTouchedOpponentInDefenseArea(event.attacker_touched_opponent_in_defense_area());
-        break;
+        return;
     case proto::GameEvent::kBotDribbledBallTooFar:
         data=BotDribbledBallTooFar(event.bot_dribbled_ball_too_far());
-        break;
+        return;
     case proto::GameEvent::kBotKickedBallTooFast:
         data=BotKickedBallTooFast(event.bot_kicked_ball_too_fast());
-        break;
+        return;
     case proto::GameEvent::kAttackerTooCloseToDefenseArea:
         data = AttackerTooCloseToDefenseArea(event.attacker_too_close_to_defense_area());
-        break;
+        return;
     case proto::GameEvent::kBotInterferedPlacement:
         data = BotInterferedPlacement(event.bot_interfered_placement());
-        break;
+        return;
     case proto::GameEvent::kBotCrashDrawn:
         data = BotCrashDrawn(event.bot_crash_drawn());
-        break;
+        return;
     case proto::GameEvent::kBotCrashUnique:
         data = BotCrashUnique(event.bot_crash_unique());
-        break;
+        return;
     case proto::GameEvent::kBotCrashUniqueSkipped:
         data = BotCrashUnique(event.bot_crash_unique());
-        break;
+        return;
     case proto::GameEvent::kBotPushedBot:
         data = BotPushedBot(event.bot_pushed_bot());
-        break;
+        return;
     case proto::GameEvent::kBotPushedBotSkipped:
         data = BotPushedBot(event.bot_pushed_bot());
-        break;
+        return;
     case proto::GameEvent::kBotHeldBallDeliberately:
         data = BotHeldBallDeliberately(event.bot_held_ball_deliberately());
-        break;
+        return;
     case proto::GameEvent::kBotTippedOver:
         data = BotTippedOver(event.bot_tipped_over());
-        break;
+        return;
     case proto::GameEvent::kBotTooFastInStop:
         data = BotTooFastInStop(event.bot_too_fast_in_stop());
-        break;
+        return;
     case proto::GameEvent::kDefenderTooCloseToKickPoint:
         data = DefenderTooCloseToKickPoint(event.defender_too_close_to_kick_point());
-        break;
+        return;
     case proto::GameEvent::kDefenderInDefenseAreaPartially:
         data = DefenderInDefenseAreaPartially(event.defender_in_defense_area_partially());
-        break;
+        return;
     case proto::GameEvent::kDefenderInDefenseArea:
         data = DefenderInDefenseArea(event.defender_in_defense_area());
-        break;
+        return;
     case proto::GameEvent::kMultipleCards:
         data = MultipleCards(event.multiple_cards());
-        break;
+        return;
     case proto::GameEvent::kMultiplePlacementFailures:
         data = MultiplePlacementFailures(event.multiple_placement_failures());
-        break;
+        return;
     case proto::GameEvent::kMultipleFouls:
         data = MultipleFouls(event.multiple_fouls());
-        break;
+        return;
     case proto::GameEvent::kUnsportingBehaviorMinor:
         data = UnsportingBehaviorMinor(event.unsporting_behavior_minor());
-        break;
+        return;
     case proto::GameEvent::kUnsportingBehaviorMajor:
         data = UnsportingBehaviorMajor(event.unsporting_behavior_major());
-        break;
-    case proto::GameEvent::EVENT_NOT_SET:break;
+        return;
+    case proto::GameEvent::EVENT_NOT_SET: return;
     }
 }
 std::string GameEvent::toString() const {
@@ -221,6 +221,51 @@ std::string GameEvent::toString() const {
     case UNKNOWN_GAME_EVENT_TYPE:return std::get<UnknownEvent>(data).toString();
     }
 }
+bool GameEvent::isMatchProceeding() const {
+    return type == PREPARED ||
+    type == NO_PROGRESS_IN_GAME ||
+    type == PLACEMENT_FAILED ||
+    type == PLACEMENT_SUCCEEDED ||
+    type == BOT_SUBSTITUTION ||
+    type == TOO_MANY_ROBOTS;
+}
+bool GameEvent::isBallOutOfFieldEvent() const {
+    return type == BALL_LEFT_FIELD_GOAL_LINE ||
+    type == BALL_LEFT_FIELD_TOUCH_LINE ||
+    type == GOAL ||
+    type == POSSIBLE_GOAL ||
+    type == INDIRECT_GOAL ||
+    type == CHIPPED_GOAL;
+}
+bool GameEvent::isFoul() const {
+    return  type == ATTACKER_TOO_CLOSE_TO_DEFENSE_AREA ||
+    type == BOT_INTERFERED_PLACEMENT ||
+    type == BOT_CRASH_DRAWN ||
+    type == BOT_CRASH_UNIQUE ||
+    type == BOT_CRASH_UNIQUE_SKIPPED ||
+    type == BOT_PUSHED_BOT ||
+    type == BOT_PUSHED_BOT_SKIPPED ||
+    type == BOT_HELD_BALL_DELIBERATELY ||
+    type == BOT_TIPPED_OVER ||
+    type == BOT_TOO_FAST_IN_STOP ||
+    type == DEFENDER_TOO_CLOSE_TO_KICK_POINT ||
+    type == DEFENDER_IN_DEFENSE_AREA_PARTIALLY ||
+    type == DEFENDER_IN_DEFENSE_AREA;
+}
+bool GameEvent::isOffense() const{
+    return type == NO_PROGRESS_IN_GAME ||
+    type == ATTACKER_DOUBLE_TOUCHED_BALL ||
+    type == UNSPORTING_BEHAVIOR_MINOR ||
+    type == UNSPORTING_BEHAVIOR_MAJOR ||
+    type == MULTIPLE_FOULS ||
+    type == MULTIPLE_CARDS;
+}
+bool GameEvent::givesYellowCard() const {
+    return type == MULTIPLE_FOULS; //TODO: check other offenses/rules?
+}
+bool GameEvent::givesRedCard() const {
+    return type == MULTIPLE_CARDS; //new rules 
+}
 Goal::Goal(const proto::GameEvent_Goal &event){
     team = Team(event.by_team());
     if (event.has_kicking_team()){
@@ -258,7 +303,7 @@ BallLeftField::BallLeftField(const proto::GameEvent_BallLeftField &event, bool a
 std::string BallLeftField::toString() const {
     std::string base="BallLeftField through ";
     std::string line = throughGoalLine? "goal line" : "touch line";
-    std::string next = " by" + team.toString();
+    std::string next = " by " + team.toString();
     std::string id = botID ? " bot "+(*botID).toString() : "";
     std::string at = location ? " at x: " + std::to_string(location->x)+", y: " + std::to_string(location->y):"";
     return base+line+next+id+at;
@@ -418,7 +463,7 @@ std::string BotCrashUnique::toString() const {
     std::string offender = violator? " bot " + violator->toString() : "";
     std::string blue = victim? "  with bot " + victim->toString() : "";
     std::string absSpeed = crashSpeed? " with " + std::to_string(*crashSpeed) + " m/s" : "";
-    std::string deltaSpeed = speedDifference? " with deltaV: " +std::to_string(*speedDifference) + "m/s": "";
+    std::string deltaSpeed = speedDifference? " with deltaV: " +std::to_string(*speedDifference) + " m/s": "";
     std::string angle = crashAngle? " at " + std::to_string(toDegrees(*crashAngle)) +" degrees" : "";
     return base+offender+blue+deltaSpeed+angle;
 }

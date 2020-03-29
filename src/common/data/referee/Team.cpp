@@ -4,13 +4,6 @@
 
 #include "Team.h"
 
-constexpr Team::Team(proto::Team team) {
-    switch(team){
-    case proto::UNKNOWN: value = UNKNOWN; break;
-    case proto::YELLOW: value = YELLOW; break;
-    case proto::BLUE: value = BLUE; break;
-    }
-}
 Team::operator Value() const {
     return value;
 }
@@ -27,6 +20,14 @@ std::string Team::toString() const {
     case BLUE: return "Blue";
     case UNKNOWN:
     default:
-        return "Unknown";
+        return "Unknown Team";
+    }
+}
+Team Team::inverse() const {
+    switch(value){
+    case YELLOW: return Team(proto::BLUE);
+    case BLUE: return Team(proto::YELLOW);
+    case UNKNOWN:
+    default: return Team(proto::UNKNOWN);
     }
 }

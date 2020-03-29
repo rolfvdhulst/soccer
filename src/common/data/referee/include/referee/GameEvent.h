@@ -315,6 +315,12 @@ class GameEvent {
           UNSPORTING_BEHAVIOR_MAJOR = 36
         };
         [[nodiscard]] std::string toString() const;
+        [[nodiscard]] bool isMatchProceeding() const;
+        [[nodiscard]] bool isBallOutOfFieldEvent() const;
+        [[nodiscard]] bool isFoul() const;
+        [[nodiscard]] bool isOffense() const;
+        [[nodiscard]] bool givesYellowCard() const;
+        [[nodiscard]] bool givesRedCard() const;
     private:
         static Type getType(const proto::GameEvent &event);
         void setData(const proto::GameEvent &event);
@@ -332,5 +338,4 @@ class GameEvent {
                      KeeperHeldBall, PlacementSucceeded, Prepared,
                      BotSubstitution, TooManyRobots> data;
 };
-
 #endif //SOCCER_GAMEEVENT_H

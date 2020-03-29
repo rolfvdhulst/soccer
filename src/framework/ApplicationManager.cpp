@@ -4,6 +4,7 @@
 
 #include "ApplicationManager.h"
 #include <interfaceAPI/API.h>
+#include <referee/GameEvent.h>
 void ApplicationManager::init() {
     setupNetworking();
 }
@@ -23,7 +24,7 @@ void ApplicationManager::run(bool &exit) {
         API::instance()->addDetectionFrames(packets);
         API::instance()->setWorldState(worldState);
         Time after = Time::now();
-        std::cout<<"tickTime in ms: "<<(after-before).asMilliSeconds()<<std::endl;
+        //std::cout<<"tickTime in ms: "<<(after-before).asMilliSeconds()<<std::endl;
         handleRefereePackets();
     }
 }
@@ -43,5 +44,12 @@ void ApplicationManager::setupNetworking() {
 void ApplicationManager::handleRefereePackets() {
     proto::Referee refereePacket;
     while (refereeReceiver->receive(refereePacket)) {
+//        if (refereePacket.game_events_size()==0){
+//            std::cout<<refereePacket.command()<<std::endl;
+//        }
+        for (const auto& event: refereePacket.game_events()){
+            GameEvent gameEvent(event);
+            //std::cout<< gameEvent.toString()<<std::endl;
+        }
     }
 }

@@ -2,6 +2,7 @@ add_subdirectory(interface)
 add_subdirectory(interfaceAPI)
 add_subdirectory(net)
 add_subdirectory(visionFilter)
+add_subdirectory(ai)
 add_library(application STATIC
         ApplicationManager.cpp
         ApplicationManager.h
@@ -10,6 +11,7 @@ target_link_libraries(application
         PUBLIC net
         PUBLIC visionFilter
         PUBLIC interfaceAPI
+        PUBLIC referee #TODO remove again
         )
 
 

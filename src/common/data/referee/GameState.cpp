@@ -3,3 +3,31 @@
 //
 
 #include "GameState.h"
+GameState::GameState(const proto::GameState &gameState) :
+        timeStamp{Time(gameState.timestamp())},
+        stage{GameStage(gameState.stage())},
+        command{GameCommand(gameState.command())},
+        commandsSinceStartup{gameState.command_counter()},
+        commandTime{Time(gameState.command_timestamp())},
+        usInfo{TeamInfo(gameState.us())},
+        themInfo{TeamInfo(gameState.them())},
+        wePlayOnPositiveHalf{gameState.weplayonpositivehalf()},
+        ourColor{Team(gameState.ourcolor())}
+{
+    if (gameState.has_stage_time_left()){
+        stageTimeLeft = Time(gameState.stage_time_left());
+    }
+    if (gameState.has_designated_position()){
+        designatedPosition = Vector2(gameState.designated_position());
+    }
+    if (gameState.has_nextcommand()){
+        nextCommand = GameCommand(gameState.nextcommand());
+    }
+    for (const auto & event : gameState.game_events()){
+        newEvents.emplace_back(event);
+    }
+    if(gameState.has_current_action_time_remaining()){
+        currentActionTimeRemaining = Time(gameState.current_action_time_remaining());
+    }
+
+}

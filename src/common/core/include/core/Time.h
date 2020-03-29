@@ -14,6 +14,7 @@ class Time {
     explicit Time(std::chrono::nanoseconds time);
     explicit Time(double seconds);
     explicit Time(long nanoseconds) : timePoint{std::chrono::nanoseconds(nanoseconds)} {};
+    explicit Time(unsigned long nanoseconds) : timePoint{std::chrono::nanoseconds(nanoseconds)} {};
     static Time now();
 
     [[nodiscard]] Time timeSince() const;

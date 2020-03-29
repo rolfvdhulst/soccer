@@ -1,7 +1,14 @@
 add_library(referee STATIC
         GameStage.cpp
         include/referee/GameStage.h
-        GameState.cpp include/referee/GameState.h GameStageMessage.cpp include/referee/GameStageMessage.h GameCommand.cpp include/referee/GameCommand.h gameEvent/GameEvent.cpp include/referee/gameEvent/GameEvent.h include/referee/Team.h Team.cpp)
+        GameState.cpp
+        include/referee/GameState.h
+        GameCommand.cpp
+        include/referee/GameCommand.h
+        GameEvent.cpp
+        include/referee/GameEvent.h
+        Team.cpp
+        include/referee/Team.h TeamInfo.cpp include/referee/TeamInfo.h)
 
 
 target_link_libraries(referee

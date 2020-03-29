@@ -4,10 +4,11 @@ package proto;
 
 import "ssl_referee.proto";
 import "Vector2f.proto";
-
+import "ssl_game_controller_common.proto";
+import "ssl_game_event.proto";
 
 message GameState{
-    //When the referee message containing this information was sent in Nanoseconds since epoch
+    //When the referee message containing this information was sent in nanoseconds since epoch
     required uint64 timeStamp= 1;
     //The gamestage of the referee corresponding to the stage of the game.
     //These are the 'course states' of the game such 'first half' etc.
@@ -19,50 +20,46 @@ message GameState{
         HALT = 0;
         // Robots must keep 50 cm from the ball.
         STOP = 1;
-        // A prepared kickoff or penalty may now be taken.
-        NORMAL_START = 2;
-        // The ball is dropped and free for either team.
-        FORCE_START = 3;
-        // The yellow team may move into kickoff position.
-        PREPARE_KICKOFF_YELLOW = 4;
-        // The blue team may move into kickoff position.
-        PREPARE_KICKOFF_BLUE = 5;
-        // The yellow team may move into penalty position.
-        PREPARE_PENALTY_YELLOW = 6;
-        // The blue team may move into penalty position.
-        PREPARE_PENALTY_BLUE = 7;
-        // The yellow team may take a direct free kick.
-        DIRECT_FREE_YELLOW = 8;
-        // The blue team may take a direct free kick.
-        DIRECT_FREE_BLUE = 9;
-        // The yellow team may take an indirect free kick.
-        INDIRECT_FREE_YELLOW = 10;
-        // The blue team may take an indirect free kick.
-        INDIRECT_FREE_BLUE = 11;
-        // The yellow team is currently in a timeout.
-        TIMEOUT_YELLOW = 12;
-        // The blue team is currently in a timeout.
-        TIMEOUT_BLUE = 13;
-        // The yellow team just scored a goal.
-
-        // Equivalent to STOP; but the yellow team must pick up the ball and
+        // Game is running normally
+        RUNNING = 2;
+        // They may move into kickoff position.
+        PREPARE_KICKOFF_THEM = 4;
+        // We may move into kickoff position.
+        PREPARE_KICKOFF_US = 5;
+        // They may move into penalty position.
+        PREPARE_PENALTY_THEM = 6;
+        // We may move into penalty position.
+        PREPARE_PENALTY_US = 7;
+        // They may take a direct free kick.
+        DIRECT_FREE_THEM = 8;
+        // We may take a direct free kick.
+        DIRECT_FREE_US = 9;
+        // They may take an indirect free kick.
+        INDIRECT_FREE_THEM = 10;
+        // We may take an indirect free kick.
+        INDIRECT_FREE_US = 11;
+        // They are currently in a timeout.
+        TIMEOUT_THEM = 12;
+        // We are currently in a timeout.
+        TIMEOUT_US = 13;
+        // Equivalent to STOP, but They must pick up the ball and
         // drop it in the Designated Position.
-        BALL_PLACEMENT_YELLOW = 16;
-        // Equivalent to STOP; but the blue team must pick up the ball and drop
+        BALL_PLACEMENT_THEM = 16;
+        // Equivalent to STOP, but We must pick up the ball and drop
         // it in the Designated Position.
-        BALL_PLACEMENT_BLUE = 17;
+        BALL_PLACEMENT_US = 17;
 
-        KICKOFF_BLUE = 18;
-        KICKOFF_YELLOW = 19;
-        PENALTY_BLUE = 20;
-        PENALTY_YELLOW =21;
+        KICKOFF_US = 18;
+        KICKOFF_THEM = 19;
+        PENALTY_US = 20;
+        PENALTY_THEM =21;
         };
 
         //The command sent to the AI containing the game state.
     required Command command = 4;
     // The number of commands issued since startup (mod 2^32).
     required uint32 command_counter = 5;
-    // The UNIX timestamp when the command was issued, in microseconds.
+    // The UNIX timestamp when the command was issued, in nanoseconds.
     // This value changes only when a new command is issued, not on each packet.
     required uint64 command_timestamp = 6;
 
@@ -72,16 +69,12 @@ message GameState{
 
     optional Vector2f designated_position = 9;
 
-    optional bool blue_team_on_positive_half = 10;
+    required bool wePlayOnPositiveHalf = 10;
 
     optional Command nextCommand = 11;
 
-    // All game events that were detected since the last RUNNING state.
-    // Will be cleared as soon as the game is continued.
+    // All new game events. Note this is not the same as the game events in the SSL message!
     repeated GameEvent game_events = 12;
-
-    // All non-finished proposed game events that may be processed next.
-    repeated ProposedGameEvent proposed_game_events = 13;
 
     // The time in nanoseconds that is remaining until the current action times out
     // The time will not be reset. It can get negative.
@@ -90,5 +83,7 @@ message GameState{
     //  * free kicks
     //  * kickoff, penalty kick, force start
     //  * ball placement
-    optional uint64 current_action_time_remaining = 14;
+    optional sint64 current_action_time_remaining = 13;
+
+    required Team ourColor = 14;
 }
