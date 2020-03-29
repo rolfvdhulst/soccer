@@ -253,25 +253,3 @@ TEST(FieldState, otherDefaultFields) {
     EXPECT_TRUE(checkOtherLines(field));
     EXPECT_TRUE(checkGoals(field));
 }
-TEST(FieldState, flip) {
-    FieldState state(DefaultField::DivisionA);
-    FieldState newState = flip(state);
-    FieldState doubleFlipped = flip(newState);
-
-    for (const auto &field : {newState, doubleFlipped}) {
-        EXPECT_DOUBLE_EQ(field.getFieldLength(), 12.0);
-        EXPECT_DOUBLE_EQ(field.getFieldWidth(), 9.0);
-        EXPECT_DOUBLE_EQ(field.getBoundaryWidth(), 0.3);
-        EXPECT_DOUBLE_EQ(field.getGoalDepth(), 0.18);
-        EXPECT_DOUBLE_EQ(field.getGoalWidth(), 1.2);
-        EXPECT_DOUBLE_EQ(field.getGoalWallThickness(), 0.02);
-        EXPECT_DOUBLE_EQ(field.getGoalHeight(), 0.16);
-        EXPECT_DOUBLE_EQ(field.getLineThickness(), 0.01);
-        EXPECT_TRUE(checkConsistency(field));
-        EXPECT_TRUE(checkConsistency2(field));
-        EXPECT_TRUE(checkConsistency3(field));
-        EXPECT_TRUE(checkShapes(field));
-        EXPECT_TRUE(checkOtherLines(field));
-        EXPECT_TRUE(checkGoals(field));
-    }
-}

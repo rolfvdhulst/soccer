@@ -11,6 +11,7 @@ bool GeometryFilter::process(const proto::SSL_GeometryData &geometryData) {
     if (geomString == lastGeometryString){
         return false;
     }
+    lastGeometryString = geomString;
     // New message:
     // Add/overwrite any new camera info
     for (const auto& cameraCalib : geometryData.calib()) {

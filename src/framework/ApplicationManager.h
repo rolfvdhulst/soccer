@@ -9,21 +9,24 @@
 #include <visionFilter/VisionFilter.h>
 #include <memory>
 #include <future>
-
+#include <refereeFilter/RefereeFilter.h>
 class RoboCupSSLClient;
 
 class ApplicationManager {
    public:
     void init();
     void run(bool &exit);
-
+    ~ApplicationManager();
    private:
     void setupNetworking();
-    void handleRefereePackets();
     std::unique_ptr<RoboCupSSLClient> visionReceiver = nullptr;
     std::unique_ptr<RoboCupSSLClient> refereeReceiver = nullptr;
     VisionFilter visionFilter;
-    std::string worldString = " ";
+    RefereeFilter refereeFilter;
+    std::vector<proto::SSL_WrapperPacket> visionPackets;
+    std::vector<proto::Referee> refereePackets;
+    void receiveVision();
+    void receiveReferee();
 };
 
 #endif  // SOCCER_APPLICATIONMANAGER_H

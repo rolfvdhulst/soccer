@@ -29,7 +29,7 @@ TeamInfo::TeamInfo(const proto::Referee::TeamInfo &teamInfo) {
     if(teamInfo.has_max_allowed_bots()){
         maxAllowedBots = teamInfo.max_allowed_bots();
     }else{
-        maxAllowedBots = 11 - activeYellowCards() - redCards;
+        maxAllowedBots = 11 - activeYellowCards() - redCards; //TODO: fix hardcoded 11 robots here?
     }
     if (teamInfo.has_bot_substitution_intent()){
         botSubstitutionIntent = teamInfo.bot_substitution_intent();
