@@ -47,3 +47,21 @@ bool API::newGeometry() {
     std::lock_guard<std::mutex> lock(geometryMutex);
     return geometryWasUpdated;
 }
+void API::setGameState(const proto::GameState& newGameState) {
+    std::lock_guard<std::mutex> lock(gameStateMutex);
+    gameState = newGameState;
+}
+proto::GameState API::getGameState() {
+    std::lock_guard<std::mutex> lock(gameStateMutex);
+    return gameState;
+}
+void API::addGameEvents(const std::vector<proto::GameEvent> &events) {
+    std::lock_guard<std::mutex> lock(gameEventsMutex);
+    gameEvents.insert(gameEvents.end(),events.begin(),events.end());
+}
+std::vector<proto::GameEvent> API::getGameEvents() {
+    std::lock_guard<std::mutex> lock(gameEventsMutex);
+    std::vector<proto::GameEvent> events = std::move(gameEvents);
+    gameEvents.clear();
+    return events;
+}

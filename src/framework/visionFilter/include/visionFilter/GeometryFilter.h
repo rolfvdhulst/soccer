@@ -15,6 +15,7 @@ class GeometryFilter {
     public:
         bool process(const proto::SSL_GeometryData &geometryData);
         const proto::SSL_GeometryData& getGeometry();
+        bool receivedFirstGeometry() const;
         [[nodiscard]] Time lastUpdateTime() const;
     private:
         std::string lastGeometryString;

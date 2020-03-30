@@ -16,9 +16,8 @@ void ApplicationManager::run(bool &exit) {
         receiveReferee();
         proto::GameState gameState = refereeFilter.update(refereePackets,worldState);
         std::optional<proto::SSL_GeometryData> geometryData;
-        //We resend the geometry if new geometry has arrived or if we rotate the field.
-        if (visionFilter.hasNewGeometry()){
-            std::cout<<"get geometry"<<std::endl;
+        //We resend the geometry if new geometry has arrived or if we change the rotation of data
+        if (visionFilter.hasNewGeometry() || (refereeFilter.flipHasChanged() && visionFilter.receivedFirstGeometry())){
             geometryData = visionFilter.getGeometry();
         }
         if (gameState.weplayonpositivehalf()){
@@ -41,11 +40,20 @@ void ApplicationManager::run(bool &exit) {
             }
         }
         API::instance()->addDetectionFrames(copy);
+
+
+        std::vector<proto::GameEvent> events;
+        for (const auto & gameEvent : gameState.game_events()) {
+            events.push_back(gameEvent);
+        }
+        API::instance()->addGameEvents(events);
+
         API::instance()->setWorldState(worldState);
+        API::instance()->setGameState(gameState);
 
 
         Time after = Time::now();
-        std::cout<<"tickTime in ms: "<<(after-before).asMilliSeconds()<<std::endl;
+        //std::cout<<"tickTime in ms: "<<(after-before).asMilliSeconds()<<std::endl;
         refereePackets.clear();
         visionPackets.clear();
     }

@@ -6,6 +6,7 @@
 #define SOCCER_REFEREEFILTER_H
 #include <protobuf/GameState.pb.h>
 #include <protobuf/ssl_referee.pb.h>
+#include <geometry/Vector2.h>
 class RefereeFilter {
     public:
         proto::GameState update(const std::vector<proto::Referee>& refereeMessages, const proto::World& world);
@@ -15,8 +16,12 @@ class RefereeFilter {
         int lastGameEventCount = 0;
         bool flipChanged = false;
         static bool inferOurColor(const proto::Referee& refereeMessage);
-        proto::GameState createGameState(const proto::Referee &lastRefMessage,bool weAreBlue);
-        void addCommands(proto::Referee& newRefMessage,bool weAreBlue, const proto::World& world);
+        proto::GameState createGameState(const proto::Referee &lastRefMessage,bool weAreBlue,const proto::World& world);
+        void addCommands(proto::GameState& gameState, const proto::Referee& lastRefMessage,bool weAreBlue, const proto::World& world);
+        bool isInCommandSwitch;
+        bool ballMovedInSwitch;
+        proto::Referee_Command lastCommand;
+        std::optional<Vector2> ballPosStartSwitch;
 };
 
 #endif //SOCCER_REFEREEFILTER_H

@@ -8,7 +8,7 @@ bool GeometryFilter::process(const proto::SSL_GeometryData &geometryData) {
     //If so, there's no point in updating the geometry and we just return.
     lastGeomTime = Time::now();
     std::string geomString = geometryData.SerializeAsString();
-    if (geomString == lastGeometryString){
+    if (geomString == lastGeometryString || !geometryData.has_field()){
         return false;
     }
     lastGeometryString = geomString;
@@ -33,4 +33,7 @@ Time GeometryFilter::lastUpdateTime() const {
 }
 const proto::SSL_GeometryData& GeometryFilter::getGeometry() {
     return combinedGeometry;
+}
+bool GeometryFilter::receivedFirstGeometry() const {
+    return !lastGeometryString.empty();
 }

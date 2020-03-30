@@ -37,3 +37,26 @@ GameCommand::GameCommand(const proto::GameState::Command &command) {
     case proto::GameState_Command_PENALTY_THEM: value = PENALTY_THEM; return;
     }
 }
+std::string GameCommand::toString() const {
+    switch(value){
+    case HALT:return "HALT";
+    case STOP:return "STOP";
+    case RUNNING:return "RUNNING";
+    case PREPARE_KICKOFF_THEM:return "PREPARE_KICKOFF_THEM";
+    case PREPARE_KICKOFF_US:return "PREPARE_KICKOFF_US";
+    case PREPARE_PENALTY_THEM:return "PREPARE_PENALTY_THEM";
+    case PREPARE_PENALTY_US:return "PREPARE_PENALTY_US";
+    case DIRECT_FREE_THEM:return "DIRECT_FREE_THEM";
+    case DIRECT_FREE_US:return "DIRECT_FREE_US";
+    case INDIRECT_FREE_THEM:return "INDIRECT_FREE_THEM";
+    case INDIRECT_FREE_US:return "INDIRECT_FREE_US";
+    case TIMEOUT_THEM:return "TIMEOUT_THEM";
+    case TIMEOUT_US:return "TIMEOUT_US";
+    case BALL_PLACEMENT_THEM:return "BALL_PLACEMENT_THEM";
+    case BALL_PLACEMENT_US:return "BALL_PLACEMENT_US";
+    case KICKOFF_US:return "KICKOFF_US";
+    case KICKOFF_THEM:return "KICKOFF_THEM";
+    case PENALTY_US:return "PENALTY_US";
+    case PENALTY_THEM:return "PENALTY_THEM";
+    }
+}

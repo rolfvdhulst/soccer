@@ -63,3 +63,21 @@ GameStage::GameStage(const proto::Referee::Stage& gameStage) {
     }
 
 }
+std::string GameStage::toString() const {
+    switch(value){
+    case NORMAL_FIRST_HALF_PRE:return"NORMAL_FIRST_HALF_PRE";
+    case NORMAL_FIRST_HALF:return"NORMAL_FIRST_HALF";
+    case NORMAL_HALF_TIME:return"NORMAL_HALF_TIME";
+    case NORMAL_SECOND_HALF_PRE:return"NORMAL_SECOND_HALF_PRE";
+    case NORMAL_SECOND_HALF:return"NORMAL_SECOND_HALF";
+    case EXTRA_TIME_BREAK:return"EXTRA_TIME_BREAK";
+    case EXTRA_FIRST_HALF_PRE:return"EXTRA_FIRST_HALF_PRE";
+    case EXTRA_FIRST_HALF:return"EXTRA_FIRST_HALF";
+    case EXTRA_HALF_TIME:return"EXTRA_HALF_TIME";
+    case EXTRA_SECOND_HALF_PRE:return"EXTRA_SECOND_HALF_PRE";
+    case EXTRA_SECOND_HALF:return"EXTRA_SECOND_HALF";
+    case PENALTY_SHOOTOUT_BREAK:return"PENALTY_SHOOTOUT_BREAK";
+    case PENALTY_SHOOTOUT:return"PENALTY_SHOOTOUT";
+    case POST_GAME:return"POST_GAME";
+    }
+}

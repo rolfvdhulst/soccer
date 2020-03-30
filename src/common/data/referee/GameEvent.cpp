@@ -736,7 +736,7 @@ PlacementFailed::PlacementFailed(const proto::GameEvent_PlacementFailed &event) 
     }
 }
 std::string PlacementFailed::toString() const {
-    std::string base = "PlacementFailed for " +team.toString();
+    std::string base = "PlacementFailed by " +team.toString();
     std::string dist= distance ?  " with " + std::to_string(*distance) + " m" : "";
     return base+dist;
 }

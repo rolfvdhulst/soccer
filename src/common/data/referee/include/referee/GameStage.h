@@ -60,6 +60,7 @@ class GameStage {
         explicit operator bool() = delete; //Prevent if(GameStage) incorrect usage
         constexpr bool operator ==(GameStage other) const;
         constexpr bool operator !=(GameStage other) const;
+        std::string toString() const;
         [[nodiscard]] constexpr bool isPreHalf() const;
         [[nodiscard]] constexpr bool isNormalPlayTime() const;
         [[nodiscard]] constexpr bool isExtendedPlayTime() const;

@@ -26,8 +26,7 @@ Visualizer::Visualizer(QWidget* parent)
 
     updateTimer = new QTimer(this);
     connect(updateTimer,&QTimer::timeout,this,&Visualizer::updateAll);
-    updateTimer->start(20);
-
+    updateTimer->start(20); //50hz
     createBall();
 
     double margin = 0.3 + 0.1; //boundary width + an extra small margin
@@ -49,6 +48,11 @@ void Visualizer::updateAll() {
     if(API::instance()->newGeometry()){
         proto::SSL_GeometryData data = API::instance()->readGeometryData();
         field = FieldState(data.field());
+        double margin = field.getBoundaryWidth() + 0.1; //boundary width + an extra small margin
+        double halfLength = 0.5*field.getFieldLength();
+        double halfWidth = 0.5*field.getFieldWidth();
+        fieldRect= QRectF(-(halfLength+margin),-(halfWidth+margin), 2*(halfLength+margin),
+                2*(halfWidth+margin));
         for (const auto & cam : data.calib()){
             cameras.addCamera(Camera(cam));
         }
@@ -137,6 +141,7 @@ void Visualizer::updateWorld(const proto::World &world) {
     }
 }
 void Visualizer::refitView() {
+    setSceneRect(fieldRect);
     fitInView(fieldRect);
 }
 void Visualizer::wheelEvent(QWheelEvent *event) {
@@ -165,17 +170,17 @@ void Visualizer::drawDetectionFrame(QPainter* painter, const proto::SSL_Detectio
     for(const auto& yellowBot : frame.robots_yellow()){
         drawDetectionRobot(painter,yellowBot,info,Qt::red);
     }
-    for(const auto& ball : frame.balls()){
-        drawDetectionBall(painter,ball);
+    for(const auto& detBall : frame.balls()){
+        drawDetectionBall(painter,detBall);
     }
     painter->restore();
 }
-void Visualizer::drawDetectionBall(QPainter* painter, const proto::SSL_DetectionBall &ball) {
+void Visualizer::drawDetectionBall(QPainter* painter, const proto::SSL_DetectionBall &detBall) {
     const float radius=0.02133; //TODO: fix
     painter->setPen(Qt::NoPen);
-    painter->setBrush(Qt::white);
+    painter->setBrush(Qt::cyan);
     painter->setOpacity(0.8);
-    painter->drawEllipse(QPointF(ball.x()/1000.0,-ball.y()/1000.0),radius,radius);
+    painter->drawEllipse(QPointF(detBall.x()/1000.0,-detBall.y()/1000.0),radius,radius);
 }
 void Visualizer::drawDetectionRobot(QPainter* painter, const proto::SSL_DetectionRobot &bot,
         const proto::RobotInfo &info, const QColor &color) {
@@ -203,7 +208,7 @@ void Visualizer::drawDetectionRobot(QPainter* painter, const proto::SSL_Detectio
     QFont f("Helvetica");
     f.setPointSizeF(radius);
     painter->setFont(f);
-    painter->setPen(Qt::white);
+    painter->setPen(Qt::black);
     painter->setOpacity(1.0);
     painter->drawText(botPos+QPointF(-radius*0.4,radius*0.4),QString::number(bot.robot_id()));
 }
@@ -211,12 +216,14 @@ void Visualizer::drawBackground(QPainter* painter, const QRectF &rect) {
     painter->save();
     if(redrawField){
         drawField(painter);
-        redrawField = true;
+        redrawField = true; //TODO: figure out why this is so problematic
     }
     painter->restore();
 }
 void Visualizer::drawForeground(QPainter* painter, const QRectF &rect) {
-    drawDetectionFrames(painter,usedDetectionFrames);
+    if(showDetections){
+        drawDetectionFrames(painter,usedDetectionFrames);
+    }
 }
 void Visualizer::updateDetections(const std::vector<proto::SSL_WrapperPacket>& packets) {
     usedDetectionFrames.clear();
@@ -262,11 +269,46 @@ void Visualizer::drawField(QPainter* painter) {
 }
 void Visualizer::createBall() {
     const float ballRadius = 0.021333f;
-    ball = new QGraphicsEllipseItem();
-    ball->setPen(Qt::NoPen);
-    ball->setBrush(QColor(255,140,0));
-    ball->setZValue(100.0);//TODO: collect and organise
-    ball->setRect(QRectF(-ballRadius,-ballRadius,ballRadius*2,ballRadius*2));
+    const float attentionRadius = field.getFieldLength()*0.015f;
+    ball = new Ball();
+    ball->actual = new QGraphicsEllipseItem();
+    ball->actual->setPen(Qt::NoPen);
+    ball->actual->setBrush(QColor(255,140,0));
+    ball->actual->setZValue(100.0);//TODO: collect and organise
+    ball->actual->setRect(QRectF(-ballRadius,-ballRadius,ballRadius*2,ballRadius*2));
+    ball->attentionCircle = new QGraphicsEllipseItem();
+    QPen pen;
+    pen.setColor(Qt::red);
+    pen.setWidthF(0.01);
+    ball->attentionCircle->setPen(pen);
+    ball->attentionCircle->setBrush(Qt::NoBrush);
+    ball->attentionCircle->setOpacity(0.5);
+    ball->attentionCircle->setZValue(40.0);//TODO: collect and organise
+    ball->attentionCircle->setRect(QRectF(-attentionRadius,-attentionRadius,attentionRadius*2,attentionRadius*2));
+    ball->noBallWarning = new QGraphicsSimpleTextItem("NO BALL");
+    ball->noBallWarning->setFont(QFont("ubuntu",1));
+    pen.setColor(Qt::red);
+    ball->noBallWarning->setPen(pen);
     ball->hide();
-    scene->addItem(ball);
+    scene->addItem(ball->actual);
+    scene->addItem(ball->attentionCircle);
+    scene->addItem(ball->noBallWarning);
+}
+void Visualizer::resizeEvent(QResizeEvent* event) {
+    refitView();
+}
+void Visualizer::setShowDetections(bool show) {this->showDetections = show; }
+void Visualizer::Ball::show() {
+    actual->show();
+    attentionCircle->show();
+    noBallWarning->hide();
+}
+void Visualizer::Ball::hide() {
+    actual->hide();
+    attentionCircle->hide();
+    noBallWarning->show();
+}
+void Visualizer::Ball::setPos(qreal x, qreal y) {
+    actual->setPos(x,y);
+    attentionCircle->setPos(x,y);
 }

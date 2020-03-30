@@ -4,6 +4,8 @@
 
 #include <protobuf/World.pb.h>
 #include "RefereeFilter.h"
+#include "CommandSwitch.h"
+
 proto::GameState RefereeFilter::update(const std::vector<proto::Referee>& refereeMessages, const proto::World& world) {
     flipChanged = false;
     if(refereeMessages.empty()){
@@ -12,20 +14,20 @@ proto::GameState RefereeFilter::update(const std::vector<proto::Referee>& refere
     //Note the below line assumes that the referee messages are sorted ascending by time!
     const proto::Referee lastRefMessage=refereeMessages.back();
     bool weAreBlue=inferOurColor(lastRefMessage);
-    proto::GameState newGameState = createGameState(lastRefMessage,weAreBlue);
-
+    proto::GameState newGameState = createGameState(lastRefMessage,weAreBlue,world);
     lastGameState = newGameState;
+    lastGameState.clear_game_events();
     return newGameState;
 }
-proto::GameState RefereeFilter::createGameState(const proto::Referee &lastRefMessage,bool weAreBlue) {
+proto::GameState RefereeFilter::createGameState(const proto::Referee &lastRefMessage,bool weAreBlue,const proto::World& world) {
     proto::GameState newGameState;
     newGameState.set_timestamp(lastRefMessage.packet_timestamp()*1000);
     newGameState.set_stage(lastRefMessage.stage());
     if(lastRefMessage.has_stage_time_left()){
         newGameState.set_stage_time_left((long)lastRefMessage.stage_time_left()*1000);
     }
-    //actual command is added in addCommands() function
-
+    //actual command is added in addCommands() function together with predicted command
+    addCommands(newGameState,lastRefMessage,weAreBlue,world);
     newGameState.set_command_counter(lastRefMessage.command_counter());
     newGameState.set_command_timestamp(lastRefMessage.command_timestamp()*1000);
 
@@ -85,4 +87,55 @@ bool RefereeFilter::inferOurColor(const proto::Referee &refereeMessage) {
 }
 bool RefereeFilter::flipHasChanged() const {
     return flipChanged;
+}
+void RefereeFilter::addCommands(proto::GameState &gameState, const proto::Referee &lastRefMessage, bool weAreBlue,
+        const proto::World &world) {
+    //we assume we are blue. If not, we invert the command all the way at the end.
+    //I am sorry for the code. There must be a pretty way. I just haven't found it.
+    proto::GameState_Command outCommand = proto::GameState_Command_HALT;
+    if(isInCommandSwitch && !ballMovedInSwitch && ballPosStartSwitch && world.has_ball()
+    && (*ballPosStartSwitch-Vector2(world.ball().pos())).length()>0.05){
+        ballMovedInSwitch = true;
+    }
+    std::optional<proto::GameState_Command> switchCommand = getCommand(lastCommand,lastRefMessage.command());
+    if(isInCommandSwitch){
+        if(switchCommand){
+            if(ballMovedInSwitch){
+                outCommand = proto::GameState_Command_RUNNING;
+            }else{
+                outCommand =*switchCommand;
+            }
+        }else{
+            isInCommandSwitch = false;
+            ballMovedInSwitch = false;
+        }
+    }else{
+        ballPosStartSwitch = std::nullopt;
+        if (switchCommand){
+            isInCommandSwitch = true;
+            ballMovedInSwitch = false;
+            outCommand = *switchCommand;
+        }
+    }
+    if(!isInCommandSwitch){
+        outCommand = defaultMap(lastRefMessage.command());
+    }
+    if(isInCommandSwitch && !ballPosStartSwitch && world.has_ball()){
+        ballPosStartSwitch = Vector2(world.ball().pos());
+    }
+    if(lastCommand != lastRefMessage.command() && !isInCommandSwitch){
+        lastCommand = lastRefMessage.command();
+    }
+    if(!weAreBlue){
+        outCommand=invertTeams(outCommand);
+    }
+    gameState.set_command(outCommand);
+    if(lastRefMessage.has_next_command()){
+        if(weAreBlue){
+            gameState.set_nextcommand(defaultMap(lastRefMessage.next_command()));
+        }
+        else{
+            gameState.set_nextcommand(invertTeams(defaultMap(lastRefMessage.next_command())));
+        }
+    }
 }

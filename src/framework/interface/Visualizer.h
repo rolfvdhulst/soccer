@@ -25,7 +25,14 @@ class Visualizer : public QGraphicsView {
           void tryHide();
           void show();
         };
-
+        struct Ball{
+          QGraphicsEllipseItem *actual;
+          QGraphicsEllipseItem *attentionCircle;
+          QGraphicsSimpleTextItem *noBallWarning;
+          void setPos(qreal x, qreal y);
+          void hide();
+          void show();
+        };
     public:
         explicit Visualizer(QWidget *parent = nullptr);
         ~Visualizer() override;
@@ -34,7 +41,10 @@ class Visualizer : public QGraphicsView {
         void wheelEvent(QWheelEvent *event) override;
         void drawForeground(QPainter *painter, const QRectF &rect) override;
         void drawBackground(QPainter *painter, const QRectF &rect) override;
+        void resizeEvent(QResizeEvent * event) override;
 
+    public slots:
+        void setShowDetections(bool showDetections);
     private slots:
         void updateAll();
 
@@ -54,7 +64,7 @@ class Visualizer : public QGraphicsView {
 
         QMap<uint,Robot> blueBots;
         QMap<uint,Robot> yellowBots;
-        QGraphicsEllipseItem * ball;
+        Ball * ball;
         void createBall();
 
 
@@ -65,6 +75,8 @@ class Visualizer : public QGraphicsView {
         bool redrawField = true;
         FieldState field;
         CameraMap cameras;
+
+        bool showDetections = false;
 };
 
 #endif //SOCCER_VISUALIZER_H
