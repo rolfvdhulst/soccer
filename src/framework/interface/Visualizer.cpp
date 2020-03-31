@@ -60,7 +60,7 @@ void Visualizer::updateAll() {
 
     //todo what to do on initialization?
     auto gamestate=API::instance()->getGameState();
-    if (gamestate.has_designated_position()){
+    if (gamestate.has_designated_position() && showPlacementMarker){
         placementMarker->setPos(gamestate.designated_position().x(),-gamestate.designated_position().y()); //QT has mirrored y-axis
         placementMarker->show();
     }else{
@@ -357,6 +357,7 @@ void Visualizer::drawGoal(QPainter* painter, bool isLeft) {
     path.lineTo(side * l, -w);
     painter->drawPath(path);
 }
+void Visualizer::setShowPlacementMarker(bool show) { showPlacementMarker = show;}
 void Visualizer::Ball::show() {
     actual->show();
     attentionCircle->show();

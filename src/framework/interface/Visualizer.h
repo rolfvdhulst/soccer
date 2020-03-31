@@ -53,6 +53,7 @@ class Visualizer : public QGraphicsView {
 
     public slots:
         void setShowDetections(bool showDetections);
+        void setShowPlacementMarker(bool show);
     private slots:
         void updateAll();
 
@@ -61,7 +62,6 @@ class Visualizer : public QGraphicsView {
         void updateDetections(const std::vector<proto::SSL_WrapperPacket>& packets);
         void updateRobot(const proto::WorldRobot &robot, QMap<uint, Robot> &robots, const proto::RobotInfo &info,
                 const QColor &color);
-        void drawPlacementMarker(QPainter * painter);
         void drawDetectionFrames(QPainter *painter, const std::vector<proto::SSL_DetectionFrame>& frames);
         void drawDetectionFrame(QPainter *painter, const proto::SSL_DetectionFrame &frame);
         void drawDetectionBall(QPainter * painter, const proto::SSL_DetectionBall& ball);
@@ -90,6 +90,7 @@ class Visualizer : public QGraphicsView {
         CameraMap cameras;
 
         bool showDetections = false;
+        bool showPlacementMarker = true;
 };
 
 #endif //SOCCER_VISUALIZER_H
