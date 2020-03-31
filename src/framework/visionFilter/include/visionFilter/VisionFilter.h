@@ -12,7 +12,8 @@
 class VisionFilter {
     public:
         proto::World process(const std::vector<proto::SSL_WrapperPacket>& packets);
-        bool hasNewGeometry();
+        bool hasNewGeometry() const;
+        bool receivedFirstGeometry() const;
         const proto::SSL_GeometryData& getGeometry();
     private:
         bool geometryUpdated = false;

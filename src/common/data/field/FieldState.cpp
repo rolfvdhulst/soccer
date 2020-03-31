@@ -3,7 +3,6 @@
 //
 
 #include "FieldState.h"
-#include <geometry/Flip.h>
 
 const Rectangle &FieldState::getOurDefenceArea() const { return leftDefenceArea; }
 const Rectangle &FieldState::getTheirDefenceArea() const { return rightDefenceArea; }
@@ -464,30 +463,4 @@ double FieldState::getLineThickness(const DefaultField &field) {
         default:
             return 0.01;
     }
-}
-FieldState flip(const FieldState &field) {
-    FieldState flipped(field);  // Make a copy
-    // First 5 double describe absolute length and are unchanged
-    flipAndSwap(flipped.leftX, flipped.rightX);
-    flipAndSwap(flipped.topY, flipped.bottomY);
-    flipAndSwap(flipped.leftMarginX, flipped.rightMarginX);
-    flipAndSwap(flipped.topMarginY, flipped.bottomMarginY);
-    // Goalwidth, wall thickness, line thickness are absolute lengths and unchanged
-
-    flipAndSwap(flipped.topLine, flipped.bottomLine);
-    flipAndSwap(flipped.leftLine, flipped.rightLine);
-    flipAndSwap(flipped.leftPenaltyLine, flipped.rightPenaltyLine);
-    flipAndSwap(flipped.halfLine.start, flipped.halfLine.end);
-    flipAndSwap(flipped.centerLine.start, flipped.centerLine.end);
-    flipAndSwap(flipped.bottomLeftPenaltyStretch, flipped.topRightPenaltyStretch);
-    flipAndSwap(flipped.topLeftPenaltyStretch, flipped.bottomRightPenaltyStretch);
-    flipped.centerCircle.center *= -1;
-    flipAndSwap(flipped.leftDefenceArea, flipped.rightDefenceArea);
-    flipAndSwap(flipped.leftGoalRectangle, flipped.rightGoalRectangle);
-    flipAndSwap(flipped.field.min, flipped.field.max);
-    flipAndSwap(flipped.fieldWithMargin.min, flipped.fieldWithMargin.max);
-    flipAndSwap(flipped.leftGoal, flipped.rightGoal);
-    flipAndSwap(flipped.leftGoalCenter, flipped.rightGoalCenter);
-
-    return flipped;
 }

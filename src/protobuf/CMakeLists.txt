@@ -18,6 +18,7 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
         proto/WorldBall.proto
         proto/WorldRobot.proto
         proto/RobotInfo.proto
+        proto/GameState.proto
         )
 
 add_library(proto SHARED

@@ -36,8 +36,11 @@ void VisionFilter::processGeometry(const std::vector<proto::SSL_WrapperPacket> &
     }
 }
 
-bool VisionFilter::hasNewGeometry() {
+bool VisionFilter::hasNewGeometry() const {
     return geometryUpdated;
+}
+bool VisionFilter::receivedFirstGeometry() const {
+    return geomFilter.receivedFirstGeometry();
 }
 const proto::SSL_GeometryData &VisionFilter::getGeometry() {
     return geomFilter.getGeometry();

@@ -8,7 +8,7 @@
 
 const uint8 INVALID_ID = 255;
 const uint8 ID_MAX = 15;
-
+//TODO: move to different library than world?
 class RobotID {
    public:
     RobotID();
@@ -27,6 +27,7 @@ class RobotID {
     [[nodiscard]] bool isValid() const;
     explicit operator unsigned int() const;
     explicit operator uint8() const;
+    [[nodiscard]] std::string toString() const;
 
    private:
     void bound(uint8 id);

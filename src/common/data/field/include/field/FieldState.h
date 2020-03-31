@@ -137,9 +137,8 @@ class FieldState {
     explicit FieldState(DefaultField fieldType);
 
    private:
-    friend FieldState flip(const FieldState& field);
-    // The following are all used in the constructor...
-    // rant why is this data type so complicated ugh.
+        // The following are all used in the constructor...
+        // rant why is this data type so complicated ugh.
     static double mmToM(double value);
     static Vector2 mmToM(const Vector2& value);
     static void mmToM(LineSegment& line);
@@ -166,5 +165,4 @@ class FieldState {
     void makeOtherLines(bool halfLineSet, bool centerLineSet, bool bottomLeftPenaltyStretchSet, bool topLeftPenaltyStretchSet, bool bottomRightPenaltyStretchSet,
                         bool topRightPenaltyStretchSet);
 };
-FieldState flip(const FieldState& field);
 #endif  // SOCCER_FIELDSTATE_H

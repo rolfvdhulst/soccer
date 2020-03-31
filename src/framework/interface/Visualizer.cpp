@@ -26,10 +26,9 @@ Visualizer::Visualizer(QWidget* parent)
 
     updateTimer = new QTimer(this);
     connect(updateTimer,&QTimer::timeout,this,&Visualizer::updateAll);
-    updateTimer->start(20);
-
+    updateTimer->start(20); //50hz
     createBall();
-
+    createPlacementMarker();
     double margin = 0.3 + 0.1; //boundary width + an extra small margin
     double halfLength = 6.0;
     double halfWidth = 4.5;
@@ -49,10 +48,28 @@ void Visualizer::updateAll() {
     if(API::instance()->newGeometry()){
         proto::SSL_GeometryData data = API::instance()->readGeometryData();
         field = FieldState(data.field());
+        double margin = field.getBoundaryWidth() + 0.1; //boundary width + an extra small margin
+        double halfLength = 0.5*field.getFieldLength();
+        double halfWidth = 0.5*field.getFieldWidth();
+        fieldRect= QRectF(-(halfLength+margin),-(halfWidth+margin), 2*(halfLength+margin),
+                2*(halfWidth+margin));
         for (const auto & cam : data.calib()){
-            cameras.addCamera(Camera(cam));
+            const Camera& Cam = Camera(cam);
+            cameras.addCamera(Cam);
+            addCameraOutLine(Cam);
         }
     }
+
+    //todo what to do on initialization?
+    auto gamestate=API::instance()->getGameState();
+    if (gamestate.has_designated_position() && showPlacementMarker){
+        placementMarker->setPos(gamestate.designated_position().x(),-gamestate.designated_position().y()); //QT has mirrored y-axis
+        placementMarker->show();
+    }else{
+        placementMarker->hide();
+    }
+    weAreBlue = gamestate.ourcolor() != proto::Team::YELLOW;
+    messagesAreFlipped = gamestate.weplayonpositivehalf();
     refitView();
 }
 Visualizer::~Visualizer() {
@@ -137,6 +154,7 @@ void Visualizer::updateWorld(const proto::World &world) {
     }
 }
 void Visualizer::refitView() {
+    setSceneRect(fieldRect);
     fitInView(fieldRect);
 }
 void Visualizer::wheelEvent(QWheelEvent *event) {
@@ -165,17 +183,17 @@ void Visualizer::drawDetectionFrame(QPainter* painter, const proto::SSL_Detectio
     for(const auto& yellowBot : frame.robots_yellow()){
         drawDetectionRobot(painter,yellowBot,info,Qt::red);
     }
-    for(const auto& ball : frame.balls()){
-        drawDetectionBall(painter,ball);
+    for(const auto& detBall : frame.balls()){
+        drawDetectionBall(painter,detBall);
     }
     painter->restore();
 }
-void Visualizer::drawDetectionBall(QPainter* painter, const proto::SSL_DetectionBall &ball) {
+void Visualizer::drawDetectionBall(QPainter* painter, const proto::SSL_DetectionBall &detBall) {
     const float radius=0.02133; //TODO: fix
     painter->setPen(Qt::NoPen);
-    painter->setBrush(Qt::white);
+    painter->setBrush(Qt::cyan);
     painter->setOpacity(0.8);
-    painter->drawEllipse(QPointF(ball.x()/1000.0,-ball.y()/1000.0),radius,radius);
+    painter->drawEllipse(QPointF(detBall.x()/1000.0,-detBall.y()/1000.0),radius,radius);
 }
 void Visualizer::drawDetectionRobot(QPainter* painter, const proto::SSL_DetectionRobot &bot,
         const proto::RobotInfo &info, const QColor &color) {
@@ -203,7 +221,7 @@ void Visualizer::drawDetectionRobot(QPainter* painter, const proto::SSL_Detectio
     QFont f("Helvetica");
     f.setPointSizeF(radius);
     painter->setFont(f);
-    painter->setPen(Qt::white);
+    painter->setPen(Qt::black);
     painter->setOpacity(1.0);
     painter->drawText(botPos+QPointF(-radius*0.4,radius*0.4),QString::number(bot.robot_id()));
 }
@@ -211,12 +229,21 @@ void Visualizer::drawBackground(QPainter* painter, const QRectF &rect) {
     painter->save();
     if(redrawField){
         drawField(painter);
-        redrawField = true;
+        redrawField = true; //TODO: figure out why this is so problematic
     }
     painter->restore();
 }
 void Visualizer::drawForeground(QPainter* painter, const QRectF &rect) {
-    drawDetectionFrames(painter,usedDetectionFrames);
+    //remember here that anything we draw later is drawn on top over the other things.
+    //If you want finer control with layering with respect to robots, ball and field lines
+    // then you should make these graphicsItems instead of drawing them every tick like this.
+    if(showCameraOutlines){
+        drawCameraOutLines(painter);
+    }
+    if(showDetections){
+        drawDetectionFrames(painter,usedDetectionFrames);
+    }
+
 }
 void Visualizer::updateDetections(const std::vector<proto::SSL_WrapperPacket>& packets) {
     usedDetectionFrames.clear();
@@ -259,14 +286,171 @@ void Visualizer::drawField(QPainter* painter) {
     const Rectangle& rect=field.getMarginField();
     QRectF drawnRect(QPointF(rect.minX(),-rect.minY()),QPointF(rect.maxX(),-rect.maxY())); //QT mirrors y-axis
     painter->drawRect(drawnRect);
+    drawGoal(painter,true);
+    drawGoal(painter,false);
 }
 void Visualizer::createBall() {
     const float ballRadius = 0.021333f;
-    ball = new QGraphicsEllipseItem();
-    ball->setPen(Qt::NoPen);
-    ball->setBrush(QColor(255,140,0));
-    ball->setZValue(100.0);//TODO: collect and organise
-    ball->setRect(QRectF(-ballRadius,-ballRadius,ballRadius*2,ballRadius*2));
+    const float attentionRadius = field.getFieldLength()*0.015f+ballRadius;
+    ball = new Ball();
+    ball->actual = new QGraphicsEllipseItem();
+    ball->actual->setPen(Qt::NoPen);
+    ball->actual->setBrush(QColor(255,140,0));
+    ball->actual->setZValue(100.0);//TODO: collect and organise
+    ball->actual->setRect(QRectF(-ballRadius,-ballRadius,ballRadius*2,ballRadius*2));
+    ball->attentionCircle = new QGraphicsEllipseItem();
+    QPen pen;
+    pen.setColor(Qt::red);
+    pen.setWidthF(0.01);
+    ball->attentionCircle->setPen(pen);
+    ball->attentionCircle->setBrush(Qt::NoBrush);
+    ball->attentionCircle->setOpacity(0.5);
+    ball->attentionCircle->setZValue(40.0);//TODO: collect and organise
+    ball->attentionCircle->setRect(QRectF(-attentionRadius,-attentionRadius,attentionRadius*2,attentionRadius*2));
+    ball->noBallWarning = new QGraphicsSimpleTextItem("NO BALL");
+    ball->noBallWarning->setFont(QFont("ubuntu",1));
+    pen.setColor(Qt::red);
+    ball->noBallWarning->setPen(pen);
     ball->hide();
-    scene->addItem(ball);
+    scene->addItem(ball->actual);
+    scene->addItem(ball->attentionCircle);
+    scene->addItem(ball->noBallWarning);
+}
+void Visualizer::resizeEvent(QResizeEvent* event) {
+    refitView();
+}
+void Visualizer::setShowDetections(bool show) {this->showDetections = show; }
+void Visualizer::createPlacementMarker() {
+    placementMarker = new PlacementMarker();
+    const float radius= 2*0.021333; //2x ball radius cross
+    QPen pen;
+    pen.setColor(Qt::red);
+    pen.setWidthF(0.01);
+    placementMarker->line1 = new QGraphicsLineItem(-radius,-radius,radius,radius);
+    placementMarker->line2 = new QGraphicsLineItem(-radius,radius,radius,-radius);
+    placementMarker->line1->setPen(pen);
+    placementMarker->line2->setPen(pen);
+    const float goodRange = 0.15;
+    placementMarker->goodRadius = new QGraphicsEllipseItem();
+    QPen pen2;
+    pen2.setColor(Qt::darkGreen);
+    pen2.setWidthF(0.01);
+    placementMarker->goodRadius->setPen(pen2);
+    placementMarker->goodRadius->setBrush(Qt::NoBrush);
+    placementMarker->goodRadius->setOpacity(0.8);
+    placementMarker->goodRadius->setZValue(40.0);//TODO: collect and organise
+    placementMarker->goodRadius->setRect(QRectF(-goodRange,-goodRange,goodRange*2,goodRange*2));
+
+    placementMarker->hide();
+
+    scene->addItem(placementMarker->line1);
+    scene->addItem(placementMarker->line2);
+    scene->addItem(placementMarker->goodRadius);
+}
+void Visualizer::drawGoal(QPainter* painter, bool isLeft) {
+    bool colorIsYellow = isLeft ^ weAreBlue;
+    auto color = colorIsYellow ?  QColor(255, 255, 0, 255) : QColor(80, 80, 255, 255);
+    QPen pen;
+    pen.setColor(color);
+    pen.setCapStyle(Qt::FlatCap);
+    pen.setJoinStyle(Qt::MiterJoin);
+    QPainterPath path;
+    double side = isLeft ? -1.0 : 1.0;
+    double d = field.getGoalWallThickness()* 0.5;
+    double l = field.getFieldLength() * 0.5;
+    double w = field.getGoalWidth()* 0.5 + d; //it's drawn using symmetry so we don't have to mirror the y-axis (it does not matter)
+    pen.setWidthF(2*d);
+    painter->setPen(pen);
+    path.moveTo(side * l, w);
+    path.lineTo(side * (l + field.getGoalDepth() + d), w);
+    path.lineTo(side * (l + field.getGoalDepth() + d), -w);
+    path.lineTo(side * l, -w);
+    painter->drawPath(path);
+}
+void Visualizer::setShowPlacementMarker(bool show) { showPlacementMarker = show;}
+void Visualizer::drawCameraOutLines(QPainter* painter) {
+
+    for (const auto& camOutline : cameraOutlines){
+        std::vector<Vector2> visPoints = camOutline.second;
+        if(messagesAreFlipped){
+            std::for_each(visPoints.begin(),visPoints.end(),[](Vector2 &point){ point*=-1.0;});
+        }
+        QPen pen;
+        pen.setColor(Qt::magenta);
+        pen.setWidthF(0.01);
+        painter->setPen(pen);
+        painter->setOpacity(0.55);
+        drawConnectedLines(painter,visPoints);
+        painter->drawLine(QPointF(visPoints.back().x,-visPoints.back().y),QPointF(visPoints.front().x,-visPoints.front().y));
+        //TODO: it's possible to also visualize the ID of the camera quite easily
+    }
+
+}
+void Visualizer::drawConnectedLines(QPainter* painter, const std::vector<Vector2>& points) {
+    if(points.size()>2){
+        for (int i= 1; i<points.size(); i++){
+            const Vector2& end=points.at(i);
+            const Vector2& start=points.at(i-1);
+            painter->drawLine(QPointF(start.x,-start.y),QPointF(end.x,-end.y));//QT y--axis inversion..
+        }
+    }
+}
+void Visualizer::addCameraOutLine(const Camera& camera) {
+    //robocup 2018 780 x 582, robocup 2019 2448 x2048. Basler
+    float height = 780;
+    float width = 582;//TODO: make resolution settable somewhere
+    std::vector<Vector2> points;
+    const float N = 5.0;
+    for (int i = 0; i < N; ++ i) {
+        Vector2 left((float)i*height/N,0);
+        points.push_back(left);
+    }
+    for (int i = 0; i < N; ++ i) {
+        Vector2 top(height,(float) i*width/N);
+        points.push_back(top);
+    }
+    for (int i = 0; i < N; ++ i) {
+        Vector2 right(height- (float) i*height/N,width);
+        points.push_back(right);
+    }
+    for (int i = 0; i < N; ++ i) {
+        Vector2 bottom(0,width-(float) i*width/N);
+        points.push_back(bottom);
+    }
+    std::vector<Vector2> visPoints;
+    for (const auto& point : points) {
+        auto vec3d=camera.imageToField(point,0);
+        visPoints.emplace_back(Vector2(vec3d.x(),vec3d.y())*0.001);
+    }
+    cameraOutlines[camera.getID()] = visPoints;
+}
+void Visualizer::setShowCameraOutlines(bool show) { showCameraOutlines = show; }
+void Visualizer::Ball::show() {
+    actual->show();
+    attentionCircle->show();
+    noBallWarning->hide();
+}
+void Visualizer::Ball::hide() {
+    actual->hide();
+    attentionCircle->hide();
+    noBallWarning->show();
+}
+void Visualizer::Ball::setPos(qreal x, qreal y) {
+    actual->setPos(x,y);
+    attentionCircle->setPos(x,y);
+}
+void Visualizer::PlacementMarker::setPos(qreal x, qreal y) {
+    line1->setPos(x,y);
+    line2->setPos(x,y);
+    goodRadius->setPos(x,y);
+}
+void Visualizer::PlacementMarker::hide() {
+    line1->hide();
+    line2->hide();
+    goodRadius->hide();
+}
+void Visualizer::PlacementMarker::show() {
+    line1->show();
+    line2->show();
+    goodRadius->show();
 }

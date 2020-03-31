@@ -1,0 +1,89 @@
+syntax = "proto2";
+
+package proto;
+
+import "ssl_referee.proto";
+import "Vector2f.proto";
+import "ssl_game_controller_common.proto";
+import "ssl_game_event.proto";
+
+message GameState{
+    //When the referee message containing this information was sent in nanoseconds since epoch
+    required uint64 timeStamp= 1;
+    //The gamestage of the referee corresponding to the stage of the game.
+    //These are the 'course states' of the game such 'first half' etc.
+    required Referee.Stage stage = 2;
+    //Time left in current stage in nanoseconds. Note this can be negative.
+    optional sint64 stage_time_left = 3;
+    enum Command{
+        // All robots should completely stop moving.
+        HALT = 0;
+        // Robots must keep 50 cm from the ball.
+        STOP = 1;
+        // Game is running normally
+        RUNNING = 2;
+        // They may move into kickoff position.
+        PREPARE_KICKOFF_THEM = 4;
+        // We may move into kickoff position.
+        PREPARE_KICKOFF_US = 5;
+        // They may move into penalty position.
+        PREPARE_PENALTY_THEM = 6;
+        // We may move into penalty position.
+        PREPARE_PENALTY_US = 7;
+        // They may take a direct free kick.
+        DIRECT_FREE_THEM = 8;
+        // We may take a direct free kick.
+        DIRECT_FREE_US = 9;
+        // They may take an indirect free kick.
+        INDIRECT_FREE_THEM = 10;
+        // We may take an indirect free kick.
+        INDIRECT_FREE_US = 11;
+        // They are currently in a timeout.
+        TIMEOUT_THEM = 12;
+        // We are currently in a timeout.
+        TIMEOUT_US = 13;
+        // Equivalent to STOP, but They must pick up the ball and
+        // drop it in the Designated Position.
+        BALL_PLACEMENT_THEM = 16;
+        // Equivalent to STOP, but We must pick up the ball and drop
+        // it in the Designated Position.
+        BALL_PLACEMENT_US = 17;
+
+        KICKOFF_US = 18;
+        KICKOFF_THEM = 19;
+        PENALTY_US = 20;
+        PENALTY_THEM =21;
+        };
+
+        //The command sent to the AI containing the game state.
+    required Command command = 4;
+    // The number of commands issued since startup (mod 2^32).
+    required uint32 command_counter = 5;
+    // The UNIX timestamp when the command was issued, in nanoseconds.
+    // This value changes only when a new command is issued, not on each packet.
+    required uint64 command_timestamp = 6;
+
+    //Various game info stats (goals, yellow cards etc.)
+    required Referee.TeamInfo us = 7;
+    required Referee.TeamInfo them = 8;
+
+    optional Vector2f designated_position = 9;
+
+    required bool wePlayOnPositiveHalf = 10;
+
+    optional Command nextCommand = 11;
+
+    // All new game events. Note this is not the same as the game events in the SSL message!
+    repeated GameEvent game_events = 12;
+
+    // The time in nanoseconds that is remaining until the current action times out
+    // The time will not be reset. It can get negative.
+    // An autoRef would raise an appropriate event, if the time gets negative.
+    // Possible actions where this time is relevant:
+    //  * free kicks
+    //  * kickoff, penalty kick, force start
+    //  * ball placement
+    optional sint64 current_action_time_remaining = 13;
+
+    required Team ourColor = 14;
+}

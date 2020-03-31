@@ -6,7 +6,9 @@ add_library(interface STATIC
         include/interface/MainWindow.h
         Visualizer.cpp
         Visualizer.h
-        )
+        GameStateVisualizer.cpp
+        GameStateVisualizer.h
+        GameEventsWidget.cpp GameEventsWidget.h)
 
 target_link_libraries(interface
         PUBLIC Qt5::Core
@@ -14,6 +16,7 @@ target_link_libraries(interface
         PUBLIC Qt5::Widgets
         PUBLIC proto
         PRIVATE geometry
+        PRIVATE referee
         PUBLIC interfaceAPI
         PRIVATE field
 )

@@ -5,6 +5,7 @@
 #ifndef SOCCER_GAMESTAGE_H
 #define SOCCER_GAMESTAGE_H
 
+#include <protobuf/ssl_referee.pb.h>
 /**
  * @author Rolf
  * @brief Class that represents the game stage. This is the phase that the game is currently in.
@@ -51,20 +52,23 @@ class GameStage {
           // The game is over.
                   POST_GAME = 13
         };
-
+        GameStage();
         constexpr GameStage(Stage stage);
+        explicit GameStage(const proto::Referee::Stage& gameStage);
         operator Stage() const;// Allow switches and comparisons.
         // Putting constexpr here causes clang to  stop warning on incomplete case handling
         explicit operator bool() = delete; //Prevent if(GameStage) incorrect usage
         constexpr bool operator ==(GameStage other) const;
         constexpr bool operator !=(GameStage other) const;
+        std::string toString() const;
         [[nodiscard]] constexpr bool isPreHalf() const;
         [[nodiscard]] constexpr bool isNormalPlayTime() const;
         [[nodiscard]] constexpr bool isExtendedPlayTime() const;
         [[nodiscard]] constexpr bool isBreak() const;
+        [[nodiscard]] constexpr bool hasTime() const;
 
     private:
-        Stage value;
+        Stage value =NORMAL_FIRST_HALF_PRE;
 };
 
 #endif //SOCCER_GAMESTAGE_H
