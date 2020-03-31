@@ -9,6 +9,8 @@ void ApplicationManager::init() {
     setupNetworking();
 }
 void ApplicationManager::run(bool &exit) {
+    int count = 0;
+    Time total((long)0);
     while (!exit) {
         Time before= Time::now();
         receiveVision();
@@ -53,9 +55,14 @@ void ApplicationManager::run(bool &exit) {
 
 
         Time after = Time::now();
-        //std::cout<<"tickTime in ms: "<<(after-before).asMilliSeconds()<<std::endl;
+        total +=(after-before);
+        count++;
+        if(count%100 == 0){
+            std::cout<< total.asSeconds()*1000/count<<std::endl;
+        }
         refereePackets.clear();
         visionPackets.clear();
+        this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 void ApplicationManager::receiveReferee(){

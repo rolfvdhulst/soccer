@@ -54,7 +54,9 @@ void Visualizer::updateAll() {
         fieldRect= QRectF(-(halfLength+margin),-(halfWidth+margin), 2*(halfLength+margin),
                 2*(halfWidth+margin));
         for (const auto & cam : data.calib()){
-            cameras.addCamera(Camera(cam));
+            const Camera& Cam = Camera(cam);
+            cameras.addCamera(Cam);
+            addCameraOutLine(Cam);
         }
     }
 
@@ -67,6 +69,7 @@ void Visualizer::updateAll() {
         placementMarker->hide();
     }
     weAreBlue = gamestate.ourcolor() != proto::Team::YELLOW;
+    messagesAreFlipped = gamestate.weplayonpositivehalf();
     refitView();
 }
 Visualizer::~Visualizer() {
@@ -231,9 +234,16 @@ void Visualizer::drawBackground(QPainter* painter, const QRectF &rect) {
     painter->restore();
 }
 void Visualizer::drawForeground(QPainter* painter, const QRectF &rect) {
+    //remember here that anything we draw later is drawn on top over the other things.
+    //If you want finer control with layering with respect to robots, ball and field lines
+    // then you should make these graphicsItems instead of drawing them every tick like this.
+    if(showCameraOutlines){
+        drawCameraOutLines(painter);
+    }
     if(showDetections){
         drawDetectionFrames(painter,usedDetectionFrames);
     }
+
 }
 void Visualizer::updateDetections(const std::vector<proto::SSL_WrapperPacket>& packets) {
     usedDetectionFrames.clear();
@@ -358,6 +368,63 @@ void Visualizer::drawGoal(QPainter* painter, bool isLeft) {
     painter->drawPath(path);
 }
 void Visualizer::setShowPlacementMarker(bool show) { showPlacementMarker = show;}
+void Visualizer::drawCameraOutLines(QPainter* painter) {
+
+    for (const auto& camOutline : cameraOutlines){
+        std::vector<Vector2> visPoints = camOutline.second;
+        if(messagesAreFlipped){
+            std::for_each(visPoints.begin(),visPoints.end(),[](Vector2 &point){ point*=-1.0;});
+        }
+        QPen pen;
+        pen.setColor(Qt::magenta);
+        pen.setWidthF(0.01);
+        painter->setPen(pen);
+        painter->setOpacity(0.55);
+        drawConnectedLines(painter,visPoints);
+        painter->drawLine(QPointF(visPoints.back().x,-visPoints.back().y),QPointF(visPoints.front().x,-visPoints.front().y));
+        //TODO: it's possible to also visualize the ID of the camera quite easily
+    }
+
+}
+void Visualizer::drawConnectedLines(QPainter* painter, const std::vector<Vector2>& points) {
+    if(points.size()>2){
+        for (int i= 1; i<points.size(); i++){
+            const Vector2& end=points.at(i);
+            const Vector2& start=points.at(i-1);
+            painter->drawLine(QPointF(start.x,-start.y),QPointF(end.x,-end.y));//QT y--axis inversion..
+        }
+    }
+}
+void Visualizer::addCameraOutLine(const Camera& camera) {
+    //robocup 2018 780 x 582, robocup 2019 2448 x2048. Basler
+    float height = 780;
+    float width = 582;//TODO: make resolution settable somewhere
+    std::vector<Vector2> points;
+    const float N = 5.0;
+    for (int i = 0; i < N; ++ i) {
+        Vector2 left((float)i*height/N,0);
+        points.push_back(left);
+    }
+    for (int i = 0; i < N; ++ i) {
+        Vector2 top(height,(float) i*width/N);
+        points.push_back(top);
+    }
+    for (int i = 0; i < N; ++ i) {
+        Vector2 right(height- (float) i*height/N,width);
+        points.push_back(right);
+    }
+    for (int i = 0; i < N; ++ i) {
+        Vector2 bottom(0,width-(float) i*width/N);
+        points.push_back(bottom);
+    }
+    std::vector<Vector2> visPoints;
+    for (const auto& point : points) {
+        auto vec3d=camera.imageToField(point,0);
+        visPoints.emplace_back(Vector2(vec3d.x(),vec3d.y())*0.001);
+    }
+    cameraOutlines[camera.getID()] = visPoints;
+}
+void Visualizer::setShowCameraOutlines(bool show) { showCameraOutlines = show; }
 void Visualizer::Ball::show() {
     actual->show();
     attentionCircle->show();

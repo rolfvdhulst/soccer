@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setMenuBar(menu);
     auto viewMenu = menu->addMenu(tr("&Visualization"));
     configureCheckableMenuItem("Show detections", viewMenu,visualizer,SLOT(setShowDetections(bool)),false);
+    configureCheckableMenuItem("Show camera outlines", viewMenu,visualizer,SLOT(setShowCameraOutlines(bool)),false);
     configureCheckableMenuItem("Show placement marker", viewMenu,visualizer,SLOT(setShowPlacementMarker(bool)),true);
 
     sideBarLayout->addWidget(gameStateVisualizer);
