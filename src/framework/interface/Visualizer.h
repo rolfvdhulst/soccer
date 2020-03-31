@@ -33,6 +33,14 @@ class Visualizer : public QGraphicsView {
           void hide();
           void show();
         };
+        struct PlacementMarker{
+          QGraphicsLineItem *line1;
+          QGraphicsLineItem *line2;
+          QGraphicsEllipseItem *goodRadius;
+          void setPos(qreal x, qreal y);
+          void hide();
+          void show();
+        };
     public:
         explicit Visualizer(QWidget *parent = nullptr);
         ~Visualizer() override;
@@ -53,6 +61,7 @@ class Visualizer : public QGraphicsView {
         void updateDetections(const std::vector<proto::SSL_WrapperPacket>& packets);
         void updateRobot(const proto::WorldRobot &robot, QMap<uint, Robot> &robots, const proto::RobotInfo &info,
                 const QColor &color);
+        void drawPlacementMarker(QPainter * painter);
         void drawDetectionFrames(QPainter *painter, const std::vector<proto::SSL_DetectionFrame>& frames);
         void drawDetectionFrame(QPainter *painter, const proto::SSL_DetectionFrame &frame);
         void drawDetectionBall(QPainter * painter, const proto::SSL_DetectionBall& ball);
@@ -67,12 +76,16 @@ class Visualizer : public QGraphicsView {
         Ball * ball;
         void createBall();
 
+        PlacementMarker * placementMarker;
+        void createPlacementMarker();
 
         QRectF fieldRect; //The window of the scene (e.g. what are the boundaries of what we visualize
         void refitView();
 
         void drawField(QPainter * painter);
+        void drawGoal(QPainter * painter,bool isLeft);
         bool redrawField = true;
+        bool weAreBlue = true; // in other parts of our code we are blue by default and the world is rotated as it is for us
         FieldState field;
         CameraMap cameras;
 

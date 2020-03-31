@@ -28,7 +28,7 @@ Visualizer::Visualizer(QWidget* parent)
     connect(updateTimer,&QTimer::timeout,this,&Visualizer::updateAll);
     updateTimer->start(20); //50hz
     createBall();
-
+    createPlacementMarker();
     double margin = 0.3 + 0.1; //boundary width + an extra small margin
     double halfLength = 6.0;
     double halfWidth = 4.5;
@@ -57,6 +57,16 @@ void Visualizer::updateAll() {
             cameras.addCamera(Camera(cam));
         }
     }
+
+    //todo what to do on initialization?
+    auto gamestate=API::instance()->getGameState();
+    if (gamestate.has_designated_position()){
+        placementMarker->setPos(gamestate.designated_position().x(),-gamestate.designated_position().y()); //QT has mirrored y-axis
+        placementMarker->show();
+    }else{
+        placementMarker->hide();
+    }
+    weAreBlue = gamestate.ourcolor() != proto::Team::YELLOW;
     refitView();
 }
 Visualizer::~Visualizer() {
@@ -266,10 +276,12 @@ void Visualizer::drawField(QPainter* painter) {
     const Rectangle& rect=field.getMarginField();
     QRectF drawnRect(QPointF(rect.minX(),-rect.minY()),QPointF(rect.maxX(),-rect.maxY())); //QT mirrors y-axis
     painter->drawRect(drawnRect);
+    drawGoal(painter,true);
+    drawGoal(painter,false);
 }
 void Visualizer::createBall() {
     const float ballRadius = 0.021333f;
-    const float attentionRadius = field.getFieldLength()*0.015f;
+    const float attentionRadius = field.getFieldLength()*0.015f+ballRadius;
     ball = new Ball();
     ball->actual = new QGraphicsEllipseItem();
     ball->actual->setPen(Qt::NoPen);
@@ -298,6 +310,53 @@ void Visualizer::resizeEvent(QResizeEvent* event) {
     refitView();
 }
 void Visualizer::setShowDetections(bool show) {this->showDetections = show; }
+void Visualizer::createPlacementMarker() {
+    placementMarker = new PlacementMarker();
+    const float radius= 2*0.021333; //2x ball radius cross
+    QPen pen;
+    pen.setColor(Qt::red);
+    pen.setWidthF(0.01);
+    placementMarker->line1 = new QGraphicsLineItem(-radius,-radius,radius,radius);
+    placementMarker->line2 = new QGraphicsLineItem(-radius,radius,radius,-radius);
+    placementMarker->line1->setPen(pen);
+    placementMarker->line2->setPen(pen);
+    const float goodRange = 0.15;
+    placementMarker->goodRadius = new QGraphicsEllipseItem();
+    QPen pen2;
+    pen2.setColor(Qt::darkGreen);
+    pen2.setWidthF(0.01);
+    placementMarker->goodRadius->setPen(pen2);
+    placementMarker->goodRadius->setBrush(Qt::NoBrush);
+    placementMarker->goodRadius->setOpacity(0.8);
+    placementMarker->goodRadius->setZValue(40.0);//TODO: collect and organise
+    placementMarker->goodRadius->setRect(QRectF(-goodRange,-goodRange,goodRange*2,goodRange*2));
+
+    placementMarker->hide();
+
+    scene->addItem(placementMarker->line1);
+    scene->addItem(placementMarker->line2);
+    scene->addItem(placementMarker->goodRadius);
+}
+void Visualizer::drawGoal(QPainter* painter, bool isLeft) {
+    bool colorIsYellow = isLeft ^ weAreBlue;
+    auto color = colorIsYellow ?  QColor(255, 255, 0, 255) : QColor(80, 80, 255, 255);
+    QPen pen;
+    pen.setColor(color);
+    pen.setCapStyle(Qt::FlatCap);
+    pen.setJoinStyle(Qt::MiterJoin);
+    QPainterPath path;
+    double side = isLeft ? -1.0 : 1.0;
+    double d = field.getGoalWallThickness()* 0.5;
+    double l = field.getFieldLength() * 0.5;
+    double w = field.getGoalWidth()* 0.5 + d; //it's drawn using symmetry so we don't have to mirror the y-axis (it does not matter)
+    pen.setWidthF(2*d);
+    painter->setPen(pen);
+    path.moveTo(side * l, w);
+    path.lineTo(side * (l + field.getGoalDepth() + d), w);
+    path.lineTo(side * (l + field.getGoalDepth() + d), -w);
+    path.lineTo(side * l, -w);
+    painter->drawPath(path);
+}
 void Visualizer::Ball::show() {
     actual->show();
     attentionCircle->show();
@@ -311,4 +370,19 @@ void Visualizer::Ball::hide() {
 void Visualizer::Ball::setPos(qreal x, qreal y) {
     actual->setPos(x,y);
     attentionCircle->setPos(x,y);
+}
+void Visualizer::PlacementMarker::setPos(qreal x, qreal y) {
+    line1->setPos(x,y);
+    line2->setPos(x,y);
+    goodRadius->setPos(x,y);
+}
+void Visualizer::PlacementMarker::hide() {
+    line1->hide();
+    line2->hide();
+    goodRadius->hide();
+}
+void Visualizer::PlacementMarker::show() {
+    line1->show();
+    line2->show();
+    goodRadius->show();
 }
