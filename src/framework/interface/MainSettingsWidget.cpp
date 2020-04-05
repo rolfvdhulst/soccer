@@ -63,11 +63,16 @@ MainSettingsWidget::MainSettingsWidget(QWidget* parent) : QWidget(parent){
     setDisabledColor(loggingCheckBox);
     setDisabledColor(leftTeamWidget);
     setDisabledColor(rightTeamWidget);
+
+    leftTeamWidget->setEnabled(false);
+    rightTeamWidget->setEnabled(false);
     rightTeamWidget->hide();
 
 }
 void MainSettingsWidget::setListenToReferee(bool listen) {
     listenToReferee = listen;
+    leftTeamWidget->setEnabled(!listen);
+    rightTeamWidget->setEnabled(!listen);
 }
 void MainSettingsWidget::setLoggingOn(bool listen) {
     loggingOn = listen;
@@ -99,18 +104,22 @@ void MainSettingsWidget::updateMode(int index) {
         // we are in replay mode
         //Listen to old settings for information
         //We disable all the options the user can normally change
-        refereeCheckBox->setDisabled(true);
-        loggingCheckBox->setDisabled(true);
+        refereeCheckBox->setEnabled(false);
+        loggingCheckBox->setEnabled(false);
         loggingCheckBox->setChecked(false);
-        leftTeamWidget->setDisabled(true);
-        rightTeamWidget->setDisabled(true);
+        leftTeamWidget->setEnabled(false);
+        leftTeamWidget->setReplay(true);
+        rightTeamWidget->setEnabled(false);
+        rightTeamWidget->setReplay(true);
     }
     if(mode == proto::Settings_usageMode_REPLAY && newMode != proto::Settings_usageMode_REPLAY){
         refereeCheckBox->setEnabled(true);
         loggingCheckBox->setChecked(loggingOn); //restore old state
         loggingCheckBox->setEnabled(true);
         leftTeamWidget->setEnabled(true);
+        leftTeamWidget->setReplay(false);
         rightTeamWidget->setEnabled(true);
+        rightTeamWidget->setReplay(false);
     }
     mode = newMode;
 }

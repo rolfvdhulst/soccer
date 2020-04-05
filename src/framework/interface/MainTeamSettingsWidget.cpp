@@ -49,21 +49,11 @@ MainTeamSettingsWidget::~MainTeamSettingsWidget() {
 }
 void MainTeamSettingsWidget::toggleOurColor() {
     weAreBlue = !weAreBlue; //invert color
-    if(weAreBlue){
-        colorButton->setStyleSheet("background-color: blue;");
-        colorButton->setText("Playing as Blue");
-    } else{
-        colorButton->setStyleSheet("background-color: orange;");  // orange is more readable
-        colorButton->setText("Playing as Yellow");
-    }
+    setColorVisual(weAreBlue);
 }
 void MainTeamSettingsWidget::toggleOurSide() {
     wePlayOnPositiveHalf = !wePlayOnPositiveHalf; //invert side
-    if(wePlayOnPositiveHalf){
-        sideButton->setText("Playing as right ▶");
-    } else{
-        sideButton->setText("◀ Playing as left");
-    }
+    setSideVisual(wePlayOnPositiveHalf);
 }
 proto::TeamSettings MainTeamSettingsWidget::getTeamSettings() const {
     proto::TeamSettings settings;
@@ -71,4 +61,59 @@ proto::TeamSettings MainTeamSettingsWidget::getTeamSettings() const {
     settings.set_weplayonpositivehalf(wePlayOnPositiveHalf);
     settings.set_defaultkeeperid(keeperID);
     return settings;
+}
+void MainTeamSettingsWidget::setReplay(bool inReplay) {
+    isInReplay = inReplay;
+    if(inReplay){
+        setSideVisual(replaySettings.weplayonpositivehalf());
+        setColorVisual(replaySettings.weareblue());
+        keeperIDBox->setCurrentIndex(replaySettings.defaultkeeperid());
+    } else{
+        //Restore initial values after replay
+        setSideVisual(wePlayOnPositiveHalf);
+        setColorVisual(weAreBlue);
+        keeperIDBox->setCurrentIndex(keeperID);
+    }
+}
+void MainTeamSettingsWidget::setSideVisual(bool positiveHalf) {
+    if(positiveHalf){
+        sideButton->setText("Playing as right ▶");
+    } else{
+        sideButton->setText("◀ Playing as left");
+    }
+}
+void MainTeamSettingsWidget::setColorVisual(bool isBlue) {
+    if(isBlue){
+        colorButton->setStyleSheet("background-color: blue;");
+        colorButton->setText("Playing as Blue");
+    } else{
+        colorButton->setStyleSheet("background-color: orange;");  // orange is more readable
+        colorButton->setText("Playing as Yellow");
+    }
+}
+void MainTeamSettingsWidget::setFromGameState(const proto::GameState &gameState) {
+    bool gameStateWeAreBlue = gameState.ourcolor() == proto::Team::BLUE;
+    if (gameStateWeAreBlue != weAreBlue){
+        toggleOurColor();
+    }
+    if(gameState.weplayonpositivehalf() != wePlayOnPositiveHalf){
+        toggleOurSide();
+    }
+    if(gameState.us().goalkeeper() != keeperIDBox->currentIndex()){
+        keeperID = gameState.us().goalkeeper();
+        keeperIDBox->setCurrentIndex(gameState.us().goalkeeper());
+    }
+}
+//Crucial difference, visualizes but doesn't update default values so when you go back the widget remembers the old values
+void MainTeamSettingsWidget::visualizeFromGameState(const proto::GameState &gameState){
+    bool gameStateWeAreBlue = gameState.ourcolor() == proto::Team::BLUE;
+    if (gameStateWeAreBlue != weAreBlue){
+        setColorVisual(gameStateWeAreBlue);
+    }
+    if(gameState.weplayonpositivehalf() != wePlayOnPositiveHalf){
+        setSideVisual(gameState.weplayonpositivehalf());
+    }
+    if(gameState.us().goalkeeper() != keeperIDBox->currentIndex()){
+        keeperIDBox->setCurrentIndex(gameState.us().goalkeeper());
+    }
 }

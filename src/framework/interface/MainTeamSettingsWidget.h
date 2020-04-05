@@ -11,6 +11,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QGroupBox>
 #include <protobuf/Settings.pb.h>
+#include <referee/GameState.h>
 
 class MainTeamSettingsWidget : public QWidget {
     Q_OBJECT
@@ -19,7 +20,10 @@ class MainTeamSettingsWidget : public QWidget {
         explicit MainTeamSettingsWidget(bool isLeft, QWidget * parent);
         ~MainTeamSettingsWidget() override;
         [[nodiscard]] proto::TeamSettings getTeamSettings() const;
+        void setReplay(bool isReplay);
     private:
+        void setFromGameState(const proto::GameState& gameState);
+        void visualizeFromGameState(const proto::GameState& gameState);
         QGroupBox * groupBox;
         QVBoxLayout * boxLayout;
         QVBoxLayout * mainLayout;
@@ -28,15 +32,20 @@ class MainTeamSettingsWidget : public QWidget {
 
         QPushButton * colorButton;
         void toggleOurColor();
+        void setColorVisual(bool isBlue);
         bool weAreBlue = true;
 
         QPushButton * sideButton;
         void toggleOurSide();
+        void setSideVisual(bool wePlayOnPositiveHalf);
         bool wePlayOnPositiveHalf = false;
 
         QComboBox * keeperIDBox;
         void setKeeperID(const QString &id);
-        unsigned int keeperID = 0;
+        int keeperID = 0;
+
+        bool isInReplay = false;
+        proto::TeamSettings replaySettings;
 };
 
 #endif //SOCCER_MAINTEAMSETTINGSWIDGET_H
