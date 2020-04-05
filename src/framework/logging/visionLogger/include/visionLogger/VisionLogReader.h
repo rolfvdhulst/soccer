@@ -23,14 +23,12 @@ class VisionLogReader {
          */
         std::pair<long long int, MessageType> nextVisionPacket(QByteArray &data);
         std::pair<long long int, MessageType> visionPacketAt(int packet,QByteArray &data);
-        [[nodiscard]] QString message() const;
     private:
         std::pair<long long int, MessageType> readPacket(long offset,QByteArray &data);
         bool indexFile();
         std::ifstream* inStream;
         std::map<int,long> index; //keeps track of all the file positions.
         // Alternative is to load the entire file into memory
-        QString errorMessage;
 };
 
 #endif //SOCCER_VISIONLOGREADER_H

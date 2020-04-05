@@ -139,3 +139,19 @@ void RefereeFilter::addCommands(proto::GameState &gameState, const proto::Refere
         }
     }
 }
+proto::TeamRobotInfo RefereeFilter::getTeamRobotInfo() const {
+    proto::TeamRobotInfo teamRobotInfo;
+
+    std::string blueString;
+    std::string yellowString;
+    if(lastGameState.ourcolor() == proto::Team::BLUE){
+        blueString = lastGameState.us().name();
+        yellowString = lastGameState.them().name();
+    }else{
+        blueString = lastGameState.them().name();
+        yellowString = lastGameState.us().name();
+    }
+    teamRobotInfo.mutable_blue()->CopyFrom(getTeamInfo(blueString));
+    teamRobotInfo.mutable_yellow()->CopyFrom(getTeamInfo(yellowString));
+    return teamRobotInfo;
+}

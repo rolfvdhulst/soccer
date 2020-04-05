@@ -22,7 +22,7 @@ class ApplicationManager {
     std::unique_ptr<RoboCupSSLClient> visionReceiver = nullptr;
     std::unique_ptr<RoboCupSSLClient> refereeReceiver = nullptr;
     VisionFilter visionFilter;
-    RefereeFilter refereeFilter;
+    RefereeFilter gameStateFilter;
     std::vector<proto::SSL_WrapperPacket> visionPackets;
     std::vector<proto::Referee> refereePackets;
     void receiveVision();

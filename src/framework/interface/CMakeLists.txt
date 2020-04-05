@@ -8,7 +8,7 @@ add_library(interface STATIC
         Visualizer.h
         GameStateVisualizer.cpp
         GameStateVisualizer.h
-        GameEventsWidget.cpp GameEventsWidget.h)
+        GameEventsWidget.cpp GameEventsWidget.h MainSettingsWidget.cpp MainSettingsWidget.h MainTeamSettingsWidget.cpp MainTeamSettingsWidget.h)
 
 target_link_libraries(interface
         PUBLIC Qt5::Core

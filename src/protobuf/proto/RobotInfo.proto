@@ -3,8 +3,15 @@ syntax = "proto2";
 package proto;
 
 message RobotInfo{
-    required float radius = 1 [default = 0.09];
-    required float height = 2 [default = 0.15];
-    required float dribblerAngle = 3;
+    required float radius = 1;
+    required float height = 2;
+    required float dribblerAngle = 3; //The following 3 are all calculated from one parameter but we want our users to be able to be lazy
     required float frontWidth = 4;
+    required float centerToDribblerDist = 5;
+    required float dribblerWidth = 6; //
+    optional float angleOffset = 7; //Offset of the actual robot angle vs the one seen on vision
+}
+message TeamRobotInfo{
+    required RobotInfo yellow = 1;
+    required RobotInfo blue = 2;
 }

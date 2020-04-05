@@ -6,9 +6,11 @@
 #define SOCCER_REFEREEFILTER_H
 #include <protobuf/GameState.pb.h>
 #include <protobuf/ssl_referee.pb.h>
+#include <protobuf/RobotInfo.h>
 #include <geometry/Vector2.h>
 class RefereeFilter {
     public:
+        proto::TeamRobotInfo getTeamRobotInfo() const;
         proto::GameState update(const std::vector<proto::Referee>& refereeMessages, const proto::World& world);
         bool flipHasChanged() const;
     private:

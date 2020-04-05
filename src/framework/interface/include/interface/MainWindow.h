@@ -9,6 +9,7 @@
 
 class Visualizer;
 class GameStateVisualizer;
+class MainSettingsWidget;
 class MainWindow : public QMainWindow{
         Q_OBJECT
     public:
@@ -24,6 +25,7 @@ class MainWindow : public QMainWindow{
         QWidget * sideBarWidget;
         Visualizer *visualizer;
         GameStateVisualizer *gameStateVisualizer;
+        MainSettingsWidget *mainControls;
 };
 
 #endif //SOCCER_MAINWINDOW_H

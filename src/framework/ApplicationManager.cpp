@@ -5,6 +5,8 @@
 #include "ApplicationManager.h"
 #include <interfaceAPI/API.h>
 #include <geometry/Flip.h>
+#include <protobuf/FrameLog.pb.h>
+
 void ApplicationManager::init() {
     setupNetworking();
 }
@@ -12,14 +14,25 @@ void ApplicationManager::run(bool &exit) {
     int count = 0;
     Time total((long)0);
     while (!exit) {
+        proto::FrameLog log;
         Time before= Time::now();
         receiveVision();
-        proto::World worldState = visionFilter.process(visionPackets);
         receiveReferee();
-        proto::GameState gameState = refereeFilter.update(refereePackets,worldState);
+        for (const auto& visionPacket : visionPackets ) {
+            log.add_visionmessages()->CopyFrom(visionPacket);
+        }
+        for (const auto& refPacket : refereePackets){
+            log.add_refereemessages()->CopyFrom(refPacket);
+        }
+        proto::TeamRobotInfo teamRobotInfo = gameStateFilter.getTeamRobotInfo();
+
+        proto::World worldState = visionFilter.process(visionPackets,teamRobotInfo);
+        proto::GameState gameState = gameStateFilter.update(refereePackets,worldState);
+
+
         std::optional<proto::SSL_GeometryData> geometryData;
         //We resend the geometry if new geometry has arrived or if we change the rotation of data
-        if (visionFilter.hasNewGeometry() || (refereeFilter.flipHasChanged() && visionFilter.receivedFirstGeometry())){
+        if (visionFilter.hasNewGeometry() || (gameStateFilter.flipHasChanged() && visionFilter.receivedFirstGeometry())){
             geometryData = visionFilter.getGeometry();
         }
         if (gameState.weplayonpositivehalf()){
@@ -28,6 +41,12 @@ void ApplicationManager::run(bool &exit) {
             if(geometryData){
                 flip(*geometryData);
             }
+        }
+        log.mutable_robotinfo()->CopyFrom(teamRobotInfo);
+        log.mutable_world()->CopyFrom(worldState);
+        log.mutable_gamestate()->CopyFrom(gameState);
+        if(geometryData){
+            log.mutable_interpretedgeometry()->CopyFrom(*geometryData);
         }
         //Send the relevant information to the interface
         if(geometryData){
@@ -42,26 +61,24 @@ void ApplicationManager::run(bool &exit) {
             }
         }
         API::instance()->addDetectionFrames(copy);
-
-
         std::vector<proto::GameEvent> events;
         for (const auto & gameEvent : gameState.game_events()) {
             events.push_back(gameEvent);
         }
         API::instance()->addGameEvents(events);
-
         API::instance()->setWorldState(worldState);
         API::instance()->setGameState(gameState);
-
+        refereePackets.clear();
+        visionPackets.clear();
 
         Time after = Time::now();
         total +=(after-before);
         count++;
         if(count%100 == 0){
             std::cout<< total.asSeconds()*1000/count<<std::endl;
+            total = Time(0.0);
+            count = 0;
         }
-        refereePackets.clear();
-        visionPackets.clear();
         this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }

@@ -5,6 +5,8 @@
 #include "MainWindow.h"
 #include "Visualizer.h"
 #include "GameStateVisualizer.h"
+#include "MainSettingsWidget.h"
+
 #include <QMenuBar>
 #include <QtWidgets/QSplitter>
 
@@ -15,11 +17,13 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     visualizer = new Visualizer(this);
     gameStateVisualizer = new GameStateVisualizer(this);
+    mainControls = new MainSettingsWidget(this);
 
     mainLayout = new QVBoxLayout();
     horizontalLayout = new QHBoxLayout();
     sideBarLayout = new QVBoxLayout();
 
+    //setup top menu
     QMenuBar * menu = new QMenuBar(this);
     setMenuBar(menu);
     auto viewMenu = menu->addMenu(tr("&Visualization"));
@@ -27,6 +31,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     configureCheckableMenuItem("Show camera outlines", viewMenu,visualizer,SLOT(setShowCameraOutlines(bool)),false);
     configureCheckableMenuItem("Show placement marker", viewMenu,visualizer,SLOT(setShowPlacementMarker(bool)),true);
 
+
+    sideBarLayout->addWidget(mainControls);
     sideBarLayout->addWidget(gameStateVisualizer);
 
 

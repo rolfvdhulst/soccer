@@ -1,0 +1,35 @@
+syntax = "proto2";
+
+package proto;
+
+
+message TeamSettings{
+    //If we listen to the referee the following fields may be overridden, but they will be the default in case when we listen
+    //none of the teams has our name.
+    required bool weAreBlue = 1;
+    required bool wePlayOnPositiveHalf = 2;
+    optional uint32 defaultKeeperID = 3; //This always be overridden if listenToReferee is on
+}
+
+message Settings {
+    enum usageMode {
+        ONE_TEAM = 0; // controls only one team
+        TWO_TEAMS = 1; // controls both teams
+        SIMULATION_ONE_TEAM = 2;
+        SIMULATION_TWO_TEAMS = 3;
+        REPLAY = 4;
+    }
+    //sending commands
+    //one or two teams?
+    //Construct simulation
+    //Real time?
+    required usageMode mode = 1;
+    required bool loggingOn = 2;
+    required bool listenToReferee = 3;
+    required string commandAddress = 4;
+    required uint32 commandPort = 5;
+    required TeamSettings firstTeam = 6;
+    optional TeamSettings secondTeam = 7;
+
+
+}

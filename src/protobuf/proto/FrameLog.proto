@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+
+package proto;
+
+import "messages_robocup_ssl_wrapper.proto";
+import "messages_robocup_ssl_geometry.proto";
+import "ssl_referee.proto";
+import "World.proto";
+import "GameState.proto";
+import "Settings.proto";
+import "RobotInfo.proto";
+
+message FrameLog {
+    required Settings replaySettings = 1;
+    repeated SSL_WrapperPacket visionMessages = 2;
+    repeated Referee refereeMessages = 3;
+    optional World world = 4; //TODO: maybe make these required?
+    optional GameState gameState = 5;
+    optional SSL_GeometryData interpretedGeometry = 6;
+    optional TeamRobotInfo robotInfo = 7;
+    //repeated RobotCommands sentCommands = 6;
+    //repeated RobotFeedback receivedFeedback = 7;
+}

@@ -14,17 +14,17 @@ bool VisionLogReader::open(const QString& fileName) {
     const char * fname = fileNameBytes.data();
     inStream = new std::ifstream(fname, std::ios_base::in | std::ios_base::binary);
     if(!inStream->is_open()){
-        errorMessage = "Error opening log file \"" + fileName +"\"!";
+        std::cerr<<"Error opening log file \"" + fileName.toStdString() +"\"!"<<std::endl;
         return false;
     }
     FileHeader fileHeader;
     inStream->read((char*) &fileHeader, sizeof(fileHeader));
     fileHeader.version = qFromBigEndian(fileHeader.version); //The log files are in bigEndian format.
     if(strncmp(fileHeader.name,DEFAULT_FILE_HEADER_NAME,sizeof(fileHeader.name))!= 0){
-        errorMessage = "Unrecognized logfile header";
+        std::cerr<<"Unrecognized logfile header"<<std::endl;
         return false;
     }
-    errorMessage = "Opened " + fileName + " as log version "+QString::number(fileHeader.version)+ " (default is 1)";
+    std::cout<<"Opened " + fileName.toStdString() + " as log version "+QString::number(fileHeader.version).toStdString()+ " (default is 1)"<<std::endl;
     return indexFile();
 }
 bool VisionLogReader::indexFile() {
@@ -36,7 +36,7 @@ bool VisionLogReader::indexFile() {
         index[packetNumber] = inStream->tellg();
         inStream->read((char *)& dataHeader, sizeof(dataHeader));
         if(inStream->bad()){
-            errorMessage = "Error indexing file";
+            std::cerr<<"Error indexing file"<<std::endl;
             return false;
         }
         if(inStream->eof()){
@@ -58,9 +58,6 @@ bool VisionLogReader::indexFile() {
 void VisionLogReader::close() {
     inStream->close();
     delete inStream;
-}
-QString VisionLogReader::message() const {
-    return errorMessage;
 }
 unsigned long VisionLogReader::fileMessageCount() {
     return index.size()-1;//-1 because we also index the very end.
