@@ -13,6 +13,8 @@
 #include <QtWidgets/QGroupBox>
 #include <protobuf/Settings.pb.h>
 #include <QtWidgets/QComboBox>
+#include <protobuf/GameState.pb.h>
+
 class MainTeamSettingsWidget;
 class MainSettingsWidget : public QWidget {
         Q_OBJECT
@@ -21,7 +23,7 @@ class MainSettingsWidget : public QWidget {
         explicit MainSettingsWidget(QWidget * parent);
         ~MainSettingsWidget() override;
         [[nodiscard]] proto::Settings getSettings() const;
-
+        void updateNormal(const proto::GameState& gameState);
     private slots:
         void updateMode(int index);
     private:

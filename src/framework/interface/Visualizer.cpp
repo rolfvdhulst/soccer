@@ -159,11 +159,11 @@ void Visualizer::refitView() {
 }
 void Visualizer::wheelEvent(QWheelEvent *event) {
     //Todo: add minimum and maximum zoom
-    double zoomConstant =1.25;
-    double zoomFactor=pow(zoomConstant,event->delta()/240.0);
-    setTransformationAnchor(QGraphicsView::AnchorUnderMouse); //zoom in at the point the mouse is at
-    const QPointF &oldPos = mapToScene(event->pos());
+    double zoomConstant = 1.25;
+    double zoomFactor=pow(zoomConstant,event->delta()/120.0);
+    const QPointF &scenePos = mapToScene(event->pos());
     scale(zoomFactor,zoomFactor);
+    centerOn(scenePos);
 }
 void Visualizer::drawDetectionFrames(QPainter* painter, const std::vector<proto::SSL_DetectionFrame>& frames) {
     for(const auto& frame : frames){

@@ -41,30 +41,5 @@ int main(int argc, char* argv[]) {
     int exit=app.exec();
     exitObject = true;
     applicationThread.join();
-//    VisionLogReader reader;
-//    bool succes=reader.open("/home/rolf/Downloads/testtesttest.log");
-//    if(succes){
-//        std::cout<<"SUCCESS"<<std::endl;
-//    }else{
-//        std::cout<<"FAILURE"<<std::endl;
-//    }
-//    std::cout<<reader.message().toStdString()<<std::endl;
-//
-//    for (int i = 0; i < reader.fileMessageCount(); ++ i) {
-//        QByteArray data;
-//        auto info = reader.nextVisionPacket(data);
-//        if (info.second == MessageType::MESSAGE_SSL_VISION_2014){
-//            proto::SSL_WrapperPacket packet;
-//            bool success=packet.ParseFromArray(data,data.size());
-//            if(!success){
-//                std::cerr<<"could not parse packet: " << i<<std::endl;
-//            }
-//
-//            //packet.PrintDebugString();
-//        } else if( info.second == MessageType::MESSAGE_INVALID){
-//            std::cerr<<"WTH: "<<i<<std::endl;
-//        }
-//    }
-//    reader.close();
     return exit;
 }

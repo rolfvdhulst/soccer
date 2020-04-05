@@ -5,6 +5,7 @@
 #include <protobuf/messages_robocup_ssl_geometry.pb.h>
 #include "Flip.h"
 #include "Angle.h"
+#include "CommandSwitch.h"//TODO: fix this
 void flipRobot(proto::WorldRobot * robot){
     robot->mutable_pos()->set_x(robot->pos().x() * -1);
     robot->mutable_pos()->set_y(robot->pos().y() * -1);
@@ -123,4 +124,26 @@ flipAndSwap(a.end, b.end);
 void flipAndSwap(Rectangle &a, Rectangle &b){
 flipAndSwap(a.min, b.max);
 flipAndSwap(a.max, b.min);
+}
+void flip(proto::GameState& gameState){
+    gameState.set_command(invertTeams(gameState.command()));
+    gameState.set_weplayonpositivehalf(!gameState.weplayonpositivehalf());
+    if(gameState.has_nextcommand()){
+        gameState.set_nextcommand(invertTeams(gameState.nextcommand()));
+    }
+    //swap but have to do this since std:swap does not work on protobuf
+    proto::Referee_TeamInfo us = gameState.us();
+    gameState.mutable_us()->CopyFrom(gameState.them());
+    gameState.mutable_them()->CopyFrom(us);
+    if(gameState.has_designated_position()){
+        gameState.mutable_designated_position()->set_x(gameState.designated_position().x()*-1);
+        gameState.mutable_designated_position()->set_y(gameState.designated_position().y()*-1);
+    }
+    if(gameState.ourcolor() == proto::BLUE){
+        gameState.set_ourcolor(proto::YELLOW);
+    }else if(gameState.ourcolor() == proto::YELLOW){
+        gameState.set_ourcolor(proto::BLUE);
+    }
+    //We ignore game events.
+    // Technically they should also be flipped as they contain positions and velocities (sometimes) but this quickly becomes a HUGE switch statement
 }

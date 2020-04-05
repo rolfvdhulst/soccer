@@ -28,6 +28,8 @@ add_library(geometry STATIC
         include/geometry/Vector3.h
         Flip.cpp
         include/geometry/Flip.h
+        CommandSwitch.cpp
+        include/geometry/CommandSwitch.h
         )
 target_link_libraries(geometry
         PUBLIC proto

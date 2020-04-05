@@ -4,7 +4,7 @@
 
 #include <protobuf/World.pb.h>
 #include "RefereeFilter.h"
-#include "CommandSwitch.h"
+#include <geometry/CommandSwitch.h>//TODO: find nice place that avoids circular dependencies
 
 proto::GameState RefereeFilter::update(const std::vector<proto::Referee>& refereeMessages, const proto::World& world) {
     flipChanged = false;

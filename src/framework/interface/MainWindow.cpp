@@ -9,6 +9,7 @@
 
 #include <QMenuBar>
 #include <QtWidgets/QSplitter>
+#include <interfaceAPI/API.h>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     int width = 1920;
@@ -50,6 +51,14 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     centralWidget()->setLayout(mainLayout);
 
     showMaximized();
+    updateTimer = new QTimer();
+    connect(updateTimer,&QTimer::timeout,this,&MainWindow::updateAll);
+    updateTimer->start(20);
+
+}
+void MainWindow::updateAll() {
+    proto::GameState gameState = API::instance()->getGameState();
+    mainControls->updateNormal(gameState);
 }
 void MainWindow::configureCheckableMenuItem(const QString& title, QMenu *menu, const QObject *receiver, const char *method, bool defaultState) {
     QAction *action = new QAction(title, menu);

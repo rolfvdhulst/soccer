@@ -21,9 +21,10 @@ class MainTeamSettingsWidget : public QWidget {
         ~MainTeamSettingsWidget() override;
         [[nodiscard]] proto::TeamSettings getTeamSettings() const;
         void setReplay(bool isReplay);
-    private:
         void setFromGameState(const proto::GameState& gameState);
         void visualizeFromGameState(const proto::GameState& gameState);
+    private:
+
         QGroupBox * groupBox;
         QVBoxLayout * boxLayout;
         QVBoxLayout * mainLayout;

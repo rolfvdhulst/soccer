@@ -6,6 +6,7 @@
 #include "MainSettingsWidget.h"
 #include "MainTeamSettingsWidget.h"
 #include <QtWidgets/QLineEdit>
+#include <geometry/Flip.h>
 
 MainSettingsWidget::MainSettingsWidget(QWidget* parent) : QWidget(parent){
 
@@ -106,7 +107,9 @@ void MainSettingsWidget::updateMode(int index) {
         //We disable all the options the user can normally change
         refereeCheckBox->setEnabled(false);
         loggingCheckBox->setEnabled(false);
+        //We explicitly set logging to false under replay as we don't want to record data of replays (this can mess up some parts)
         loggingCheckBox->setChecked(false);
+        loggingOn = false;
         leftTeamWidget->setEnabled(false);
         leftTeamWidget->setReplay(true);
         rightTeamWidget->setEnabled(false);
@@ -126,4 +129,12 @@ void MainSettingsWidget::updateMode(int index) {
 void MainSettingsWidget::setDisabledColor(QWidget* widget) {
     widget->setStyleSheet(QString::fromUtf8("QWidget:disabled"
                                               "{ color: gray }"));
+}
+void MainSettingsWidget::updateNormal(const proto::GameState &gameState) {
+    if(listenToReferee){
+        leftTeamWidget->setFromGameState(gameState);
+        proto::GameState flipped = gameState;
+        flip(flipped);
+        rightTeamWidget->setFromGameState(flipped);
+    }
 }

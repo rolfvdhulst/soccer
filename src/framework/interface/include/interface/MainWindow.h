@@ -6,6 +6,7 @@
 #define SOCCER_MAINWINDOW_H
 #include <QMainWindow>
 #include <QHBoxLayout>
+#include <QTimer>
 
 class Visualizer;
 class GameStateVisualizer;
@@ -18,6 +19,7 @@ class MainWindow : public QMainWindow{
     private:
         static void configureCheckableMenuItem(const QString& title, QMenu *menu,
                 const QObject *receiver, const char *method, bool defaultState);
+        void updateAll();
         QWidget *mainWidget;
         QHBoxLayout *horizontalLayout;
         QVBoxLayout *mainLayout;
@@ -26,6 +28,8 @@ class MainWindow : public QMainWindow{
         Visualizer *visualizer;
         GameStateVisualizer *gameStateVisualizer;
         MainSettingsWidget *mainControls;
+
+        QTimer * updateTimer;
 };
 
 #endif //SOCCER_MAINWINDOW_H
