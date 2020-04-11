@@ -29,6 +29,9 @@ class API {
 
         void addGameEvents(const std::vector<proto::GameEvent> &events);
         std::vector<proto::GameEvent> getGameEvents();
+
+        bool hasCompletedFirstTick();
+        void setTicked();
     private:
         API();
         static API * staticInstance;
@@ -48,6 +51,8 @@ class API {
 
         std::vector<proto::GameEvent> gameEvents;
         std::mutex gameEventsMutex;
+
+        bool completedFirstTick;
 };
 
 #endif //SOCCER_API_H

@@ -65,9 +65,10 @@ proto::TeamSettings MainTeamSettingsWidget::getTeamSettings() const {
 void MainTeamSettingsWidget::setReplay(bool inReplay) {
     isInReplay = inReplay;
     if(inReplay){
-        setSideVisual(replaySettings.weplayonpositivehalf());
-        setColorVisual(replaySettings.weareblue());
-        keeperIDBox->setCurrentIndex(replaySettings.defaultkeeperid());
+        //TODO: fix visuals and updates for replay mode here and in MainSettingsWidget
+//        setSideVisual(replaySettings.weplayonpositivehalf());
+//        setColorVisual(replaySettings.weareblue());
+//        keeperIDBox->setCurrentIndex(replaySettings.defaultkeeperid());
     } else{
         //Restore initial values after replay
         setSideVisual(wePlayOnPositiveHalf);
@@ -92,7 +93,8 @@ void MainTeamSettingsWidget::setColorVisual(bool isBlue) {
     }
 }
 void MainTeamSettingsWidget::setFromGameState(const proto::GameState &gameState) {
-    bool gameStateWeAreBlue = gameState.ourcolor() == proto::Team::BLUE;
+    bool gameStateWeAreBlue = gameState.ourcolor() != proto::Team::YELLOW;// since Team can be Unknown we check this.
+    // This is to prevent empty messages from changing the color
     if (gameStateWeAreBlue != weAreBlue){
         toggleOurColor();
     }
@@ -106,7 +108,7 @@ void MainTeamSettingsWidget::setFromGameState(const proto::GameState &gameState)
 }
 //Crucial difference, visualizes but doesn't update default values so when you go back the widget remembers the old values
 void MainTeamSettingsWidget::visualizeFromGameState(const proto::GameState &gameState){
-    bool gameStateWeAreBlue = gameState.ourcolor() == proto::Team::BLUE;
+    bool gameStateWeAreBlue = gameState.ourcolor() != proto::Team::YELLOW;
     if (gameStateWeAreBlue != weAreBlue){
         setColorVisual(gameStateWeAreBlue);
     }

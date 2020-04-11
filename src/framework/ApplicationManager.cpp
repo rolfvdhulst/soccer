@@ -6,14 +6,24 @@
 #include <interfaceAPI/API.h>
 #include <geometry/Flip.h>
 #include <protobuf/FrameLog.pb.h>
+#include <interfaceAPI/SettingsAPI.h>
 
 void ApplicationManager::init() {
     setupNetworking();
+    while(!SettingsAPI::instance()->receivedFirstSettings()){
+
+    }
 }
 void ApplicationManager::run(bool &exit) {
     int count = 0;
     Time total((long)0);
     while (!exit) {
+        proto::Settings settings = SettingsAPI::instance()->getSettings();
+        if(settings.loggingon() && !logger.isLogging()){
+            logger.startLogging();
+        } else if(!settings.loggingon() && logger.isLogging()){
+            logger.endLogging();
+        }
         proto::FrameLog log;
         Time before= Time::now();
         receiveVision();
@@ -27,8 +37,7 @@ void ApplicationManager::run(bool &exit) {
         proto::TeamRobotInfo teamRobotInfo = gameStateFilter.getTeamRobotInfo();
 
         proto::World worldState = visionFilter.process(visionPackets,teamRobotInfo);
-        proto::GameState gameState = gameStateFilter.update(refereePackets,worldState);
-
+        proto::GameState gameState = gameStateFilter.update(settings,refereePackets,worldState);
 
         std::optional<proto::SSL_GeometryData> geometryData;
         //We resend the geometry if new geometry has arrived or if we change the rotation of data
@@ -44,7 +53,12 @@ void ApplicationManager::run(bool &exit) {
         }
         log.mutable_robotinfo()->CopyFrom(teamRobotInfo);
         log.mutable_world()->CopyFrom(worldState);
-        log.mutable_gamestate()->CopyFrom(gameState);
+        //log.mutable_gamestate()->CopyFrom(gameState);
+        log.mutable_replaysettings()->CopyFrom(settings);
+
+        if(logger.isLogging()){
+            logger.addLogFrame(log);
+        }
         if(geometryData){
             log.mutable_interpretedgeometry()->CopyFrom(*geometryData);
         }
@@ -68,6 +82,7 @@ void ApplicationManager::run(bool &exit) {
         API::instance()->addGameEvents(events);
         API::instance()->setWorldState(worldState);
         API::instance()->setGameState(gameState);
+        API::instance()->setTicked();
         refereePackets.clear();
         visionPackets.clear();
 

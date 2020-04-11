@@ -15,6 +15,7 @@ target_link_libraries(application
         PUBLIC visionFilter
         PUBLIC interfaceAPI
         PUBLIC refereeFilter
+        PUBLIC logger
         )
 
 

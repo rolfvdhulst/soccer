@@ -10,11 +10,13 @@
 class SettingsAPI {
     public:
         static SettingsAPI * instance();
+        bool receivedFirstSettings();
         proto::Settings getSettings();
         void setSettings(const proto::Settings& coreSettings);
     private:
         static SettingsAPI * staticInstance;
 
+        bool hasReceivedSettings = false;
         std::mutex settingsMutex;
         proto::Settings settings;
 };

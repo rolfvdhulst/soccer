@@ -28,7 +28,7 @@ class VisionLogReader {
         bool indexFile();
         std::ifstream* inStream;
         std::map<int,long> index; //keeps track of all the file positions.
-        // Alternative is to load the entire file into memory
+        // Alternatives are to load the entire file into memory (which can become problematically large), or to read as you go along
 };
 
 #endif //SOCCER_VISIONLOGREADER_H

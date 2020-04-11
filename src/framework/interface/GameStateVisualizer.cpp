@@ -144,11 +144,16 @@ void GameStateVisualizer::updateGamestate(const GameState &state) {
         nextCommand->setText("Next command: -");
     }
     //We already rotate the field so we are left, so this is easier to view.
-    displayLeftTeam(state.usInfo);
-    displayRightTeam(state.themInfo);
+    displayLeftTeam(state.usInfo, state.ourColor);
+    displayRightTeam(state.themInfo, state.ourColor.inverse());
 }
-void GameStateVisualizer::displayLeftTeam(const TeamInfo &teamInfo) {
+void GameStateVisualizer::displayLeftTeam(const TeamInfo &teamInfo, Team color) {
     leftTeamName->setText(QString::fromStdString(teamInfo.name));
+    QString colorStr = "gray";
+    if (color != Team::UNKNOWN){
+        colorStr = (color == Team::BLUE ? "cyan" : "orange");
+    }
+    leftTeamName->setStyleSheet("QLabel { color :"+ colorStr +"; }");
     leftScore->setText(QString::number(teamInfo.score));
     QString timeOutString = QString::number(teamInfo.timeOuts)+ ", "+QString::number(teamInfo.timeOutTime.asIntegerSeconds()) + " s";
     leftTimeouts->setText(timeOutString);
@@ -167,8 +172,13 @@ void GameStateVisualizer::displayLeftTeam(const TeamInfo &teamInfo) {
     leftYellowCards->setText(yellowCards+remainingTimes);
     leftGoalie->setText(QString::fromStdString(teamInfo.goalkeeperID.toString()));
 }
-void GameStateVisualizer::displayRightTeam(const TeamInfo &teamInfo) {
+void GameStateVisualizer::displayRightTeam(const TeamInfo &teamInfo, Team color) {
     rightTeamName->setText(QString::fromStdString(teamInfo.name));
+    QString colorStr = "gray";
+    if (color != Team::UNKNOWN){
+        colorStr = (color == Team::BLUE ? "cyan" : "orange");
+    }
+    rightTeamName->setStyleSheet("QLabel { color :"+ colorStr +"; }");
     rightScore->setText(QString::number(teamInfo.score));
     QString timeOutString = QString::number(teamInfo.timeOuts)+ ", "+QString::number(teamInfo.timeOutTime.asIntegerSeconds()) + " s";
     rightTimeouts->setText(timeOutString);

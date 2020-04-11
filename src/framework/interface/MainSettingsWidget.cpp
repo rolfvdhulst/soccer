@@ -83,7 +83,7 @@ MainSettingsWidget::~MainSettingsWidget() {
 }
 proto::Settings MainSettingsWidget::getSettings() const {
     proto::Settings settings;
-
+    settings.set_mode((proto::Settings_usageMode)usageMode->currentIndex());//NOTE THE CAST!
     settings.set_listentoreferee(listenToReferee);
     settings.set_loggingon(loggingOn);
     settings.set_commandaddress(IPText->text().toStdString());
@@ -117,7 +117,6 @@ void MainSettingsWidget::updateMode(int index) {
     }
     if(mode == proto::Settings_usageMode_REPLAY && newMode != proto::Settings_usageMode_REPLAY){
         refereeCheckBox->setEnabled(true);
-        loggingCheckBox->setChecked(loggingOn); //restore old state
         loggingCheckBox->setEnabled(true);
         leftTeamWidget->setEnabled(true);
         leftTeamWidget->setReplay(false);

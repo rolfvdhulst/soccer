@@ -25,8 +25,8 @@ class GameStateVisualizer : public QWidget {
         void updateAll();
     private:
         void updateGamestate(const GameState& gameState);
-        void displayLeftTeam(const TeamInfo &teamInfo);
-        void displayRightTeam(const TeamInfo &teamInfo);
+        void displayLeftTeam(const TeamInfo &teamInfo, Team color);
+        void displayRightTeam(const TeamInfo &teamInfo, Team color);
         GameEventsWidget * gameEventsWidget;
 
         QLabel * command;

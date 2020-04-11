@@ -6,20 +6,28 @@
 #include "RefereeFilter.h"
 #include <geometry/CommandSwitch.h>//TODO: find nice place that avoids circular dependencies
 
-proto::GameState RefereeFilter::update(const std::vector<proto::Referee>& refereeMessages, const proto::World& world) {
+proto::GameState RefereeFilter::update(const proto::Settings& settings,
+        const std::vector<proto::Referee>& refereeMessages, const proto::World& world) {
     flipChanged = false;
     if(refereeMessages.empty()){
         return lastGameState;
     }
     //Note the below line assumes that the referee messages are sorted ascending by time!
     const proto::Referee lastRefMessage=refereeMessages.back();
-    bool weAreBlue=inferOurColor(lastRefMessage);
-    proto::GameState newGameState = createGameState(lastRefMessage,weAreBlue,world);
+    bool weAreBlue;
+    if(settings.listentoreferee()){
+        weAreBlue = inferOurColor(settings, lastRefMessage);
+    } else{
+        weAreBlue = settings.firstteam().weareblue();
+    }
+
+    proto::GameState newGameState = createGameState(settings, lastRefMessage,weAreBlue,world);
     lastGameState = newGameState;
     lastGameState.clear_game_events();
     return newGameState;
 }
-proto::GameState RefereeFilter::createGameState(const proto::Referee &lastRefMessage,bool weAreBlue,const proto::World& world) {
+proto::GameState RefereeFilter::createGameState(const proto::Settings &settings,
+        const proto::Referee &lastRefMessage,bool weAreBlue,const proto::World& world) {
     proto::GameState newGameState;
     newGameState.set_timestamp(lastRefMessage.packet_timestamp()*1000);
     newGameState.set_stage(lastRefMessage.stage());
@@ -38,10 +46,14 @@ proto::GameState RefereeFilter::createGameState(const proto::Referee &lastRefMes
         newGameState.mutable_us()->CopyFrom(lastRefMessage.yellow());
         newGameState.mutable_them()->CopyFrom(lastRefMessage.blue());
     }
-    bool flipField = ! weAreBlue;
-    if(lastRefMessage.has_blue_team_on_positive_half()){
-        flipField = weAreBlue == lastRefMessage.blue_team_on_positive_half();
+    bool flipField  = settings.firstteam().weplayonpositivehalf(); //default to the interface value if we are not listening to referee
+    if (settings.listentoreferee()){
+        flipField = ! weAreBlue;
+        if(lastRefMessage.has_blue_team_on_positive_half()){
+            flipField = weAreBlue == lastRefMessage.blue_team_on_positive_half();
+        }
     }
+
     newGameState.set_weplayonpositivehalf(flipField);
     flipChanged = lastGameState.weplayonpositivehalf() != newGameState.weplayonpositivehalf();
     if(lastRefMessage.has_designated_position()){
@@ -56,8 +68,6 @@ proto::GameState RefereeFilter::createGameState(const proto::Referee &lastRefMes
         newGameState.mutable_designated_position()->CopyFrom(designatedPos);
     }
 
-
-    //newGameState.set_nextcommand();//TODO command switch
     int gameEventCount = lastRefMessage.game_events_size();
     if(gameEventCount> lastGameEventCount){
         for (int i = lastGameEventCount; i < gameEventCount ; ++ i) {
@@ -76,14 +86,14 @@ proto::GameState RefereeFilter::createGameState(const proto::Referee &lastRefMes
     return newGameState;
 }
 //checks whether we are one of the teams playing and if so returns true at sets that to our color
-bool RefereeFilter::inferOurColor(const proto::Referee &refereeMessage) {
+bool RefereeFilter::inferOurColor(const proto::Settings& settings, const proto::Referee &refereeMessage) {
     //this name should be the same as our name in  https://github.com/RoboCup-SSL/ssl-game-controller/blob/master/src/components/settings/team/TeamName.vue
     //or whatever the game client is at that point
     const std::string RTT_NAME ="RoboTeam Twente";
     if(refereeMessage.blue().name() == RTT_NAME){
         return true; // we are blue
     }
-    return refereeMessage.yellow().name() != RTT_NAME;    // We default to being blue
+    return settings.firstteam().weareblue();    // We default to the interface value if we don't find our name
 }
 bool RefereeFilter::flipHasChanged() const {
     return flipChanged;

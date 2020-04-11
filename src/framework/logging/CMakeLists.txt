@@ -1,2 +1,3 @@
 add_subdirectory(visionLogger)
 add_subdirectory(visionEvaluator)
+add_subdirectory(logger)

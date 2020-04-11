@@ -3,6 +3,8 @@
 //
 
 #include "SettingsAPI.h"
+SettingsAPI* SettingsAPI::staticInstance = nullptr;
+
 SettingsAPI* SettingsAPI::instance() {
     if (!staticInstance){
         staticInstance = new SettingsAPI();
@@ -15,5 +17,9 @@ proto::Settings SettingsAPI::getSettings() {
 }
 void SettingsAPI::setSettings(const proto::Settings &coreSettings) {
     std::lock_guard<std::mutex> lock(settingsMutex);
+    hasReceivedSettings = true;
     settings = coreSettings;
+}
+bool SettingsAPI::receivedFirstSettings() {
+    return hasReceivedSettings;
 }

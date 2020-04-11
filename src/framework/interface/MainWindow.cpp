@@ -10,6 +10,7 @@
 #include <QMenuBar>
 #include <QtWidgets/QSplitter>
 #include <interfaceAPI/API.h>
+#include <interfaceAPI/SettingsAPI.h>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     int width = 1920;
@@ -57,8 +58,25 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
 }
 void MainWindow::updateAll() {
-    proto::GameState gameState = API::instance()->getGameState();
-    mainControls->updateNormal(gameState);
+    SettingsAPI::instance()->setSettings(mainControls->getSettings());
+
+    if(API::instance()->hasCompletedFirstTick()){
+        proto::GameState gameState = API::instance()->getGameState();
+        mainControls->updateNormal(gameState);
+        visualizer->updateGameState(gameState);
+
+        proto::World worldState = API::instance()->getWorldState();
+        visualizer->updateWorld(worldState);
+
+        std::vector<proto::SSL_WrapperPacket> frames = API::instance()->getFramesAndClear();
+        visualizer->updateDetections(frames);
+
+        if(API::instance()->newGeometry()){
+            proto::SSL_GeometryData data = API::instance()->readGeometryData();
+            visualizer->updateGeometryData(data);
+        }
+    }
+
 }
 void MainWindow::configureCheckableMenuItem(const QString& title, QMenu *menu, const QObject *receiver, const char *method, bool defaultState) {
     QAction *action = new QAction(title, menu);

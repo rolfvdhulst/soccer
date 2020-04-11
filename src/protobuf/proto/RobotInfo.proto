@@ -5,11 +5,13 @@ package proto;
 message RobotInfo{
     required float radius = 1;
     required float height = 2;
-    required float dribblerAngle = 3; //The following 3 are all calculated from one parameter but we want our users to be able to be lazy
+    required float frontAngle = 3; //Half of the total cut out by the front
+    //The following 2 can be calculated from the angle and the radius but we want users to be able to be lazy
     required float frontWidth = 4;
-    required float centerToDribblerDist = 5;
-    required float dribblerWidth = 6; //
-    optional float angleOffset = 7; //Offset of the actual robot angle vs the one seen on vision
+    required float centerToFrontDist = 5;
+    required float centerToDribblerDist = 6; //Can not necessarily be calculated from the front as dribbler may be further back
+    required float dribblerWidth = 7; //Dribbler may be less wide than front
+    optional float angleOffset = 8; //Offset of the actual robot angle vs the one seen on vision
 }
 message TeamRobotInfo{
     required RobotInfo yellow = 1;

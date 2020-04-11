@@ -65,3 +65,9 @@ std::vector<proto::GameEvent> API::getGameEvents() {
     gameEvents.clear();
     return events;
 }
+bool API::hasCompletedFirstTick() {
+    return completedFirstTick;
+}
+void API::setTicked() {
+    completedFirstTick = true;
+}

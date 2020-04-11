@@ -10,6 +10,8 @@
 #include <memory>
 #include <future>
 #include <refereeFilter/RefereeFilter.h>
+
+#include <logger/LogCreator.h> //TODO: remove test
 class RoboCupSSLClient;
 
 class ApplicationManager {
@@ -27,6 +29,7 @@ class ApplicationManager {
     std::vector<proto::Referee> refereePackets;
     void receiveVision();
     void receiveReferee();
+    LogCreator logger;
 };
 
 #endif  // SOCCER_APPLICATIONMANAGER_H

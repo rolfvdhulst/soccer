@@ -174,7 +174,7 @@ message Referee {
 	optional bool blue_team_on_positive_half = 10;
 
 	// The game event that caused the referee command.
-	// deprecated in favor of game_events.
+	// deprecated in favor of game_events. This was used before 2019 to send the game events
 	//    optional Game_Event game_event = 11 [deprecated = true];
 	reserved 11;
 
