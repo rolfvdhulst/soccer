@@ -325,7 +325,7 @@ void Visualizer::createBall() {
     scene->addItem(ball->noBallWarning);
 }
 void Visualizer::resizeEvent(QResizeEvent* event) {
-    //refitView();
+    refitView();
 }
 void Visualizer::setShowDetections(bool show) {this->showDetections = show; }
 void Visualizer::createPlacementMarker() {
@@ -433,6 +433,17 @@ void Visualizer::addCameraOutLine(const Camera& camera) {
     cameraOutlines[camera.getID()] = visPoints;
 }
 void Visualizer::setShowCameraOutlines(bool show) { showCameraOutlines = show; }
+void Visualizer::updateFrame(const proto::FrameLog &frame) {
+    if(frame.has_world()){
+        updateWorld(frame.world());
+    }
+    if(frame.has_interpretedgeometry()){
+        updateGeometryData(frame.interpretedgeometry());
+    }
+    if(frame.has_gamestate()){
+        updateGameState(frame.gamestate());
+    }
+}
 void Visualizer::Ball::show() {
     actual->show();
     attentionCircle->show();

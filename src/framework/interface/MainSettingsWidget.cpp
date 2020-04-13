@@ -7,6 +7,7 @@
 #include "MainTeamSettingsWidget.h"
 #include <QtWidgets/QLineEdit>
 #include <geometry/Flip.h>
+#include "ReplayWidget.h"
 
 MainSettingsWidget::MainSettingsWidget(QWidget* parent) : QWidget(parent){
 
@@ -14,8 +15,11 @@ MainSettingsWidget::MainSettingsWidget(QWidget* parent) : QWidget(parent){
     settingsBox = new QGroupBox("Main settings");
     mainSettings = new QVBoxLayout();
 
+    replayWidget = new ReplayWidget(this);
+    mainLayout->addWidget(replayWidget);
+
     usageMode = new QComboBox();
-    usageMode->addItems({"One team","Two teams","One team simulator","Two teams simulator","Replay"});
+    usageMode->addItems({"One team","Two teams","One team simulator","Two teams simulator"});
     usageMode->setStyleSheet("background-color: darkslategray;");
     connect(usageMode,SIGNAL(currentIndexChanged(int)), this, SLOT(updateMode(int)));
     mainSettings->addWidget(usageMode);
@@ -33,6 +37,11 @@ MainSettingsWidget::MainSettingsWidget(QWidget* parent) : QWidget(parent){
     loggingCheckBox->setChecked(false);
     checkBoxLayout->addWidget(loggingCheckBox);
     connect(loggingCheckBox, &QCheckBox::clicked, this, &MainSettingsWidget::setLoggingOn);
+
+    replayCheckBox = new QCheckBox("Play replay");
+    replayCheckBox->setChecked(false);
+    checkBoxLayout->addWidget(replayCheckBox);
+    connect(replayCheckBox, &QCheckBox::clicked, this, &MainSettingsWidget::setPlayReplay);
     mainSettings->addLayout(checkBoxLayout);
 
     networkLayout = new QHBoxLayout();
@@ -86,6 +95,7 @@ proto::Settings MainSettingsWidget::getSettings() const {
     settings.set_mode((proto::Settings_usageMode)usageMode->currentIndex());//NOTE THE CAST!
     settings.set_listentoreferee(listenToReferee);
     settings.set_loggingon(loggingOn);
+    settings.set_playingreplay(playReplay);
     settings.set_commandaddress(IPText->text().toStdString());
     settings.set_commandport(portBox->text().toUInt());
     settings.mutable_firstteam()->CopyFrom(leftTeamWidget->getTeamSettings());
@@ -101,28 +111,6 @@ void MainSettingsWidget::updateMode(int index) {
     }else if (newMode == proto::Settings_usageMode_ONE_TEAM || newMode == proto::Settings_usageMode_SIMULATION_ONE_TEAM){
         rightTeamWidget->hide();
     }
-    if(newMode == proto::Settings_usageMode_REPLAY) {
-        // we are in replay mode
-        //Listen to old settings for information
-        //We disable all the options the user can normally change
-        refereeCheckBox->setEnabled(false);
-        loggingCheckBox->setEnabled(false);
-        //We explicitly set logging to false under replay as we don't want to record data of replays (this can mess up some parts)
-        loggingCheckBox->setChecked(false);
-        loggingOn = false;
-        leftTeamWidget->setEnabled(false);
-        leftTeamWidget->setReplay(true);
-        rightTeamWidget->setEnabled(false);
-        rightTeamWidget->setReplay(true);
-    }
-    if(mode == proto::Settings_usageMode_REPLAY && newMode != proto::Settings_usageMode_REPLAY){
-        refereeCheckBox->setEnabled(true);
-        loggingCheckBox->setEnabled(true);
-        leftTeamWidget->setEnabled(true);
-        leftTeamWidget->setReplay(false);
-        rightTeamWidget->setEnabled(true);
-        rightTeamWidget->setReplay(false);
-    }
     mode = newMode;
 }
 void MainSettingsWidget::setDisabledColor(QWidget* widget) {
@@ -136,4 +124,31 @@ void MainSettingsWidget::updateNormal(const proto::GameState &gameState) {
         flip(flipped);
         rightTeamWidget->setFromGameState(flipped);
     }
+}
+void MainSettingsWidget::setPlayReplay(bool play) {
+    playReplay = play;
+    if(playReplay){
+        // we are in replay mode
+        //Listen to old settings for information
+        //We disable all the options the user can normally change
+        refereeCheckBox->setEnabled(false);
+        loggingCheckBox->setEnabled(false);
+        //We explicitly set logging to false under replay as we don't want to record data of replays (this can mess up some parts)
+        loggingCheckBox->setChecked(false);
+        loggingOn = false;
+        leftTeamWidget->setEnabled(false);
+        leftTeamWidget->setReplay(true);
+        rightTeamWidget->setEnabled(false);
+        rightTeamWidget->setReplay(true);
+    } else{
+        refereeCheckBox->setEnabled(true);
+        loggingCheckBox->setEnabled(true);
+        leftTeamWidget->setEnabled(!listenToReferee);
+        leftTeamWidget->setReplay(false);
+        rightTeamWidget->setEnabled(!listenToReferee);
+        rightTeamWidget->setReplay(false);
+    }
+}
+ReplayWidget* MainSettingsWidget::getReplayWidget() {
+    return replayWidget;
 }

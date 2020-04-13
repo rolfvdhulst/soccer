@@ -1,0 +1,189 @@
+//
+// Created by rolf on 12-04-20.
+//
+
+#include <QtWidgets/QFileDialog>
+#include "ReplayWidget.h"
+
+ReplayWidget::ReplayWidget(QWidget* parent) : QWidget(parent){
+    mainLayout = new QVBoxLayout();
+    sliderLayout = new QHBoxLayout();
+
+    fileName = new QLabel();
+    mainLayout->addWidget(fileName);
+
+    beforeInfo = new QVBoxLayout();
+    currentTime = new QLabel(stringFromTime(Time(0.0)));
+    currentPacket = new QLabel("0");
+    beforeInfo->addWidget(currentTime);
+    beforeInfo->addWidget(currentPacket);
+
+    afterInfo = new QVBoxLayout();
+    totalTime = new QLabel(stringFromTime(Time(lastTime-firstTime)));
+    totalPacket = new QLabel("0");
+    afterInfo->addWidget(totalTime);
+    afterInfo->addWidget(totalPacket);
+
+    timeSlider = new QSlider(Qt::Horizontal);
+    timeSlider->setValue(0);
+    timeSlider->setMaximum(0);
+    sliderLayout->addLayout(beforeInfo);
+    sliderLayout->addWidget(timeSlider);
+    sliderLayout->addLayout(afterInfo);
+    connect(timeSlider,&QSlider::sliderReleased,this,&ReplayWidget::seekFrame);
+
+    mainLayout->addLayout(sliderLayout);
+    toolBar = new QToolBar();
+
+    playButton = new QToolButton();
+
+    playButton->setIcon(QIcon::fromTheme("media-playback-start"));
+    toolBar->addWidget(playButton);
+    connect(playButton,&QToolButton::pressed,this,&ReplayWidget::togglePlay);
+
+    stepBackwardButton = new QToolButton();
+    stepBackwardButton->setIcon(QIcon::fromTheme("media-skip-backward"));
+    toolBar->addWidget(stepBackwardButton);
+    connect(stepBackwardButton,&QToolButton::pressed, this, &ReplayWidget::stepBackward);
+
+    stepForwardButton = new QToolButton();
+    stepForwardButton->setIcon(QIcon::fromTheme("media-skip-forward"));
+    toolBar->addWidget(stepForwardButton);
+    connect(stepForwardButton,&QToolButton::pressed, this, &ReplayWidget::stepForward);
+
+    playTimer = new QTimer();
+    connect(playTimer,&QTimer::timeout,this,&ReplayWidget::updateInformation);
+
+    playSpeed = new QComboBox();
+    playSpeed->setMaximumWidth(80);
+    QVector<QVariant> speeds ={0.1,0.25,0.5,1.0,2.0,5.0,10.0,100.0};
+    for (const auto& speed : speeds) {
+        playSpeed->addItem(speed.toString(),speed);
+    }
+    playSpeed->setCurrentIndex(3);
+    connect(playSpeed,SIGNAL(currentIndexChanged(int)),this,SLOT(setSpeed(int)));
+    toolBar->addWidget(playSpeed);
+
+    mainLayout->addWidget(toolBar);
+    groupBox = new QGroupBox("Replay");
+    groupBox->setLayout(mainLayout);
+    totalLayout = new QHBoxLayout();
+    totalLayout->addWidget(groupBox);
+    setLayout(totalLayout);//Bind the main layout to the widget
+
+
+}
+ReplayWidget::~ReplayWidget() {
+
+}
+void ReplayWidget::openFile() {
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setNameFilter(tr("Logfiles (*.log)"));
+    dialog.setViewMode(QFileDialog::Detail);
+    if (dialog.exec()){
+        QString filePath = dialog.selectedFiles().first();
+        openFile(filePath);
+    }
+}
+void ReplayWidget::openFile(const QString &filePath) {
+    if(fileIsOpen){
+        logReader.close();
+        fileIsOpen=false;
+    }
+    fileIsOpen = logReader.open(filePath);
+    if(fileIsOpen){
+        //We opened the file succesfully and indexed it
+        //Setup visualizations correctly
+        fileName->setText(filePath);
+        currentPacket->setText(QString::number(0));
+        currentTime->setText(stringFromTime(Time(0.0)));
+        totalPacket->setText(QString::number(logReader.fileMessageCount()));
+
+        lastTime = logReader.frameAt(logReader.fileMessageCount()-1).first;//index starts at 0
+        firstTime = logReader.frameAt(0).first;
+        Time totalDuration = Time(lastTime-firstTime);
+        totalTime->setText(stringFromTime(totalDuration));
+
+        timeSlider->setMaximum((int) logReader.fileMessageCount()-1);
+        timeSlider->setValue(0);
+        logReader.resetToStartOfFile();
+        currentReplayTime = 0;
+        currentPacketNumber = 0;
+    } else{
+        //We could not succesfully open the file
+    }
+}
+QString ReplayWidget::stringFromTime(const Time &time) {
+    return QString("%1:%2.%3")
+            .arg(time.asIntegerSeconds() /60)
+            .arg(time.asIntegerSeconds()%60,2,10,QChar('0'))
+            .arg(time.asIntegerMilliSeconds()%1000,3,10,QChar('0'));
+}
+void ReplayWidget::togglePlay() {
+    //Toggle playing/pause
+    isPlaying = !isPlaying;
+    if(isPlaying){
+        playButton->setIcon(QIcon::fromTheme("media-playback-pause"));
+        playTimer->start(STEP_MS);
+    }else{
+        playButton->setIcon(QIcon::fromTheme("media-playback-start"));
+        playTimer->stop();
+    }
+
+}
+void ReplayWidget::setSpeed(int index) {
+    speedFactor = playSpeed->itemData(index).toDouble();
+}
+void ReplayWidget::updateInformation() {
+    currentReplayTime += (long)(STEP_MS*1000000*speedFactor);
+    while(currentPacketNumber<logReader.fileMessageCount() &&
+    logReader.getNextTime()<firstTime+currentReplayTime){
+        auto frame = logReader.frameAt(currentPacketNumber);
+        //TODO: somehow nextFrame() crashes because we miscount frames somewhere when we pause and use stepback/step forward
+        currentPacketNumber ++;
+        updateTimerInfo(frame.first);
+        emit gotLogFrame(frame.second);
+    }
+    //we reached end-of file, pause and also correct packet number
+    if(currentPacketNumber == logReader.fileMessageCount()){
+        togglePlay();
+        currentPacketNumber--;
+    }
+}
+void ReplayWidget::updateTimerInfo(long long int time) {
+
+    if(!timeSlider->isSliderDown()){ //Check if user has grabbed slider to change time
+        timeSlider->setValue(currentPacketNumber);
+    }
+    currentPacket->setText(QString::number(currentPacketNumber));
+    currentTime->setText(stringFromTime(Time((long) time -firstTime)));
+}
+void ReplayWidget::stepForward() {
+    if(currentPacketNumber<logReader.fileMessageCount()){
+        auto frame = logReader.nextFrame();
+        currentPacketNumber ++;
+        currentReplayTime = frame.first - firstTime;
+        updateTimerInfo(frame.first);
+        emit gotLogFrame(frame.second);
+    }
+}
+
+void ReplayWidget::stepBackward() {
+    if(currentPacketNumber>0){
+        currentPacketNumber--;
+        auto frame = logReader.frameAt(currentPacketNumber-1);//TODO: hack because actually currentPacketNumber is incorrect
+        currentReplayTime = frame.first-firstTime;
+        updateTimerInfo(frame.first);
+        emit gotLogFrame(frame.second);
+    }
+}
+
+void ReplayWidget::seekFrame() {
+    int index = timeSlider->value();
+    currentPacketNumber = index;
+    auto frame = logReader.frameAt(index);
+    currentReplayTime = frame.first-firstTime;
+    updateTimerInfo(frame.first);
+    emit gotLogFrame(frame.second);
+}

@@ -14,6 +14,7 @@
 #include <field/FieldState.h>
 #include <field/CameraMap.h>
 #include <referee/GameState.h>
+#include <protobuf/FrameLog.pb.h>
 
 class Visualizer : public QGraphicsView {
         Q_OBJECT
@@ -46,6 +47,7 @@ class Visualizer : public QGraphicsView {
         explicit Visualizer(QWidget *parent = nullptr);
         ~Visualizer() override;
 
+        void updateFrames(const std::vector<proto::FrameLog> &frames);
         void updateWorld(const proto::World & world);
         void updateDetections(const std::vector<proto::SSL_WrapperPacket>& packets);
         void updateGeometryData(const proto::SSL_GeometryData &data);
@@ -57,6 +59,7 @@ class Visualizer : public QGraphicsView {
         void resizeEvent(QResizeEvent * event) override;
 
     public slots:
+        void updateFrame(const proto::FrameLog &frame);
         void setShowDetections(bool showDetections);
         void setShowPlacementMarker(bool show);
         void setShowCameraOutlines(bool show);

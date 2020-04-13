@@ -17,7 +17,6 @@ message Settings {
         TWO_TEAMS = 1; // controls both teams
         SIMULATION_ONE_TEAM = 2;
         SIMULATION_TWO_TEAMS = 3;
-        REPLAY = 4;
     }
     //sending commands
     //one or two teams?
@@ -26,10 +25,11 @@ message Settings {
     required usageMode mode = 1;
     required bool loggingOn = 2;
     required bool listenToReferee = 3;
-    required string commandAddress = 4;
-    required uint32 commandPort = 5;
-    required TeamSettings firstTeam = 6;
-    optional TeamSettings secondTeam = 7;
+    required bool playingReplay = 4;
+    required string commandAddress = 5;
+    required uint32 commandPort = 6;
+    required TeamSettings firstTeam = 7;
+    optional TeamSettings secondTeam = 8;
 
 
 }

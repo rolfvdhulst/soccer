@@ -14,6 +14,7 @@
 #include <protobuf/Settings.pb.h>
 #include <QtWidgets/QComboBox>
 #include <protobuf/GameState.pb.h>
+#include "ReplayWidget.h"
 
 class MainTeamSettingsWidget;
 class MainSettingsWidget : public QWidget {
@@ -24,6 +25,7 @@ class MainSettingsWidget : public QWidget {
         ~MainSettingsWidget() override;
         [[nodiscard]] proto::Settings getSettings() const;
         void updateNormal(const proto::GameState& gameState);
+        ReplayWidget * getReplayWidget();
     private slots:
         void updateMode(int index);
     private:
@@ -32,6 +34,8 @@ class MainSettingsWidget : public QWidget {
         QGroupBox * settingsBox;
         QVBoxLayout * mainSettings;
         QHBoxLayout * checkBoxLayout;
+
+        ReplayWidget * replayWidget;
 
         QComboBox * usageMode;
 
@@ -43,6 +47,10 @@ class MainSettingsWidget : public QWidget {
         QCheckBox * loggingCheckBox;
         bool loggingOn = false;
         void setLoggingOn(bool listen);
+
+        QCheckBox * replayCheckBox;
+        bool playReplay = false;
+        void setPlayReplay(bool play);
 
         QHBoxLayout * teamSettingsLayout;
         MainTeamSettingsWidget * leftTeamWidget;
