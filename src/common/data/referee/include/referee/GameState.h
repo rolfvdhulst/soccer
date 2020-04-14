@@ -12,9 +12,9 @@
 #include <core/Time.h>
 #include <geometry/Vector2.h>
 #include <protobuf/GameState.pb.h>
-class GameState {
+class RefereeState{
     public:
-        explicit GameState(const proto::GameState& gameState);
+        explicit RefereeState(const proto::RefereeState& gameState);
         Time timeStamp;
 
         GameStage stage;
@@ -27,14 +27,20 @@ class GameState {
 
         std::optional<Vector2> designatedPosition; //Position at which the ball should be placed
 
-        //If true, we play on the positive half, else we play on the negative half (default).
-        bool wePlayOnPositiveHalf = false;
         TeamInfo usInfo;
         TeamInfo themInfo;
 
         std::vector<GameEvent> newEvents;
         std::optional<Time> currentActionTimeRemaining;
+};
+class GameState {
+    public:
+        explicit GameState(const proto::GameState& gameState);
+        //If true, we play on the positive half, else we play on the negative half (default).
+        bool wePlayOnPositiveHalf = false;
         Team ourColor;
+        RobotID keeperID;
+        std::optional<RefereeState> refState;
 };
 
 #endif //SOCCER_GAMESTATE_H

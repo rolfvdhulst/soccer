@@ -126,23 +126,21 @@ flipAndSwap(a.min, b.max);
 flipAndSwap(a.max, b.min);
 }
 void flip(proto::GameState& gameState){
-    gameState.set_command(invertTeams(gameState.command()));
-    gameState.set_weplayonpositivehalf(!gameState.weplayonpositivehalf());
-    if(gameState.has_nextcommand()){
-        gameState.set_nextcommand(invertTeams(gameState.nextcommand()));
-    }
-    //swap but have to do this since std:swap does not work on protobuf
-    proto::Referee_TeamInfo us = gameState.us();
-    gameState.mutable_us()->CopyFrom(gameState.them());
-    gameState.mutable_them()->CopyFrom(us);
-    if(gameState.has_designated_position()){
-        gameState.mutable_designated_position()->set_x(gameState.designated_position().x()*-1);
-        gameState.mutable_designated_position()->set_y(gameState.designated_position().y()*-1);
-    }
-    if(gameState.ourcolor() == proto::BLUE){
-        gameState.set_ourcolor(proto::YELLOW);
-    }else if(gameState.ourcolor() == proto::YELLOW){
-        gameState.set_ourcolor(proto::BLUE);
+    gameState.mutable_settings()->set_weplayonpositivehalf(!gameState.settings().weplayonpositivehalf());
+    gameState.mutable_settings()->set_weareblue(!gameState.settings().weareblue());
+    if(gameState.has_referee()){
+        gameState.mutable_referee()->set_command(invertTeams(gameState.referee().command()));
+        if(gameState.referee().has_nextcommand()){
+            gameState.mutable_referee()->set_nextcommand(invertTeams(gameState.referee().nextcommand()));
+        }
+        //swap but have to do this since std:swap does not work on protobuf
+        proto::Referee_TeamInfo us = gameState.referee().us();
+        gameState.mutable_referee()->mutable_us()->CopyFrom(gameState.referee().them());
+        gameState.mutable_referee()->mutable_them()->CopyFrom(us);
+        if(gameState.referee().has_designated_position()){
+            gameState.mutable_referee()->mutable_designated_position()->set_x(gameState.referee().designated_position().x()*-1);
+            gameState.mutable_referee()->mutable_designated_position()->set_y(gameState.referee().designated_position().y()*-1);
+        }
     }
     //We ignore game events.
     // Technically they should also be flipped as they contain positions and velocities (sometimes) but this quickly becomes a HUGE switch statement

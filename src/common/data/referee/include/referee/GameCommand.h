@@ -50,7 +50,7 @@ class GameCommand {
         };
         GameCommand();
         constexpr GameCommand(Command command);
-        explicit GameCommand(const proto::GameState::Command &command);
+        explicit GameCommand(const proto::RefereeState::Command &command);
         operator Command() const;// Allow switches and comparisons.
         // Putting constexpr here causes clang to  stop warning on incomplete case handling
         explicit operator bool() = delete; //Prevent if(GameStage) incorrect usage

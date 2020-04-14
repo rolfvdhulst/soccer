@@ -4,15 +4,26 @@
 
 #include "GameState.h"
 GameState::GameState(const proto::GameState &gameState) :
+        wePlayOnPositiveHalf{gameState.settings().weplayonpositivehalf()},
+        keeperID{RobotID(gameState.settings().keeperid())}
+{
+    if(gameState.settings().weareblue()){
+        ourColor = Team(Team::BLUE);
+    }else{
+        ourColor = Team(Team::YELLOW);
+    }
+    if(gameState.has_referee()){
+        refState = RefereeState(gameState.referee());
+    }
+}
+RefereeState::RefereeState(const proto::RefereeState &gameState) :
         timeStamp{Time(gameState.timestamp())},
         stage{GameStage(gameState.stage())},
         command{GameCommand(gameState.command())},
         commandsSinceStartup{gameState.command_counter()},
         commandTime{Time(gameState.command_timestamp())},
         usInfo{TeamInfo(gameState.us())},
-        themInfo{TeamInfo(gameState.them())},
-        wePlayOnPositiveHalf{gameState.weplayonpositivehalf()},
-        ourColor{Team(gameState.ourcolor())}
+        themInfo{TeamInfo(gameState.them())}
 {
     if (gameState.has_stage_time_left()){
         stageTimeLeft = Time(gameState.stage_time_left());
@@ -29,5 +40,4 @@ GameState::GameState(const proto::GameState &gameState) :
     if(gameState.has_current_action_time_remaining()){
         currentActionTimeRemaining = Time(gameState.current_action_time_remaining());
     }
-
 }

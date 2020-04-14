@@ -8,7 +8,7 @@ message TeamSettings{
     //none of the teams has our name.
     required bool weAreBlue = 1;
     required bool wePlayOnPositiveHalf = 2;
-    optional uint32 defaultKeeperID = 3; //This always be overridden if listenToReferee is on
+    optional uint32 keeperID = 3; //This is always overridden if listenToReferee is on
 }
 
 message Settings {

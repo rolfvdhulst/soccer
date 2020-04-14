@@ -59,7 +59,7 @@ proto::TeamSettings MainTeamSettingsWidget::getTeamSettings() const {
     proto::TeamSettings settings;
     settings.set_weareblue(weAreBlue);
     settings.set_weplayonpositivehalf(wePlayOnPositiveHalf);
-    settings.set_defaultkeeperid(keeperID);
+    settings.set_keeperid(keeperID);
     return settings;
 }
 void MainTeamSettingsWidget::setReplay(bool inReplay) {
@@ -93,29 +93,29 @@ void MainTeamSettingsWidget::setColorVisual(bool isBlue) {
     }
 }
 void MainTeamSettingsWidget::setFromGameState(const proto::GameState &gameState) {
-    bool gameStateWeAreBlue = gameState.ourcolor() != proto::Team::YELLOW;// since Team can be Unknown we check this.
+    bool gameStateWeAreBlue = gameState.settings().weareblue();// since Team can be Unknown we check this.
     // This is to prevent empty messages from changing the color
     if (gameStateWeAreBlue != weAreBlue){
         toggleOurColor();
     }
-    if(gameState.weplayonpositivehalf() != wePlayOnPositiveHalf){
+    if(gameState.settings().weplayonpositivehalf() != wePlayOnPositiveHalf){
         toggleOurSide();
     }
-    if(gameState.us().goalkeeper() != keeperIDBox->currentIndex()){
-        keeperID = gameState.us().goalkeeper();
-        keeperIDBox->setCurrentIndex(gameState.us().goalkeeper());
+    if(gameState.settings().keeperid() != keeperIDBox->currentIndex()){
+        keeperID = gameState.settings().keeperid();
+        keeperIDBox->setCurrentIndex(gameState.settings().keeperid());
     }
 }
 //Crucial difference, visualizes but doesn't update default values so when you go back the widget remembers the old values
 void MainTeamSettingsWidget::visualizeFromGameState(const proto::GameState &gameState){
-    bool gameStateWeAreBlue = gameState.ourcolor() != proto::Team::YELLOW;
+    bool gameStateWeAreBlue = gameState.settings().weareblue();
     if (gameStateWeAreBlue != weAreBlue){
         setColorVisual(gameStateWeAreBlue);
     }
-    if(gameState.weplayonpositivehalf() != wePlayOnPositiveHalf){
-        setSideVisual(gameState.weplayonpositivehalf());
+    if(gameState.settings().weplayonpositivehalf() != wePlayOnPositiveHalf){
+        setSideVisual(gameState.settings().weplayonpositivehalf());
     }
-    if(gameState.us().goalkeeper() != keeperIDBox->currentIndex()){
-        keeperIDBox->setCurrentIndex(gameState.us().goalkeeper());
+    if(gameState.settings().keeperid() != keeperIDBox->currentIndex()){
+        keeperIDBox->setCurrentIndex(gameState.settings().keeperid());
     }
 }

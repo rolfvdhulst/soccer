@@ -52,7 +52,7 @@ class API {
         std::vector<proto::GameEvent> gameEvents;
         std::mutex gameEventsMutex;
 
-        bool completedFirstTick;
+        bool completedFirstTick = false;
 };
 
 #endif //SOCCER_API_H

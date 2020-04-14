@@ -45,14 +45,14 @@ void Visualizer::updateAll() {
     update(); //updates the full view
 }
 void Visualizer::updateGameState(const proto::GameState &gamestate) {
-    if (gamestate.has_designated_position() && showPlacementMarker){
-        placementMarker->setPos(gamestate.designated_position().x(),-gamestate.designated_position().y()); //QT has mirrored y-axis
+    if (gamestate.has_referee() && gamestate.referee().has_designated_position() && showPlacementMarker){
+        placementMarker->setPos(gamestate.referee().designated_position().x(),-gamestate.referee().designated_position().y()); //QT has mirrored y-axis
         placementMarker->show();
     }else{
         placementMarker->hide();
     }
-    weAreBlue = gamestate.ourcolor() != proto::YELLOW;
-    messagesAreFlipped = gamestate.weplayonpositivehalf();
+    weAreBlue = gamestate.settings().weareblue();
+    messagesAreFlipped = gamestate.settings().weplayonpositivehalf();
 }
 void Visualizer::updateGeometryData(const proto::SSL_GeometryData &data) {
     if(fieldString != data.SerializeAsString()){
@@ -325,7 +325,7 @@ void Visualizer::createBall() {
     scene->addItem(ball->noBallWarning);
 }
 void Visualizer::resizeEvent(QResizeEvent* event) {
-    refitView();
+    refitView(); //
 }
 void Visualizer::setShowDetections(bool show) {this->showDetections = show; }
 void Visualizer::createPlacementMarker() {
@@ -443,6 +443,7 @@ void Visualizer::updateFrame(const proto::FrameLog &frame) {
     if(frame.has_gamestate()){
         updateGameState(frame.gamestate());
     }
+    //updateDetections(frame.visionmessages());
 }
 void Visualizer::Ball::show() {
     actual->show();

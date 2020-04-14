@@ -67,20 +67,20 @@ void MainWindow::updateAll() {
     SettingsAPI::instance()->setSettings(mainControls->getSettings());
 
     if(API::instance()->hasCompletedFirstTick()){
-//        proto::GameState gameState = API::instance()->getGameState();
-//        mainControls->updateNormal(gameState);
-//        visualizer->updateGameState(gameState);
-//
-//        proto::World worldState = API::instance()->getWorldState();
-//        visualizer->updateWorld(worldState);
-//
-//        std::vector<proto::SSL_WrapperPacket> frames = API::instance()->getFramesAndClear();
-//        visualizer->updateDetections(frames);
-//
-//        if(API::instance()->newGeometry()){
-//            proto::SSL_GeometryData data = API::instance()->readGeometryData();
-//            visualizer->updateGeometryData(data);
-//        }
+        proto::GameState gameState = API::instance()->getGameState();
+        mainControls->updateNormal(gameState);
+        visualizer->updateGameState(gameState);
+
+        proto::World worldState = API::instance()->getWorldState();
+        visualizer->updateWorld(worldState);
+
+        std::vector<proto::SSL_WrapperPacket> frames = API::instance()->getFramesAndClear();
+        visualizer->updateDetections(frames);
+
+        if(API::instance()->newGeometry()){
+            proto::SSL_GeometryData data = API::instance()->readGeometryData();
+            visualizer->updateGeometryData(data);
+        }
     }
 
 }

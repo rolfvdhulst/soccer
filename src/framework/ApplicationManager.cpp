@@ -44,7 +44,7 @@ void ApplicationManager::run(bool &exit) {
         if (visionFilter.hasNewGeometry() || (gameStateFilter.flipHasChanged() && visionFilter.receivedFirstGeometry())){
             geometryData = visionFilter.getGeometry();
         }
-        if (gameState.weplayonpositivehalf()){
+        if (gameState.settings().weplayonpositivehalf()){
             //Flip world and geometry. GameState is always already flipped the right way because it computes this value
             flip(worldState);
             if(geometryData){
@@ -53,33 +53,38 @@ void ApplicationManager::run(bool &exit) {
         }
         log.mutable_robotinfo()->CopyFrom(teamRobotInfo);
         log.mutable_world()->CopyFrom(worldState);
-        //log.mutable_gamestate()->CopyFrom(gameState);
+        log.mutable_gamestate()->CopyFrom(gameState);
         log.mutable_replaysettings()->CopyFrom(settings);
 
-        if(logger.isLogging()){
-            logger.addLogFrame(log);
-        }
         if(geometryData){
             log.mutable_interpretedgeometry()->CopyFrom(*geometryData);
         }
+
         //Send the relevant information to the interface
         if(geometryData){
             API::instance()->addGeometryData(*geometryData);
         }
         std::vector<proto::SSL_WrapperPacket> copy = visionPackets;
-        if(gameState.weplayonpositivehalf()){
+        if(gameState.settings().weplayonpositivehalf()){
             for(auto& packet : copy){
                 if(packet.has_detection()){
                     flip(packet.mutable_detection());
                 }
             }
         }
-        API::instance()->addDetectionFrames(copy);
-        std::vector<proto::GameEvent> events;
-        for (const auto & gameEvent : gameState.game_events()) {
-            events.push_back(gameEvent);
+        if(logger.isLogging()){
+            logger.addLogFrame(log);
         }
-        API::instance()->addGameEvents(events);
+        API::instance()->addDetectionFrames(copy);
+
+        if(gameState.has_referee()){
+            std::vector<proto::GameEvent> events;
+            for (const auto & gameEvent : gameState.referee().game_events()) {
+                events.push_back(gameEvent);
+            }
+            API::instance()->addGameEvents(events);
+        }
+
         API::instance()->setWorldState(worldState);
         API::instance()->setGameState(gameState);
         API::instance()->setTicked();

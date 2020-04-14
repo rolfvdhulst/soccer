@@ -123,11 +123,13 @@ GameStateVisualizer::~GameStateVisualizer() {
 void GameStateVisualizer::updateAll() {
     proto::GameState gameState = API::instance()->getGameState();
     const GameState state(gameState);
-    updateGamestate(state);
-    std::vector<proto::GameEvent> events = API::instance()->getGameEvents();
-    gameEventsWidget->addNewEvents(events,state);
+    if(state.refState){
+        updateGamestate(*state.refState,state.ourColor);
+        gameEventsWidget->addNewEvents(*state.refState);
+    }
+
 }
-void GameStateVisualizer::updateGamestate(const GameState &state) {
+void GameStateVisualizer::updateGamestate(const RefereeState &state, Team ourColor) {
 
     QString gamestageText= "Stage: "+QString::fromStdString(state.stage.toString()) +"\nTime left: ";
     state.stageTimeLeft ? gamestageText+=QString::number(state.stageTimeLeft->asIntegerMilliSeconds()/1000.0) +" s" : gamestageText+="-";
@@ -144,8 +146,8 @@ void GameStateVisualizer::updateGamestate(const GameState &state) {
         nextCommand->setText("Next command: -");
     }
     //We already rotate the field so we are left, so this is easier to view.
-    displayLeftTeam(state.usInfo, state.ourColor);
-    displayRightTeam(state.themInfo, state.ourColor.inverse());
+    displayLeftTeam(state.usInfo, ourColor);
+    displayRightTeam(state.themInfo, ourColor.inverse());
 }
 void GameStateVisualizer::displayLeftTeam(const TeamInfo &teamInfo, Team color) {
     leftTeamName->setText(QString::fromStdString(teamInfo.name));

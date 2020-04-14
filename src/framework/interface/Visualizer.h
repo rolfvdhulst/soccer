@@ -47,6 +47,7 @@ class Visualizer : public QGraphicsView {
         explicit Visualizer(QWidget *parent = nullptr);
         ~Visualizer() override;
 
+
         void updateFrames(const std::vector<proto::FrameLog> &frames);
         void updateWorld(const proto::World & world);
         void updateDetections(const std::vector<proto::SSL_WrapperPacket>& packets);

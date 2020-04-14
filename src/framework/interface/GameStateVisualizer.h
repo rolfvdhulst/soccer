@@ -24,7 +24,7 @@ class GameStateVisualizer : public QWidget {
     private slots:
         void updateAll();
     private:
-        void updateGamestate(const GameState& gameState);
+        void updateGamestate(const RefereeState &state, Team ourColor);
         void displayLeftTeam(const TeamInfo &teamInfo, Team color);
         void displayRightTeam(const TeamInfo &teamInfo, Team color);
         GameEventsWidget * gameEventsWidget;

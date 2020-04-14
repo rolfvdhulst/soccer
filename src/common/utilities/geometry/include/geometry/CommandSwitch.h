@@ -8,10 +8,10 @@
 #include <protobuf/GameState.pb.h>
 #include <optional>
 
-std::optional<proto::GameState_Command> getCommand(proto::Referee_Command oldCommand,proto::Referee_Command newCommand);
+std::optional<proto::RefereeState_Command> getCommand(proto::Referee_Command oldCommand,proto::Referee_Command newCommand);
 
-proto::GameState_Command defaultMap(proto::Referee_Command command);
-proto::GameState_Command invertTeams(proto::GameState_Command command);
+proto::RefereeState_Command defaultMap(proto::Referee_Command command);
+proto::RefereeState_Command invertTeams(proto::RefereeState_Command command);
 
 
 #endif //SOCCER_COMMANDSWITCH_H

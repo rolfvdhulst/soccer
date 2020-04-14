@@ -24,6 +24,7 @@ class Team {
             case proto::BLUE: value = BLUE; return;
             }
         }
+        explicit constexpr Team(Value team) : value(team){};
         Team inverse() const;
         [[nodiscard]] std::string toString() const;
         operator Value() const; //allow switches and comparisons

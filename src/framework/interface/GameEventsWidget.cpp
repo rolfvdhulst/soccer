@@ -10,9 +10,8 @@ GameEventsWidget::GameEventsWidget(QWidget* parent)
     setMaximumBlockCount(1000);
     setLineWrapMode(LineWrapMode::WidgetWidth);
 }
-void GameEventsWidget::addNewEvents(std::vector<proto::GameEvent> events,const GameState& state) {
-    for(const auto& protoEvent : events){
-        GameEvent event(protoEvent);
+void GameEventsWidget::addNewEvents(const RefereeState& state) {
+    for(const auto& event : state.newEvents){
         long msecs = state.timeStamp.asIntegerMilliSeconds();
         QDateTime dateTime =QDateTime::fromMSecsSinceEpoch(msecs);
 
