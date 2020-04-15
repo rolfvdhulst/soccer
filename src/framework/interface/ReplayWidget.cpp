@@ -113,7 +113,7 @@ void ReplayWidget::openFile(const QString &filePath) {
         fileName->setText(filePath);
         currentPacket->setText(QString::number(0));
         currentTime->setText(stringFromTime(Time(0.0)));
-        totalPacket->setText(QString::number(logReader.fileMessageCount()));
+        totalPacket->setText(QString::number(logReader.fileMessageCount()-1));
 
         lastTime = logReader.frameAt(logReader.fileMessageCount()-1).first;//index starts at 0
         firstTime = logReader.frameAt(0).first;
