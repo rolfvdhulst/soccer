@@ -6,6 +6,7 @@
 #define SOCCER_SETTINGSAPI_H
 
 #include <protobuf/Settings.pb.h>
+#include <mutex>
 
 class SettingsAPI {
     public:
