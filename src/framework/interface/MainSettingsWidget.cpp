@@ -16,11 +16,14 @@ MainSettingsWidget::MainSettingsWidget(QWidget* parent) : QWidget(parent){
     mainSettings = new QVBoxLayout();
 
     replayWidget = new ReplayWidget(this);
+    //This ensures that when the replay is active relevant settings are greyed out and not set.
+    connect(replayWidget, &ReplayWidget::replayActive, this, &MainSettingsWidget::setPlayReplay);
     mainLayout->addWidget(replayWidget);
 
     usageMode = new QComboBox();
     usageMode->addItems({"One team","Two teams","One team simulator","Two teams simulator"});
-    usageMode->setStyleSheet("background-color: darkslategray;");
+    usageMode->setStyleSheet("QComboBox{background-color: darkslategray;};");
+    usageMode->setEnabled(true);
     connect(usageMode,SIGNAL(currentIndexChanged(int)), this, SLOT(updateMode(int)));
     mainSettings->addWidget(usageMode);
 
@@ -38,10 +41,7 @@ MainSettingsWidget::MainSettingsWidget(QWidget* parent) : QWidget(parent){
     checkBoxLayout->addWidget(loggingCheckBox);
     connect(loggingCheckBox, &QCheckBox::clicked, this, &MainSettingsWidget::setLoggingOn);
 
-    replayCheckBox = new QCheckBox("Play replay");
-    replayCheckBox->setChecked(false);
-    checkBoxLayout->addWidget(replayCheckBox);
-    connect(replayCheckBox, &QCheckBox::clicked, this, &MainSettingsWidget::setPlayReplay);
+
     mainSettings->addLayout(checkBoxLayout);
 
     networkLayout = new QHBoxLayout();
@@ -106,21 +106,26 @@ proto::Settings MainSettingsWidget::getSettings() const {
 }
 void MainSettingsWidget::updateMode(int index) {
     auto newMode = (proto::Settings_usageMode) index; //MAKE SURE THAT THE ORDER IS THE SAME
+    showUsageMode(newMode);
+    if(!playReplay){
+        mode = newMode;
+    }
+}
+void MainSettingsWidget::showUsageMode(const proto::Settings_usageMode &newMode) const {
     if(newMode == proto::Settings_usageMode_TWO_TEAMS || newMode == proto::Settings_usageMode_SIMULATION_TWO_TEAMS){
         rightTeamWidget->show();
     }else if (newMode == proto::Settings_usageMode_ONE_TEAM || newMode == proto::Settings_usageMode_SIMULATION_ONE_TEAM){
         rightTeamWidget->hide();
     }
-    mode = newMode;
 }
 void MainSettingsWidget::setDisabledColor(QWidget* widget) {
     widget->setStyleSheet(QString::fromUtf8("QWidget:disabled"
                                               "{ color: gray }"));
 }
-void MainSettingsWidget::updateNormal(const proto::GameState &gameState) {
-    if(listenToReferee){
-        leftTeamWidget->setFromGameState(gameState);
-        proto::GameState flipped = gameState;
+void MainSettingsWidget::updateFrame(const proto::FrameLog &frame) {
+    if(listenToReferee && frame.has_gamestate()){
+        leftTeamWidget->setFromGameState(frame.gamestate());
+        proto::GameState flipped = frame.gamestate();
         flip(flipped);
         rightTeamWidget->setFromGameState(flipped);
     }
@@ -140,15 +145,30 @@ void MainSettingsWidget::setPlayReplay(bool play) {
         leftTeamWidget->setReplay(true);
         rightTeamWidget->setEnabled(false);
         rightTeamWidget->setReplay(true);
+        usageMode->setEnabled(false);
+        usageMode->setStyleSheet("QComboBox{background-color: darkslategray; color:gray};");
+
     } else{
         refereeCheckBox->setEnabled(true);
+        refereeCheckBox->setChecked(listenToReferee);
         loggingCheckBox->setEnabled(true);
         leftTeamWidget->setEnabled(!listenToReferee);
         leftTeamWidget->setReplay(false);
         rightTeamWidget->setEnabled(!listenToReferee);
         rightTeamWidget->setReplay(false);
+        usageMode->setEnabled(true);
+        usageMode->setCurrentIndex(mode);
+        usageMode->setStyleSheet("QComboBox{background-color: darkslategray;};");
     }
 }
 ReplayWidget* MainSettingsWidget::getReplayWidget() {
     return replayWidget;
+}
+void MainSettingsWidget::visualizeFrame(const proto::FrameLog &frame){
+    refereeCheckBox->setChecked(frame.replaysettings().listentoreferee());
+    usageMode->setCurrentIndex(frame.replaysettings().mode());
+    leftTeamWidget->visualizeFromGameState(frame.gamestate());
+    proto::GameState flipped = frame.gamestate();
+    flip(flipped);
+    rightTeamWidget->visualizeFromGameState(flipped);//TODO: fix
 }

@@ -42,7 +42,9 @@ MainTeamSettingsWidget::MainTeamSettingsWidget(bool isLeft, QWidget* parent) :QW
     setLayout(mainLayout);
 }
 void MainTeamSettingsWidget::setKeeperID(const QString& id) {
-    keeperID = id.toUInt();
+    if(!isInReplay){
+        keeperID = id.toUInt();
+    }
 }
 MainTeamSettingsWidget::~MainTeamSettingsWidget() {
 
@@ -109,13 +111,7 @@ void MainTeamSettingsWidget::setFromGameState(const proto::GameState &gameState)
 //Crucial difference, visualizes but doesn't update default values so when you go back the widget remembers the old values
 void MainTeamSettingsWidget::visualizeFromGameState(const proto::GameState &gameState){
     bool gameStateWeAreBlue = gameState.settings().weareblue();
-    if (gameStateWeAreBlue != weAreBlue){
-        setColorVisual(gameStateWeAreBlue);
-    }
-    if(gameState.settings().weplayonpositivehalf() != wePlayOnPositiveHalf){
-        setSideVisual(gameState.settings().weplayonpositivehalf());
-    }
-    if(gameState.settings().keeperid() != keeperIDBox->currentIndex()){
-        keeperIDBox->setCurrentIndex(gameState.settings().keeperid());
-    }
+    setColorVisual(gameStateWeAreBlue);
+    setSideVisual(gameState.settings().weplayonpositivehalf());
+    keeperIDBox->setCurrentIndex(gameState.settings().keeperid());
 }

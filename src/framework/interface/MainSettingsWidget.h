@@ -20,11 +20,14 @@ class MainTeamSettingsWidget;
 class MainSettingsWidget : public QWidget {
         Q_OBJECT
 
+    public slots:
+        //This function is only for visualization during replay!
+        void visualizeFrame(const proto::FrameLog &frame);
     public:
         explicit MainSettingsWidget(QWidget * parent);
         ~MainSettingsWidget() override;
         [[nodiscard]] proto::Settings getSettings() const;
-        void updateNormal(const proto::GameState& gameState);
+        void updateFrame(const proto::FrameLog &frame);
         ReplayWidget * getReplayWidget();
     private slots:
         void updateMode(int index);
@@ -62,6 +65,7 @@ class MainSettingsWidget : public QWidget {
         QLineEdit * IPText;
 
         static void setDisabledColor(QWidget* widget);
+        void showUsageMode(const proto::Settings_usageMode &newMode) const;
 };
 
 #endif //SOCCER_MAINSETTINGSWIDGET_H

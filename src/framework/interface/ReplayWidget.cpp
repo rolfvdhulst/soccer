@@ -10,7 +10,21 @@ ReplayWidget::ReplayWidget(QWidget* parent) : QWidget(parent){
     sliderLayout = new QHBoxLayout();
 
     fileName = new QLabel();
-    mainLayout->addWidget(fileName);
+    QHBoxLayout * fileNameLayout = new QHBoxLayout();
+    fileNameLayout->addWidget(fileName);
+    exitButton = new QPushButton();
+    exitButton->setMaximumSize(24,24);
+    exitButton->setIcon(QIcon::fromTheme("application-exit"));
+    connect(exitButton,&QPushButton::clicked,this,&QWidget::close);
+    fileNameLayout->addWidget(exitButton,0,Qt::AlignRight);
+    mainLayout->addLayout(fileNameLayout);
+    pausePlayShortcut = new QShortcut(this);
+    leftShortcut = new QShortcut(this);
+    rightShortcut = new QShortcut(this);
+    pausePlayShortcut->setKey(Qt::Key_Space);
+    leftShortcut->setKey(Qt::Key_Left);
+    rightShortcut->setKey(Qt::Key_Right);
+
 
     beforeInfo = new QVBoxLayout();
     currentTime = new QLabel(stringFromTime(Time(0.0)));
@@ -67,11 +81,11 @@ ReplayWidget::ReplayWidget(QWidget* parent) : QWidget(parent){
     mainLayout->addWidget(toolBar);
     groupBox = new QGroupBox("Replay");
     groupBox->setLayout(mainLayout);
+
     totalLayout = new QHBoxLayout();
     totalLayout->addWidget(groupBox);
     setLayout(totalLayout);//Bind the main layout to the widget
-
-
+    close(); // Not open by default
 }
 ReplayWidget::~ReplayWidget() {
 
@@ -88,13 +102,14 @@ void ReplayWidget::openFile() {
 }
 void ReplayWidget::openFile(const QString &filePath) {
     if(fileIsOpen){
-        logReader.close();
-        fileIsOpen=false;
+        closeFile();
     }
     fileIsOpen = logReader.open(filePath);
     if(fileIsOpen){
         //We opened the file succesfully and indexed it
         //Setup visualizations correctly
+        emit replayActive(true);
+        show();
         fileName->setText(filePath);
         currentPacket->setText(QString::number(0));
         currentTime->setText(stringFromTime(Time(0.0)));
@@ -107,9 +122,11 @@ void ReplayWidget::openFile(const QString &filePath) {
 
         timeSlider->setMaximum((int) logReader.fileMessageCount()-1);
         timeSlider->setValue(0);
+        emit gotLogFrame(logReader.frameAt(0).second);//Send the first tick to all widgets
         logReader.resetToStartOfFile();
         currentReplayTime = 0;
         currentPacketNumber = 0;
+        connectShortcuts();
     } else{
         //We could not succesfully open the file
     }
@@ -137,18 +154,16 @@ void ReplayWidget::setSpeed(int index) {
 }
 void ReplayWidget::updateInformation() {
     currentReplayTime += (long)(STEP_MS*1000000*speedFactor);
-    while(currentPacketNumber<logReader.fileMessageCount() &&
+    while(currentPacketNumber<logReader.fileMessageCount()-1 &&
     logReader.getNextTime()<firstTime+currentReplayTime){
-        auto frame = logReader.frameAt(currentPacketNumber);
-        //TODO: somehow nextFrame() crashes because we miscount frames somewhere when we pause and use stepback/step forward
+        auto frame = logReader.nextFrame();
         currentPacketNumber ++;
         updateTimerInfo(frame.first);
         emit gotLogFrame(frame.second);
     }
     //we reached end-of file, pause and also correct packet number
-    if(currentPacketNumber == logReader.fileMessageCount()){
+    if(currentPacketNumber == logReader.fileMessageCount()-1){
         togglePlay();
-        currentPacketNumber--;
     }
 }
 void ReplayWidget::updateTimerInfo(long long int time) {
@@ -172,7 +187,7 @@ void ReplayWidget::stepForward() {
 void ReplayWidget::stepBackward() {
     if(currentPacketNumber>0){
         currentPacketNumber--;
-        auto frame = logReader.frameAt(currentPacketNumber-1);//TODO: hack because actually currentPacketNumber is incorrect
+        auto frame = logReader.frameAt(currentPacketNumber);//TODO: hack because actually currentPacketNumber is incorrect
         currentReplayTime = frame.first-firstTime;
         updateTimerInfo(frame.first);
         emit gotLogFrame(frame.second);
@@ -186,4 +201,32 @@ void ReplayWidget::seekFrame() {
     currentReplayTime = frame.first-firstTime;
     updateTimerInfo(frame.first);
     emit gotLogFrame(frame.second);
+}
+bool ReplayWidget::isRunning() const {
+    return fileIsOpen;
+}
+void ReplayWidget::closeEvent(QCloseEvent * event) {
+    if(fileIsOpen){
+        closeFile();
+        emit replayActive(false);
+    }
+}
+void ReplayWidget::connectShortcuts() {
+    connect(pausePlayShortcut,&QShortcut::activated,this,&ReplayWidget::togglePlay);
+    connect(leftShortcut,&QShortcut::activated,this,&ReplayWidget::stepBackward);
+    connect(rightShortcut,&QShortcut::activated,this,&ReplayWidget::stepForward);
+}
+void ReplayWidget::disconnectShortcuts() {
+    disconnect(pausePlayShortcut,&QShortcut::activated,this,&ReplayWidget::togglePlay);
+    disconnect(leftShortcut,&QShortcut::activated,this,&ReplayWidget::stepBackward);
+    disconnect(rightShortcut,&QShortcut::activated,this,&ReplayWidget::stepForward);
+}
+void ReplayWidget::closeFile() {
+    disconnectShortcuts();
+    if(isPlaying){
+        togglePlay();
+    }
+    logReader.close();
+    fileIsOpen = false;
+
 }

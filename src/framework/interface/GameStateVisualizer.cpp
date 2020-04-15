@@ -106,28 +106,24 @@ GameStateVisualizer::GameStateVisualizer(QWidget* parent) :
     teamInfoLayout->addWidget(rightGoalie,row,right);
     row++;
 
-    updateTimer = new QTimer(this);
-    connect(updateTimer, &QTimer::timeout, this, &GameStateVisualizer::updateAll);
-    updateTimer->start(20);//50 hz
 
 
 
 }
 GameStateVisualizer::~GameStateVisualizer() {
-    delete updateTimer;
     delete leftScore;
     delete rightScore;
     //TODO: delete everything properly
     delete gameEventsWidget;
 }
-void GameStateVisualizer::updateAll() {
-    proto::GameState gameState = API::instance()->getGameState();
-    const GameState state(gameState);
-    if(state.refState){
-        updateGamestate(*state.refState,state.ourColor);
-        gameEventsWidget->addNewEvents(*state.refState);
+void GameStateVisualizer::updateFrame(const proto::FrameLog& frame) {
+    if(frame.has_gamestate()){
+        const GameState state(frame.gamestate());
+        if(state.refState){
+            updateGamestate(*state.refState,state.ourColor);
+            gameEventsWidget->addNewEvents(*state.refState);
+        }
     }
-
 }
 void GameStateVisualizer::updateGamestate(const RefereeState &state, Team ourColor) {
 
@@ -135,7 +131,7 @@ void GameStateVisualizer::updateGamestate(const RefereeState &state, Team ourCol
     state.stageTimeLeft ? gamestageText+=QString::number(state.stageTimeLeft->asIntegerMilliSeconds()/1000.0) +" s" : gamestageText+="-";
     gameStage->setText(gamestageText);
     if(state.currentActionTimeRemaining){
-        actionTime->setText("Action time left: "+QString::number(state.currentActionTimeRemaining->asIntegerMilliSeconds()/1000.0));
+        actionTime->setText("Action time left: "+QString::number(state.currentActionTimeRemaining->asIntegerMilliSeconds()/1000.0)+ " s");
     }else{
         actionTime->setText("Action time left: -");
     }

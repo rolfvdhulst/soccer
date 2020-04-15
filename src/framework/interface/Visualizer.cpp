@@ -43,6 +43,7 @@ Visualizer::Visualizer(QWidget* parent)
 
 void Visualizer::updateAll() {
     update(); //updates the full view
+    ticks++;
 }
 void Visualizer::updateGameState(const proto::GameState &gamestate) {
     if (gamestate.has_referee() && gamestate.referee().has_designated_position() && showPlacementMarker){
@@ -93,7 +94,8 @@ Visualizer::updateRobot(const proto::WorldRobot &robot, QMap<uint, Robot> &robot
         const QColor &color) {
     Robot &visBot = robots[robot.id()];
     // if the bot does not exist we create it
-    if (!visBot.robot) {
+    //TODO: if info/size changed update robots. We should probably make them QGraphicsItems
+    if (!visBot.robot ) {
         visBot.robot = new QGraphicsPathItem();
 
         const double angle = toDegrees(info.frontangle());
@@ -128,16 +130,11 @@ Visualizer::updateRobot(const proto::WorldRobot &robot, QMap<uint, Robot> &robot
     visBot.show();
 }
 void Visualizer::updateWorld(const proto::World &world) {
-    proto::RobotInfo info;
-    info.set_radius(0.09);
-    info.set_height(0.15);
-    info.set_frontwidth(0.12);
-    info.set_frontangle(asinf(0.5 * info.frontwidth() / info.radius()));
     for (const auto &blueBot : world.blue()){
-        updateRobot(blueBot,blueBots,info,Qt::blue);
+        updateRobot(blueBot,blueBots,teamRobotInfo.blue(),Qt::blue);
     }
     for (const auto & yellowBot : world.yellow()){
-        updateRobot(yellowBot,yellowBots,info,Qt::yellow);
+        updateRobot(yellowBot,yellowBots,teamRobotInfo.yellow(),Qt::yellow);
     }
     for (auto & robot : blueBots) {
         robot.tryHide();
@@ -176,23 +173,18 @@ void Visualizer::wheelEvent(QWheelEvent *event) {
     scale(zoomFactor,zoomFactor);
     centerOn(scenePos);
 }
-void Visualizer::drawDetectionFrames(QPainter* painter, const std::vector<proto::SSL_DetectionFrame>& frames) {
+void Visualizer::drawDetectionFrames(QPainter* painter, const std::vector<proto::SSL_DetectionFrame>& frames, const proto::TeamRobotInfo &robotInfo) {
     for(const auto& frame : frames){
-        drawDetectionFrame(painter,frame);
+        drawDetectionFrame(painter,frame,robotInfo);
     }
 }
-void Visualizer::drawDetectionFrame(QPainter* painter, const proto::SSL_DetectionFrame &frame) {
-    proto::RobotInfo info;
-    info.set_radius(0.09);
-    info.set_height(0.15);
-    info.set_frontwidth(0.12);
-    info.set_frontangle(asinf(0.5 * info.frontwidth() / info.radius())); //TODO: fix
+void Visualizer::drawDetectionFrame(QPainter* painter, const proto::SSL_DetectionFrame &frame, const proto::TeamRobotInfo &robotInfo) {
     painter->save(); //save so we can restore the state later.
     for(const auto& blueBot : frame.robots_blue()){
-        drawDetectionRobot(painter,blueBot,info,Qt::green);
+        drawDetectionRobot(painter,blueBot,robotInfo.blue(),Qt::green);
     }
     for(const auto& yellowBot : frame.robots_yellow()){
-        drawDetectionRobot(painter,yellowBot,info,Qt::red);
+        drawDetectionRobot(painter,yellowBot,robotInfo.yellow(),Qt::red);
     }
     for(const auto& detBall : frame.balls()){
         drawDetectionBall(painter,detBall);
@@ -209,13 +201,13 @@ void Visualizer::drawDetectionBall(QPainter* painter, const proto::SSL_Detection
 void Visualizer::drawDetectionRobot(QPainter* painter, const proto::SSL_DetectionRobot &bot,
         const proto::RobotInfo &info, const QColor &color) {
     const float radius= info.radius();
-    const float startAngle=toDegrees(info.frontangle()); // should already be in degrees
-    const float endAngle= 360.0-toDegrees(info.frontangle());
-    const float sweepLength=endAngle-startAngle;
+    const double startAngle=toDegrees(info.frontangle()); // should already be in degrees
+    const double endAngle= 360.0-toDegrees(info.frontangle());
+    const double sweepLength=endAngle-startAngle;
     QRectF rect(-radius, -radius, radius*2,radius*2);
     QPointF botPos(bot.x()/1000.0,-bot.y()/1000.0);//QT has an inverted y-axis
     rect.translate(botPos);
-    float trueAngle=startAngle+ toDegrees(bot.orientation());
+    double trueAngle=startAngle+ toDegrees(bot.orientation());
     QPainterPath path;
     path.arcMoveTo(rect,trueAngle);
     path.arcTo(rect,trueAngle,sweepLength);
@@ -249,13 +241,15 @@ void Visualizer::drawForeground(QPainter* painter, const QRectF &rect) {
         drawCameraOutLines(painter);
     }
     if(showDetections){
-        drawDetectionFrames(painter,usedDetectionFrames);
+        drawDetectionFrames(painter,usedDetectionFrames,teamRobotInfo);
     }
 
 }
-void Visualizer::updateDetections(const std::vector<proto::SSL_WrapperPacket>& packets) {
+void Visualizer::clearDetections(){
     usedDetectionFrames.clear();
-    for (const auto& packet : packets){
+}
+void Visualizer::addDetections(const proto::FrameLog &frame) {
+    for (const auto& packet : frame.visionmessages()){
         if (packet.has_detection()){
             usedDetectionFrames.push_back(packet.detection());
         }
@@ -434,6 +428,9 @@ void Visualizer::addCameraOutLine(const Camera& camera) {
 }
 void Visualizer::setShowCameraOutlines(bool show) { showCameraOutlines = show; }
 void Visualizer::updateFrame(const proto::FrameLog &frame) {
+    if(frame.has_robotinfo()){
+        updateRobotInfo(frame.robotinfo());
+    }
     if(frame.has_world()){
         updateWorld(frame.world());
     }
@@ -443,7 +440,20 @@ void Visualizer::updateFrame(const proto::FrameLog &frame) {
     if(frame.has_gamestate()){
         updateGameState(frame.gamestate());
     }
-    //updateDetections(frame.visionmessages());
+    addDetections(frame);
+}
+void Visualizer::updateFrames(const std::vector<proto::FrameLog> &frames) {
+    clearDetections();
+    for(const auto& frame : frames){
+        updateFrame(frame);
+    }
+}
+void Visualizer::updateSingleFrame(const proto::FrameLog &frame) {
+    clearDetections();
+    updateFrame(frame);
+}
+void Visualizer::updateRobotInfo(const proto::TeamRobotInfo &robotInfo) {
+    teamRobotInfo.CopyFrom(robotInfo);//Copy robotInfo
 }
 void Visualizer::Ball::show() {
     actual->show();

@@ -16,6 +16,8 @@
 #include <QtWidgets/QGroupBox>
 #include <core/Time.h>
 #include <QTimer>
+#include <QPushButton>
+#include <QtWidgets/QShortcut>
 
 class ReplayWidget : public QWidget {
         Q_OBJECT
@@ -23,8 +25,9 @@ class ReplayWidget : public QWidget {
     public:
         ReplayWidget(QWidget * parent = nullptr);
         ~ReplayWidget() override;
-
+        [[nodiscard]] bool isRunning() const;
     signals:
+        void replayActive(bool);
         void gotLogFrame(const proto::FrameLog &logFrame);
     public slots:
         void openFile();
@@ -37,14 +40,24 @@ class ReplayWidget : public QWidget {
         void stepBackward();
         void updateInformation();
 
+    protected:
+        void closeEvent(QCloseEvent * event) override;
 
     private:
+        void closeFile();
         void openFile(const QString &filePath);
         static QString stringFromTime(const Time& time);
         void updateTimerInfo(long long int time);
         QHBoxLayout *totalLayout;
         QGroupBox *groupBox;
         QVBoxLayout * mainLayout;
+        QPushButton * exitButton;
+
+        QShortcut * pausePlayShortcut;
+        QShortcut * leftShortcut;
+        QShortcut * rightShortcut;
+        void connectShortcuts();
+        void disconnectShortcuts();
 
         QLabel * fileName;
         QVBoxLayout * beforeInfo;

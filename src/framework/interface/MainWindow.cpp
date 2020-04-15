@@ -42,7 +42,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     //Connect replay information to relevant widgets
     ReplayWidget * replayWidget = mainControls->getReplayWidget();
-    connect(replayWidget,SIGNAL(gotLogFrame(const proto::FrameLog&)),visualizer,SLOT(updateFrame(const proto::FrameLog&)));
+    connect(replayWidget,SIGNAL(gotLogFrame(const proto::FrameLog&)),visualizer,SLOT(updateSingleFrame(const proto::FrameLog&)));
+    connect(replayWidget,SIGNAL(gotLogFrame(const proto::FrameLog&)),gameStateVisualizer,SLOT(updateFrame(const proto::FrameLog&)));
+    connect(replayWidget,SIGNAL(gotLogFrame(const proto::FrameLog&)),mainControls,SLOT(visualizeFrame(const proto::FrameLog&)));
 
     QSplitter * splitter = new QSplitter(this);
     splitter->addWidget(visualizer);
@@ -66,21 +68,14 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 void MainWindow::updateAll() {
     SettingsAPI::instance()->setSettings(mainControls->getSettings());
 
-    if(API::instance()->hasCompletedFirstTick()){
-        proto::GameState gameState = API::instance()->getGameState();
-        mainControls->updateNormal(gameState);
-        visualizer->updateGameState(gameState);
-
-        proto::World worldState = API::instance()->getWorldState();
-        visualizer->updateWorld(worldState);
-
-        std::vector<proto::SSL_WrapperPacket> frames = API::instance()->getFramesAndClear();
-        visualizer->updateDetections(frames);
-
-        if(API::instance()->newGeometry()){
-            proto::SSL_GeometryData data = API::instance()->readGeometryData();
-            visualizer->updateGeometryData(data);
+    if(API::instance()->hasCompletedFirstTick() && !mainControls->getReplayWidget()->isRunning()){
+        std::vector<proto::FrameLog> frameLogs = API::instance()->getData();
+        for(const auto& frame : frameLogs){
+            //Technically these only need to be the last frame
+            mainControls->updateFrame(frame);
+            gameStateVisualizer->updateFrame(frame);
         }
+        visualizer->updateFrames(frameLogs);
     }
 
 }

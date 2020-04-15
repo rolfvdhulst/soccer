@@ -12,6 +12,7 @@
 #include <QtWidgets/QLabel>
 #include <referee/TeamInfo.h>
 #include <referee/GameState.h>
+#include <protobuf/FrameLog.pb.h>
 
 class GameEventsWidget;
 class GameStateVisualizer : public QWidget {
@@ -21,8 +22,8 @@ class GameStateVisualizer : public QWidget {
         explicit GameStateVisualizer(QWidget * parent = nullptr);
         ~GameStateVisualizer() override;
 
-    private slots:
-        void updateAll();
+    public slots:
+        void updateFrame(const proto::FrameLog& frame);
     private:
         void updateGamestate(const RefereeState &state, Team ourColor);
         void displayLeftTeam(const TeamInfo &teamInfo, Team color);
