@@ -31,6 +31,7 @@ class ReplayWidget : public QWidget {
         void gotLogFrame(const proto::FrameLog &logFrame);
     public slots:
         void openFile();
+        void openRecentFile();
 
     private slots:
         void togglePlay();

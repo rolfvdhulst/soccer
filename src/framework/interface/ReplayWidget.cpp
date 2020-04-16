@@ -4,6 +4,7 @@
 
 #include <QtWidgets/QFileDialog>
 #include "ReplayWidget.h"
+#include <QDateTime>
 
 ReplayWidget::ReplayWidget(QWidget* parent) : QWidget(parent){
     mainLayout = new QVBoxLayout();
@@ -92,12 +93,47 @@ ReplayWidget::~ReplayWidget() {
 }
 void ReplayWidget::openFile() {
     QFileDialog dialog(this);
+
+    QDir directory = dialog.directory();
+    while(directory.dirName() != "soccer"){
+        bool success = directory.cdUp();
+        if(!success){
+            std::cerr<<"Could not find application root folder, did you rename or are you not running from root?"<<std::endl;
+            std::cerr<<"Could not open log file"<<std::endl;
+        }
+    }
+    if(!directory.cd("logfiles")){
+        std::cout<<"Could not find logfiles directory!"<<std::endl;
+    }
+    dialog.setDirectory(directory);
+
     dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.setNameFilter(tr("Logfiles (*.log)"));
     dialog.setViewMode(QFileDialog::Detail);
     if (dialog.exec()){
         QString filePath = dialog.selectedFiles().first();
         openFile(filePath);
+    }
+}
+void ReplayWidget::openRecentFile() {
+    QDir directory = QDir::current();
+    while(directory.dirName() != "soccer"){
+        bool success = directory.cdUp();
+        if(!success){
+            std::cerr<<"Could not find application root folder, did you rename or are you not running from root?"<<std::endl;
+            std::cerr<<"Could not open log file"<<std::endl;
+            return;
+        }
+    }
+    if(!directory.cd("logfiles")){
+        std::cerr<<"Could not find logfiles directory!"<<std::endl;
+        return;
+    }
+    QFileInfoList fileInfos= directory.entryInfoList(QDir::Files, QDir::Time);
+    if(!fileInfos.empty()){
+        openFile(fileInfos.first().absoluteFilePath());
+    }else{
+        std::cerr<<"Could not find any recent files in your logfiles directory!"<<std::endl;
     }
 }
 void ReplayWidget::openFile(const QString &filePath) {

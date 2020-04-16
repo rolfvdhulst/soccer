@@ -34,10 +34,18 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     configureCheckableMenuItem("Show placement marker", viewMenu,visualizer,SLOT(setShowPlacementMarker(bool)),true);
 
     auto replayMenu = menu->addMenu(tr("&Replay"));
+
     auto action = replayMenu->addAction(tr("&Open"));
     connect(action,SIGNAL(triggered()),mainControls->getReplayWidget(),SLOT(openFile()));
+
+    auto action3 = replayMenu->addAction(tr("Open most recent"));
+    action3->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
+    connect(action3,SIGNAL(triggered()),mainControls->getReplayWidget(),SLOT(openRecentFile()));
+
     auto action2 = replayMenu->addAction(tr("Save backlog"));
+    action2->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
     connect(action2,SIGNAL(triggered()),mainControls,SLOT(saveBacklog()));
+
     sideBarLayout->addWidget(mainControls);
     sideBarLayout->addWidget(gameStateVisualizer);
 

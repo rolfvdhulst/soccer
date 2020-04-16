@@ -102,7 +102,7 @@ void ApplicationManager::run(bool &exit) {
             lastSavedBacklognumber = settings.messagecounter();
             backLogger.saveBacklog();
         }
-        this_thread::sleep_for(std::chrono::nanoseconds(1));
+        this_thread::sleep_for(std::chrono::milliseconds(3));
     }
 }
 void ApplicationManager::receiveReferee(){
