@@ -175,7 +175,7 @@ void ReplayWidget::updateTimerInfo(long long int time) {
     currentTime->setText(stringFromTime(Time((long) time -firstTime)));
 }
 void ReplayWidget::stepForward() {
-    if(currentPacketNumber<logReader.fileMessageCount()){
+    if(currentPacketNumber<logReader.fileMessageCount()-1){
         auto frame = logReader.nextFrame();
         currentPacketNumber ++;
         currentReplayTime = frame.first - firstTime;
@@ -187,7 +187,7 @@ void ReplayWidget::stepForward() {
 void ReplayWidget::stepBackward() {
     if(currentPacketNumber>0){
         currentPacketNumber--;
-        auto frame = logReader.frameAt(currentPacketNumber);//TODO: hack because actually currentPacketNumber is incorrect
+        auto frame = logReader.frameAt(currentPacketNumber);
         currentReplayTime = frame.first-firstTime;
         updateTimerInfo(frame.first);
         emit gotLogFrame(frame.second);

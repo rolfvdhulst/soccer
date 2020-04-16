@@ -9,6 +9,9 @@ GameEventsWidget::GameEventsWidget(QWidget* parent)
     setReadOnly(true);
     setMaximumBlockCount(1000);
     setLineWrapMode(LineWrapMode::WidgetWidth);
+//    realDocument = new QTextDocument(this);
+//    replayDocument = new QTextDocument(this);
+//    setDocument(realDocument);
 }
 void GameEventsWidget::addNewEvents(const RefereeState& state) {
     for(const auto& event : state.newEvents){
@@ -20,6 +23,16 @@ void GameEventsWidget::addNewEvents(const RefereeState& state) {
         QString toPrint="["+dateTime.toString(Qt::DateFormat::DefaultLocaleShortDate)+":"+zero+QString::number(seconds)+
                 "] "+QString(QString::fromStdString(event.toString()));
 
-        appendPlainText(toPrint);
+        appendPlainText(toPrint); //prints to current document
     }
 }
+void GameEventsWidget::setReplay(bool replay) {
+    if(replay){
+        savedText = document()->toPlainText();
+        document()->clear();
+    } else{
+        document()->clear();
+        document()->setPlainText(savedText);
+    }
+}
+

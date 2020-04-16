@@ -196,3 +196,6 @@ void GameStateVisualizer::displayRightTeam(const TeamInfo &teamInfo, Team color)
     rightGoalie->setText(QString::fromStdString(teamInfo.goalkeeperID.toString()));
     //TODO: remaining fields. Are not that relevant for visualization but might be nice.
 }
+GameEventsWidget* GameStateVisualizer::getGameEventsWidget() {
+    return gameEventsWidget;
+}

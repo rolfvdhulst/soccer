@@ -13,8 +13,7 @@
 #include <referee/TeamInfo.h>
 #include <referee/GameState.h>
 #include <protobuf/FrameLog.pb.h>
-
-class GameEventsWidget;
+#include "GameEventsWidget.h"
 class GameStateVisualizer : public QWidget {
         Q_OBJECT
 
@@ -22,6 +21,7 @@ class GameStateVisualizer : public QWidget {
         explicit GameStateVisualizer(QWidget * parent = nullptr);
         ~GameStateVisualizer() override;
 
+        GameEventsWidget * getGameEventsWidget();
     public slots:
         void updateFrame(const proto::FrameLog& frame);
     private:

@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(replayWidget,SIGNAL(gotLogFrame(const proto::FrameLog&)),visualizer,SLOT(updateSingleFrame(const proto::FrameLog&)));
     connect(replayWidget,SIGNAL(gotLogFrame(const proto::FrameLog&)),gameStateVisualizer,SLOT(updateFrame(const proto::FrameLog&)));
     connect(replayWidget,SIGNAL(gotLogFrame(const proto::FrameLog&)),mainControls,SLOT(visualizeFrame(const proto::FrameLog&)));
-
+    connect(replayWidget,&ReplayWidget::replayActive,gameStateVisualizer->getGameEventsWidget(),&GameEventsWidget::setReplay);
     QSplitter * splitter = new QSplitter(this);
     splitter->addWidget(visualizer);
     sideBarWidget = new QWidget();
