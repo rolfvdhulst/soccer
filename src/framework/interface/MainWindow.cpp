@@ -36,7 +36,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     auto replayMenu = menu->addMenu(tr("&Replay"));
     auto action = replayMenu->addAction(tr("&Open"));
     connect(action,SIGNAL(triggered()),mainControls->getReplayWidget(),SLOT(openFile()));
-
+    auto action2 = replayMenu->addAction(tr("Save backlog"));
+    connect(action2,SIGNAL(triggered()),mainControls,SLOT(saveBacklog()));
     sideBarLayout->addWidget(mainControls);
     sideBarLayout->addWidget(gameStateVisualizer);
 
@@ -46,6 +47,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(replayWidget,SIGNAL(gotLogFrame(const proto::FrameLog&)),gameStateVisualizer,SLOT(updateFrame(const proto::FrameLog&)));
     connect(replayWidget,SIGNAL(gotLogFrame(const proto::FrameLog&)),mainControls,SLOT(visualizeFrame(const proto::FrameLog&)));
     connect(replayWidget,&ReplayWidget::replayActive,gameStateVisualizer->getGameEventsWidget(),&GameEventsWidget::setReplay);
+
     QSplitter * splitter = new QSplitter(this);
     splitter->addWidget(visualizer);
     sideBarWidget = new QWidget();

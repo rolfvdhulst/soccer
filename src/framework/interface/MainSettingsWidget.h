@@ -23,10 +23,11 @@ class MainSettingsWidget : public QWidget {
     public slots:
         //This function is only for visualization during replay!
         void visualizeFrame(const proto::FrameLog &frame);
+        void saveBacklog();
     public:
         explicit MainSettingsWidget(QWidget * parent);
         ~MainSettingsWidget() override;
-        [[nodiscard]] proto::Settings getSettings() const;
+        [[nodiscard]] proto::Settings getSettings();
         void updateFrame(const proto::FrameLog &frame);
         ReplayWidget * getReplayWidget();
     private slots:
@@ -63,6 +64,9 @@ class MainSettingsWidget : public QWidget {
         QLabel * networkText;
         QSpinBox * portBox;
         QLineEdit * IPText;
+
+        int messageCounter = 0;
+        bool saveBacklogNextTick = false;
 
         static void setDisabledColor(QWidget* widget);
         void showUsageMode(const proto::Settings_usageMode &newMode) const;

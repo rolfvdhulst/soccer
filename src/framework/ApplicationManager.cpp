@@ -81,7 +81,8 @@ void ApplicationManager::run(bool &exit) {
             if (logger.isLogging()) {
                 logger.addLogFrame(log);
             }
-
+            backLogger.addLogFrame(log);
+            backLogger.removeOldFrames();
             //This line informs the interface of EVERYTHING
             API::instance()->addData(log);
             API::instance()->setTicked();
@@ -97,7 +98,11 @@ void ApplicationManager::run(bool &exit) {
                 count = 0;
             }
         }
-        this_thread::sleep_for(std::chrono::milliseconds(5));
+        if(settings.has_savebacklog() && settings.savebacklog() && settings.messagecounter() != lastSavedBacklognumber){
+            lastSavedBacklognumber = settings.messagecounter();
+            backLogger.saveBacklog();
+        }
+        this_thread::sleep_for(std::chrono::nanoseconds(1));
     }
 }
 void ApplicationManager::receiveReferee(){

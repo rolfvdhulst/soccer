@@ -13,7 +13,7 @@
  */
 class BackLogger {
     public:
-        void addFrame(const proto::FrameLog& frame);
+        void addLogFrame(const proto::FrameLog& frame);
         void removeOldFrames();
         void saveBacklog();
     private:

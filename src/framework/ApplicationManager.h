@@ -11,7 +11,9 @@
 #include <future>
 #include <refereeFilter/RefereeFilter.h>
 
-#include <logger/LogCreator.h> //TODO: remove test
+#include <logger/LogCreator.h>
+#include <logger/BackLogger.h>
+
 class RoboCupSSLClient;
 
 class ApplicationManager {
@@ -30,6 +32,8 @@ class ApplicationManager {
     void receiveVision();
     void receiveReferee();
     LogCreator logger;
+    BackLogger backLogger;
+    int lastSavedBacklognumber = 0;
 };
 
 #endif  // SOCCER_APPLICATIONMANAGER_H

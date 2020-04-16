@@ -90,8 +90,10 @@ void MainSettingsWidget::setLoggingOn(bool listen) {
 MainSettingsWidget::~MainSettingsWidget() {
 
 }
-proto::Settings MainSettingsWidget::getSettings() const {
+proto::Settings MainSettingsWidget::getSettings(){
+    messageCounter ++; //we increment the counter by one everytime we send a command
     proto::Settings settings;
+    settings.set_messagecounter(messageCounter);
     settings.set_mode((proto::Settings_usageMode)usageMode->currentIndex());//NOTE THE CAST!
     settings.set_listentoreferee(listenToReferee);
     settings.set_loggingon(loggingOn);
@@ -101,6 +103,10 @@ proto::Settings MainSettingsWidget::getSettings() const {
     settings.mutable_firstteam()->CopyFrom(leftTeamWidget->getTeamSettings());
     if(rightTeamWidget->isVisible()){
         settings.mutable_secondteam()->CopyFrom(rightTeamWidget->getTeamSettings());
+    }
+    if(saveBacklogNextTick){
+        settings.set_savebacklog(true);
+        saveBacklogNextTick = false;
     }
     return settings;
 }
@@ -171,4 +177,7 @@ void MainSettingsWidget::visualizeFrame(const proto::FrameLog &frame){
     proto::GameState flipped = frame.gamestate();
     flip(flipped);
     rightTeamWidget->visualizeFromGameState(flipped);//TODO: fix
+}
+void MainSettingsWidget::saveBacklog() {
+    saveBacklogNextTick = true;
 }
