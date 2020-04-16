@@ -44,6 +44,6 @@ void LogCreator::endLogging() {
     }
     writingLog = false;
 }
-void LogCreator::addLogFrame(const proto::FrameLog &logFrame) {
-    writer.addLogFrame(logFrame,Time::now().asNanoSeconds());
+void LogCreator::addLogFrame(const proto::FrameLog &logFrame, Time now) {
+    writer.addLogFrame(logFrame,now.asNanoSeconds());
 }

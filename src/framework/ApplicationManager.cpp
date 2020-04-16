@@ -10,6 +10,7 @@
 
 void ApplicationManager::init() {
     setupNetworking();
+    //we wait for the first time we receive information from the interface (it has some startup time)
     while(!SettingsAPI::instance()->receivedFirstSettings()){
 
     }
@@ -96,7 +97,7 @@ void ApplicationManager::run(bool &exit) {
                 count = 0;
             }
         }
-        this_thread::sleep_for(std::chrono::milliseconds(1));
+        this_thread::sleep_for(std::chrono::milliseconds(5));
     }
 }
 void ApplicationManager::receiveReferee(){

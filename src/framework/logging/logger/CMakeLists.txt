@@ -4,7 +4,12 @@ add_library(logger STATIC
         include/logger/LogReader.h
         LogWriter.cpp
         include/logger/LogWriter.h
-        LogHeader.h LogCreator.cpp include/logger/LogCreator.h)
+        LogHeader.h
+        LogCreator.cpp
+        include/logger/LogCreator.h
+        BackLogger.cpp
+        include/logger/BackLogger.h
+        )
 
 target_link_libraries(logger
         PUBLIC proto

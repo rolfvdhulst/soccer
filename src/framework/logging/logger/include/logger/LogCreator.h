@@ -10,7 +10,7 @@ class LogCreator {
     public:
         void startLogging();
         bool isLogging() const;
-        void addLogFrame(const proto::FrameLog &logFrame);
+        void addLogFrame(const proto::FrameLog &logFrame, Time now = Time::now());// users can pass a time argument, we default to message being recent
         void endLogging();
     private:
         LogWriter writer;
