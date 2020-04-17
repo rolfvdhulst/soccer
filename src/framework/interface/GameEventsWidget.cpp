@@ -9,9 +9,6 @@ GameEventsWidget::GameEventsWidget(QWidget* parent)
     setReadOnly(true);
     setMaximumBlockCount(1000);
     setLineWrapMode(LineWrapMode::WidgetWidth);
-//    realDocument = new QTextDocument(this);
-//    replayDocument = new QTextDocument(this);
-//    setDocument(realDocument);
 }
 void GameEventsWidget::addNewEvents(const RefereeState& state) {
     for(const auto& event : state.newEvents){

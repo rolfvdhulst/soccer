@@ -71,10 +71,12 @@ ReplayWidget::ReplayWidget(QWidget* parent) : QWidget(parent){
 
     playSpeed = new QComboBox();
     playSpeed->setMaximumWidth(80);
+
     QVector<QVariant> speeds ={0.05,0.1,0.25,0.5,1.0,2.0,5.0,10.0};
     for (const auto& speed : speeds) {
         playSpeed->addItem(speed.toString(),speed);
     }
+
     playSpeed->setCurrentIndex(4);
     connect(playSpeed,SIGNAL(currentIndexChanged(int)),this,SLOT(setSpeed(int)));
     toolBar->addWidget(playSpeed);
