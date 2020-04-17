@@ -5,7 +5,7 @@
 #include <QApplication>
 #include <QStyleFactory>
 #include "ApplicationManager.h"
-#include "interface/include/interface/MainWindow.h"
+#include "interface/include/interface/MainWindow.h" //TODO: fix include?
 void setDarkTheme() {
     qApp->setStyle(QStyleFactory::create("Fusion"));
     QPalette darkPalette;

@@ -1,7 +1,7 @@
 add_library(refereeFilter STATIC
         RefereeFilter.cpp
         include/refereeFilter/RefereeFilter.h
-        include/refereeFilter/CommandSwitch.h CommandSwitch.cpp)
+        )
 target_link_libraries(refereeFilter
         PUBLIC proto
         PRIVATE geometry

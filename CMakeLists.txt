@@ -3,6 +3,7 @@ project(soccer)
 add_subdirectory(src)
 add_subdirectory(test)
 
+
 #Code coverage
 option(CODE_COVERAGE "Enable coverage reports" OFF)
 option(RELEASE "add release flags" OFF)
@@ -50,6 +51,8 @@ if (RELEASE)
     target_add_release_flags(referee)
     target_add_release_flags(vision)
     target_add_release_flags(net)
+    target_add_release_flags(interface)
+    target_add_release_flags(interfaceAPI)
     target_add_release_flags(application)
     target_add_release_flags(visionFilter)
     target_add_release_flags(refereeFilter)

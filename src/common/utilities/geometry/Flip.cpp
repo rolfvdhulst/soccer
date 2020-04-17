@@ -5,6 +5,7 @@
 #include <protobuf/messages_robocup_ssl_geometry.pb.h>
 #include "Flip.h"
 #include "Angle.h"
+#include "CommandSwitch.h"//TODO: fix this
 void flipRobot(proto::WorldRobot * robot){
     robot->mutable_pos()->set_x(robot->pos().x() * -1);
     robot->mutable_pos()->set_y(robot->pos().y() * -1);
@@ -123,4 +124,24 @@ flipAndSwap(a.end, b.end);
 void flipAndSwap(Rectangle &a, Rectangle &b){
 flipAndSwap(a.min, b.max);
 flipAndSwap(a.max, b.min);
+}
+void flip(proto::GameState& gameState){
+    gameState.mutable_settings()->set_weplayonpositivehalf(!gameState.settings().weplayonpositivehalf());
+    gameState.mutable_settings()->set_weareblue(!gameState.settings().weareblue());
+    if(gameState.has_referee()){
+        gameState.mutable_referee()->set_command(invertTeams(gameState.referee().command()));
+        if(gameState.referee().has_nextcommand()){
+            gameState.mutable_referee()->set_nextcommand(invertTeams(gameState.referee().nextcommand()));
+        }
+        //swap but have to do this since std:swap does not work on protobuf
+        proto::Referee_TeamInfo us = gameState.referee().us();
+        gameState.mutable_referee()->mutable_us()->CopyFrom(gameState.referee().them());
+        gameState.mutable_referee()->mutable_them()->CopyFrom(us);
+        if(gameState.referee().has_designated_position()){
+            gameState.mutable_referee()->mutable_designated_position()->set_x(gameState.referee().designated_position().x()*-1);
+            gameState.mutable_referee()->mutable_designated_position()->set_y(gameState.referee().designated_position().y()*-1);
+        }
+    }
+    //We ignore game events.
+    // Technically they should also be flipped as they contain positions and velocities (sometimes) but this quickly becomes a HUGE switch statement
 }

@@ -31,8 +31,8 @@ void BallFilter::applyObservation(const BallObservation &observation) {
     kalman->z = obsPos;
 
     // Observations which are not from the main camera are added but are seen as much more noisy
-    const double posVar = 0.02;  // variance TODO: tune these 2
-    const double posVarOtherCamera = 0.05;
+    const double posVar = 0.002;  // should be somewhere in the order of 0.01~0.001 m (maybe a bit more or less but this is roughly realistic)
+    const double posVarOtherCamera = 0.01;
     kalman->R = Kalman::MatrixOO::Zero();
     if (observation.cameraID == mainCamera) {
         kalman->R(0, 0) = posVar;

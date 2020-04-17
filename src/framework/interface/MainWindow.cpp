@@ -5,8 +5,12 @@
 #include "MainWindow.h"
 #include "Visualizer.h"
 #include "GameStateVisualizer.h"
+#include "MainSettingsWidget.h"
+
 #include <QMenuBar>
 #include <QtWidgets/QSplitter>
+#include <interfaceAPI/API.h>
+#include <interfaceAPI/SettingsAPI.h>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     int width = 1920;
@@ -15,11 +19,13 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     visualizer = new Visualizer(this);
     gameStateVisualizer = new GameStateVisualizer(this);
+    mainControls = new MainSettingsWidget(this);
 
     mainLayout = new QVBoxLayout();
     horizontalLayout = new QHBoxLayout();
     sideBarLayout = new QVBoxLayout();
 
+    //setup top menu
     QMenuBar * menu = new QMenuBar(this);
     setMenuBar(menu);
     auto viewMenu = menu->addMenu(tr("&Visualization"));
@@ -27,8 +33,29 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     configureCheckableMenuItem("Show camera outlines", viewMenu,visualizer,SLOT(setShowCameraOutlines(bool)),false);
     configureCheckableMenuItem("Show placement marker", viewMenu,visualizer,SLOT(setShowPlacementMarker(bool)),true);
 
+    auto replayMenu = menu->addMenu(tr("&Replay"));
+
+    auto action = replayMenu->addAction(tr("&Open"));
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
+    connect(action,SIGNAL(triggered()),mainControls->getReplayWidget(),SLOT(openFile()));
+
+    auto action3 = replayMenu->addAction(tr("Open most recent"));
+    action3->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
+    connect(action3,SIGNAL(triggered()),mainControls->getReplayWidget(),SLOT(openRecentFile()));
+
+    auto action2 = replayMenu->addAction(tr("Save backlog"));
+    action2->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
+    connect(action2,SIGNAL(triggered()),mainControls,SLOT(saveBacklog()));
+
+    sideBarLayout->addWidget(mainControls);
     sideBarLayout->addWidget(gameStateVisualizer);
 
+    //Connect replay information to relevant widgets
+    ReplayWidget * replayWidget = mainControls->getReplayWidget();
+    connect(replayWidget,SIGNAL(gotLogFrame(const proto::FrameLog&)),visualizer,SLOT(updateSingleFrame(const proto::FrameLog&)));
+    connect(replayWidget,SIGNAL(gotLogFrame(const proto::FrameLog&)),gameStateVisualizer,SLOT(updateFrame(const proto::FrameLog&)));
+    connect(replayWidget,SIGNAL(gotLogFrame(const proto::FrameLog&)),mainControls,SLOT(visualizeFrame(const proto::FrameLog&)));
+    connect(replayWidget,&ReplayWidget::replayActive,gameStateVisualizer->getGameEventsWidget(),&GameEventsWidget::setReplay);
 
     QSplitter * splitter = new QSplitter(this);
     splitter->addWidget(visualizer);
@@ -44,6 +71,24 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     centralWidget()->setLayout(mainLayout);
 
     showMaximized();
+    updateTimer = new QTimer();
+    connect(updateTimer,&QTimer::timeout,this,&MainWindow::updateAll);
+    updateTimer->start(20);
+
+}
+void MainWindow::updateAll() {
+    SettingsAPI::instance()->setSettings(mainControls->getSettings());
+
+    if(API::instance()->hasCompletedFirstTick() && !mainControls->getReplayWidget()->isRunning()){
+        std::vector<proto::FrameLog> frameLogs = API::instance()->getData();
+        for(const auto& frame : frameLogs){
+            //Technically these only need to be the last frame
+            mainControls->updateFrame(frame);
+            gameStateVisualizer->updateFrame(frame);
+        }
+        visualizer->updateFrames(frameLogs);
+    }
+
 }
 void MainWindow::configureCheckableMenuItem(const QString& title, QMenu *menu, const QObject *receiver, const char *method, bool defaultState) {
     QAction *action = new QAction(title, menu);

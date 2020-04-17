@@ -14,13 +14,24 @@ GameStateVisualizer::GameStateVisualizer(QWidget* parent) :
     setMinimumSize(192,108);
     setMaximumSize(384,720);
     totalLayout = new QVBoxLayout(this);
+
     teamInfoLayout = new QGridLayout();
     sharedInfoLayout = new QVBoxLayout();
     gameEventsWidget = new GameEventsWidget(this);
 
-    totalLayout->addLayout(sharedInfoLayout);
-    totalLayout->addLayout(teamInfoLayout);
-    totalLayout->addWidget(gameEventsWidget);
+    infoGroupBox = new QGroupBox("Referee information");
+    infoLayout = new QVBoxLayout();
+    infoLayout->addLayout(sharedInfoLayout);
+    infoLayout->addLayout(teamInfoLayout);
+    infoGroupBox->setLayout(infoLayout);
+
+    eventsGroupBox = new QGroupBox("Game Events");
+    eventsLayout = new QHBoxLayout();
+    eventsLayout->addWidget(gameEventsWidget);
+    eventsGroupBox->setLayout(eventsLayout);
+
+    totalLayout->addWidget(infoGroupBox);
+    totalLayout->addWidget(eventsGroupBox);
 
     command = new QLabel(this);
     command->setText("Command: ");
@@ -106,34 +117,32 @@ GameStateVisualizer::GameStateVisualizer(QWidget* parent) :
     teamInfoLayout->addWidget(rightGoalie,row,right);
     row++;
 
-    updateTimer = new QTimer(this);
-    connect(updateTimer, &QTimer::timeout, this, &GameStateVisualizer::updateAll);
-    updateTimer->start(20);//50 hz
 
 
 
 }
 GameStateVisualizer::~GameStateVisualizer() {
-    delete updateTimer;
     delete leftScore;
     delete rightScore;
     //TODO: delete everything properly
     delete gameEventsWidget;
 }
-void GameStateVisualizer::updateAll() {
-    proto::GameState gameState = API::instance()->getGameState();
-    const GameState state(gameState);
-    updateGamestate(state);
-    std::vector<proto::GameEvent> events = API::instance()->getGameEvents();
-    gameEventsWidget->addNewEvents(events,state);
+void GameStateVisualizer::updateFrame(const proto::FrameLog& frame) {
+    if(frame.has_gamestate()){
+        const GameState state(frame.gamestate());
+        if(state.refState){
+            updateGamestate(*state.refState,state.ourColor);
+            gameEventsWidget->addNewEvents(*state.refState);
+        }
+    }
 }
-void GameStateVisualizer::updateGamestate(const GameState &state) {
+void GameStateVisualizer::updateGamestate(const RefereeState &state, Team ourColor) {
 
     QString gamestageText= "Stage: "+QString::fromStdString(state.stage.toString()) +"\nTime left: ";
     state.stageTimeLeft ? gamestageText+=QString::number(state.stageTimeLeft->asIntegerMilliSeconds()/1000.0) +" s" : gamestageText+="-";
     gameStage->setText(gamestageText);
     if(state.currentActionTimeRemaining){
-        actionTime->setText("Action time left: "+QString::number(state.currentActionTimeRemaining->asIntegerMilliSeconds()/1000.0));
+        actionTime->setText("Action time left: "+QString::number(state.currentActionTimeRemaining->asIntegerMilliSeconds()/1000.0)+ " s");
     }else{
         actionTime->setText("Action time left: -");
     }
@@ -144,11 +153,16 @@ void GameStateVisualizer::updateGamestate(const GameState &state) {
         nextCommand->setText("Next command: -");
     }
     //We already rotate the field so we are left, so this is easier to view.
-    displayLeftTeam(state.usInfo);
-    displayRightTeam(state.themInfo);
+    displayLeftTeam(state.usInfo, ourColor);
+    displayRightTeam(state.themInfo, ourColor.inverse());
 }
-void GameStateVisualizer::displayLeftTeam(const TeamInfo &teamInfo) {
+void GameStateVisualizer::displayLeftTeam(const TeamInfo &teamInfo, Team color) {
     leftTeamName->setText(QString::fromStdString(teamInfo.name));
+    QString colorStr = "gray";
+    if (color != Team::UNKNOWN){
+        colorStr = (color == Team::BLUE ? "cyan" : "orange");
+    }
+    leftTeamName->setStyleSheet("QLabel { color :"+ colorStr +"; }");
     leftScore->setText(QString::number(teamInfo.score));
     QString timeOutString = QString::number(teamInfo.timeOuts)+ ", "+QString::number(teamInfo.timeOutTime.asIntegerSeconds()) + " s";
     leftTimeouts->setText(timeOutString);
@@ -167,8 +181,13 @@ void GameStateVisualizer::displayLeftTeam(const TeamInfo &teamInfo) {
     leftYellowCards->setText(yellowCards+remainingTimes);
     leftGoalie->setText(QString::fromStdString(teamInfo.goalkeeperID.toString()));
 }
-void GameStateVisualizer::displayRightTeam(const TeamInfo &teamInfo) {
+void GameStateVisualizer::displayRightTeam(const TeamInfo &teamInfo, Team color) {
     rightTeamName->setText(QString::fromStdString(teamInfo.name));
+    QString colorStr = "gray";
+    if (color != Team::UNKNOWN){
+        colorStr = (color == Team::BLUE ? "cyan" : "orange");
+    }
+    rightTeamName->setStyleSheet("QLabel { color :"+ colorStr +"; }");
     rightScore->setText(QString::number(teamInfo.score));
     QString timeOutString = QString::number(teamInfo.timeOuts)+ ", "+QString::number(teamInfo.timeOutTime.asIntegerSeconds()) + " s";
     rightTimeouts->setText(timeOutString);
@@ -187,4 +206,7 @@ void GameStateVisualizer::displayRightTeam(const TeamInfo &teamInfo) {
     rightYellowCards->setText(yellowCards+remainingTimes);
     rightGoalie->setText(QString::fromStdString(teamInfo.goalkeeperID.toString()));
     //TODO: remaining fields. Are not that relevant for visualization but might be nice.
+}
+GameEventsWidget* GameStateVisualizer::getGameEventsWidget() {
+    return gameEventsWidget;
 }

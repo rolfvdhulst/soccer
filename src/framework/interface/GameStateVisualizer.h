@@ -12,8 +12,9 @@
 #include <QtWidgets/QLabel>
 #include <referee/TeamInfo.h>
 #include <referee/GameState.h>
-
-class GameEventsWidget;
+#include <protobuf/FrameLog.pb.h>
+#include <QtWidgets/QGroupBox>
+#include "GameEventsWidget.h"
 class GameStateVisualizer : public QWidget {
         Q_OBJECT
 
@@ -21,12 +22,13 @@ class GameStateVisualizer : public QWidget {
         explicit GameStateVisualizer(QWidget * parent = nullptr);
         ~GameStateVisualizer() override;
 
-    private slots:
-        void updateAll();
+        GameEventsWidget * getGameEventsWidget();
+    public slots:
+        void updateFrame(const proto::FrameLog& frame);
     private:
-        void updateGamestate(const GameState& gameState);
-        void displayLeftTeam(const TeamInfo &teamInfo);
-        void displayRightTeam(const TeamInfo &teamInfo);
+        void updateGamestate(const RefereeState &state, Team ourColor);
+        void displayLeftTeam(const TeamInfo &teamInfo, Team color);
+        void displayRightTeam(const TeamInfo &teamInfo, Team color);
         GameEventsWidget * gameEventsWidget;
 
         QLabel * command;
@@ -63,9 +65,12 @@ class GameStateVisualizer : public QWidget {
         QLabel * rightGoalie;
 
         QVBoxLayout *totalLayout;
+        QGroupBox * infoGroupBox;
+        QVBoxLayout * infoLayout;
         QVBoxLayout *sharedInfoLayout;
         QGridLayout *teamInfoLayout;
-
+        QGroupBox *eventsGroupBox;
+        QHBoxLayout * eventsLayout;
         QTimer * updateTimer;
 };
 

@@ -10,9 +10,8 @@ GameEventsWidget::GameEventsWidget(QWidget* parent)
     setMaximumBlockCount(1000);
     setLineWrapMode(LineWrapMode::WidgetWidth);
 }
-void GameEventsWidget::addNewEvents(std::vector<proto::GameEvent> events,const GameState& state) {
-    for(const auto& protoEvent : events){
-        GameEvent event(protoEvent);
+void GameEventsWidget::addNewEvents(const RefereeState& state) {
+    for(const auto& event : state.newEvents){
         long msecs = state.timeStamp.asIntegerMilliSeconds();
         QDateTime dateTime =QDateTime::fromMSecsSinceEpoch(msecs);
 
@@ -21,6 +20,16 @@ void GameEventsWidget::addNewEvents(std::vector<proto::GameEvent> events,const G
         QString toPrint="["+dateTime.toString(Qt::DateFormat::DefaultLocaleShortDate)+":"+zero+QString::number(seconds)+
                 "] "+QString(QString::fromStdString(event.toString()));
 
-        appendPlainText(toPrint);
+        appendPlainText(toPrint); //prints to current document
     }
 }
+void GameEventsWidget::setReplay(bool replay) {
+    if(replay){
+        savedText = document()->toPlainText();
+        document()->clear();
+    } else{
+        document()->clear();
+        document()->setPlainText(savedText);
+    }
+}
+

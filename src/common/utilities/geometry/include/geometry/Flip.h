@@ -7,9 +7,11 @@
 
 #include <protobuf/World.pb.h>
 #include <protobuf/messages_robocup_ssl_detection.pb.h>
+#include <protobuf/messages_robocup_ssl_geometry.pb.h>
 #include "LineSegment.h"
 #include "Rectangle.h"
 #include "Vector2.h"
+#include <protobuf/GameState.pb.h>
 
 void flipAndSwap(double &a, double &b);
 void flipAndSwap(Vector2 &a, Vector2 &b);
@@ -21,4 +23,5 @@ void flip(proto::SSL_GeometryFieldSize* field);
 void flip(proto::SSL_DetectionFrame* detectionFrame);
 void flip(proto::SSL_DetectionRobot * detectionRobot);
 void flip(proto::SSL_DetectionBall * detectionBall);
+void flip(proto::GameState& gameState);
 #endif  // SOCCER_FLIP_H

@@ -10,6 +10,10 @@
 #include <memory>
 #include <future>
 #include <refereeFilter/RefereeFilter.h>
+
+#include <logger/LogCreator.h>
+#include <logger/BackLogger.h>
+
 class RoboCupSSLClient;
 
 class ApplicationManager {
@@ -22,11 +26,14 @@ class ApplicationManager {
     std::unique_ptr<RoboCupSSLClient> visionReceiver = nullptr;
     std::unique_ptr<RoboCupSSLClient> refereeReceiver = nullptr;
     VisionFilter visionFilter;
-    RefereeFilter refereeFilter;
+    RefereeFilter gameStateFilter;
     std::vector<proto::SSL_WrapperPacket> visionPackets;
     std::vector<proto::Referee> refereePackets;
     void receiveVision();
     void receiveReferee();
+    LogCreator logger;
+    BackLogger backLogger;
+    int lastSavedBacklognumber = 0;
 };
 
 #endif  // SOCCER_APPLICATIONMANAGER_H

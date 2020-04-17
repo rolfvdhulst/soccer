@@ -12,7 +12,14 @@
 class GameEventsWidget : public QPlainTextEdit{
     public:
         explicit GameEventsWidget(QWidget * parent);
-        void addNewEvents(std::vector<proto::GameEvent> events,const GameState &state);
+        void addNewEvents(const RefereeState &state);
+
+    public slots:
+        void setReplay(bool replay);
+
+    private:
+        QString savedText;
+
 };
 
 #endif //SOCCER_GAMEEVENTSWIDGET_H

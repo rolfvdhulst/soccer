@@ -4,6 +4,7 @@ add_subdirectory(net)
 add_subdirectory(refereeFilter)
 add_subdirectory(visionFilter)
 add_subdirectory(ai)
+add_subdirectory(logging)
 
 add_library(application STATIC
         ApplicationManager.cpp
@@ -13,7 +14,8 @@ target_link_libraries(application
         PUBLIC net
         PUBLIC visionFilter
         PUBLIC interfaceAPI
-        PUBLIC refereeFilter #TODO remove again
+        PUBLIC refereeFilter
+        PUBLIC logger
         )
 
 

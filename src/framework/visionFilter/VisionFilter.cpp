@@ -3,7 +3,13 @@
 //
 
 #include "VisionFilter.h"
-proto::World VisionFilter::process(const std::vector<proto::SSL_WrapperPacket>& packets) {
+proto::World VisionFilter::process(const std::vector<proto::SSL_WrapperPacket>& packets, Time time) {
+    //We process geometry first since it contains information on the cameras
+    processGeometry(packets);
+    processDetections(packets);
+    return worldFilter.getWorld(time);//TODO: extrapolate based on robotCommands
+}
+proto::World VisionFilter::process(const std::vector<proto::SSL_WrapperPacket>& packets,  const proto::TeamRobotInfo& robotInfo) {
     //We process geometry first since it contains information on the cameras
     processGeometry(packets);
     processDetections(packets);

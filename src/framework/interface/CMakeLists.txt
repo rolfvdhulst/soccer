@@ -8,7 +8,13 @@ add_library(interface STATIC
         Visualizer.h
         GameStateVisualizer.cpp
         GameStateVisualizer.h
-        GameEventsWidget.cpp GameEventsWidget.h)
+        GameEventsWidget.cpp
+        GameEventsWidget.h
+        MainSettingsWidget.cpp
+        MainSettingsWidget.h
+        MainTeamSettingsWidget.cpp
+        MainTeamSettingsWidget.h
+        ReplayWidget.cpp ReplayWidget.h)
 
 target_link_libraries(interface
         PUBLIC Qt5::Core
@@ -19,6 +25,7 @@ target_link_libraries(interface
         PRIVATE referee
         PUBLIC interfaceAPI
         PRIVATE field
+        PRIVATE logger
 )
 target_include_directories(interface
         PRIVATE include/interface

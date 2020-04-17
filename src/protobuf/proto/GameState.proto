@@ -6,8 +6,9 @@ import "ssl_referee.proto";
 import "Vector2f.proto";
 import "ssl_game_controller_common.proto";
 import "ssl_game_event.proto";
+import "Settings.proto";
 
-message GameState{
+message RefereeState{
     //When the referee message containing this information was sent in nanoseconds since epoch
     required uint64 timeStamp= 1;
     //The gamestage of the referee corresponding to the stage of the game.
@@ -69,12 +70,10 @@ message GameState{
 
     optional Vector2f designated_position = 9;
 
-    required bool wePlayOnPositiveHalf = 10;
-
-    optional Command nextCommand = 11;
+    optional Command nextCommand = 10;
 
     // All new game events. Note this is not the same as the game events in the SSL message!
-    repeated GameEvent game_events = 12;
+    repeated GameEvent game_events = 11;
 
     // The time in nanoseconds that is remaining until the current action times out
     // The time will not be reset. It can get negative.
@@ -83,7 +82,10 @@ message GameState{
     //  * free kicks
     //  * kickoff, penalty kick, force start
     //  * ball placement
-    optional sint64 current_action_time_remaining = 13;
+    optional sint64 current_action_time_remaining = 12;
+}
 
-    required Team ourColor = 14;
+message GameState{
+    required TeamSettings settings = 1;
+    optional RefereeState referee = 2;
 }
