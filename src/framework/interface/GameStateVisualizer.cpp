@@ -14,13 +14,24 @@ GameStateVisualizer::GameStateVisualizer(QWidget* parent) :
     setMinimumSize(192,108);
     setMaximumSize(384,720);
     totalLayout = new QVBoxLayout(this);
+
     teamInfoLayout = new QGridLayout();
     sharedInfoLayout = new QVBoxLayout();
     gameEventsWidget = new GameEventsWidget(this);
 
-    totalLayout->addLayout(sharedInfoLayout);
-    totalLayout->addLayout(teamInfoLayout);
-    totalLayout->addWidget(gameEventsWidget);
+    infoGroupBox = new QGroupBox("Referee information");
+    infoLayout = new QVBoxLayout();
+    infoLayout->addLayout(sharedInfoLayout);
+    infoLayout->addLayout(teamInfoLayout);
+    infoGroupBox->setLayout(infoLayout);
+
+    eventsGroupBox = new QGroupBox("Game Events");
+    eventsLayout = new QHBoxLayout();
+    eventsLayout->addWidget(gameEventsWidget);
+    eventsGroupBox->setLayout(eventsLayout);
+
+    totalLayout->addWidget(infoGroupBox);
+    totalLayout->addWidget(eventsGroupBox);
 
     command = new QLabel(this);
     command->setText("Command: ");

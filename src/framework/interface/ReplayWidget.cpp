@@ -71,11 +71,11 @@ ReplayWidget::ReplayWidget(QWidget* parent) : QWidget(parent){
 
     playSpeed = new QComboBox();
     playSpeed->setMaximumWidth(80);
-    QVector<QVariant> speeds ={0.1,0.25,0.5,1.0,2.0,5.0,10.0,100.0};
+    QVector<QVariant> speeds ={0.05,0.1,0.25,0.5,1.0,2.0,5.0,10.0};
     for (const auto& speed : speeds) {
         playSpeed->addItem(speed.toString(),speed);
     }
-    playSpeed->setCurrentIndex(3);
+    playSpeed->setCurrentIndex(4);
     connect(playSpeed,SIGNAL(currentIndexChanged(int)),this,SLOT(setSpeed(int)));
     toolBar->addWidget(playSpeed);
 
@@ -147,8 +147,6 @@ void ReplayWidget::openFile(const QString &filePath) {
         emit replayActive(true);
         show();
         fileName->setText(filePath);
-        currentPacket->setText(QString::number(0));
-        currentTime->setText(stringFromTime(Time(0.0)));
         totalPacket->setText(QString::number(logReader.fileMessageCount()-1));
 
         lastTime = logReader.frameAt(logReader.fileMessageCount()-1).first;//index starts at 0
@@ -158,10 +156,12 @@ void ReplayWidget::openFile(const QString &filePath) {
 
         timeSlider->setMaximum((int) logReader.fileMessageCount()-1);
         timeSlider->setValue(0);
-        emit gotLogFrame(logReader.frameAt(0).second);//Send the first tick to all widgets
+        auto frame = logReader.frameAt(0);
+        emit gotLogFrame(frame.second);//Send the first tick to all widgets
         logReader.resetToStartOfFile();
         currentReplayTime = 0;
         currentPacketNumber = 0;
+        updateTimerInfo(frame.first);
         connectShortcuts();
     } else{
         //We could not succesfully open the file
@@ -194,7 +194,7 @@ void ReplayWidget::updateInformation() {
     logReader.getNextTime()<firstTime+currentReplayTime){
         auto frame = logReader.nextFrame();
         currentPacketNumber ++;
-        updateTimerInfo(frame.first);
+        updateTimerInfo(frame.first); //TODO: somehow is still wrong at times... not sure what's going wrong
         emit gotLogFrame(frame.second);
     }
     //we reached end-of file, pause and also correct packet number

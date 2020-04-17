@@ -36,6 +36,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     auto replayMenu = menu->addMenu(tr("&Replay"));
 
     auto action = replayMenu->addAction(tr("&Open"));
+    action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
     connect(action,SIGNAL(triggered()),mainControls->getReplayWidget(),SLOT(openFile()));
 
     auto action3 = replayMenu->addAction(tr("Open most recent"));

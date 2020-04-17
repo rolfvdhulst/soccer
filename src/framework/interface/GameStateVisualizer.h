@@ -13,6 +13,7 @@
 #include <referee/TeamInfo.h>
 #include <referee/GameState.h>
 #include <protobuf/FrameLog.pb.h>
+#include <QtWidgets/QGroupBox>
 #include "GameEventsWidget.h"
 class GameStateVisualizer : public QWidget {
         Q_OBJECT
@@ -64,9 +65,12 @@ class GameStateVisualizer : public QWidget {
         QLabel * rightGoalie;
 
         QVBoxLayout *totalLayout;
+        QGroupBox * infoGroupBox;
+        QVBoxLayout * infoLayout;
         QVBoxLayout *sharedInfoLayout;
         QGridLayout *teamInfoLayout;
-
+        QGroupBox *eventsGroupBox;
+        QHBoxLayout * eventsLayout;
         QTimer * updateTimer;
 };
 
