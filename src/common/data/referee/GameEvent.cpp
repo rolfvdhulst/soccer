@@ -2,7 +2,7 @@
 // Created by rolf on 28-03-20.
 //
 
-#include <geometry/Angle.h>
+#include <math/geometry/Angle.h>
 #include "GameEvent.h"
 GameEvent::GameEvent(const proto::GameEvent &event) {
     type=getType(event);

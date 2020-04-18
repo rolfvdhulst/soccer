@@ -2,9 +2,9 @@
 // Created by rolf on 28-01-20.
 //
 
-#include <geometry/Line.h>
-#include <geometry/LineSegment.h>
-#include <geometry/Triangle.h>
+#include <math/geometry/Line.h>
+#include <math/geometry/LineSegment.h>
+#include <math/geometry/Triangle.h>
 #include <gtest/gtest.h>
 TEST(Triangle, basic) {
     Vector2 point1(1, 1);

@@ -2,8 +2,8 @@
 // Created by thijs on 28-2-19.
 //
 
-#include "Angle.h"
-#include "Vector2.h"
+#include "geometry/Angle.h"
+#include "geometry/Vector2.h"
 
 Angle::Angle(double angle) : angle(angle) { this->constrain(); }
 

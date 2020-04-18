@@ -2,10 +2,10 @@
 // Created by emiel on 25-02-20.
 //
 
-#include <geometry/Circle.h>
-#include <geometry/Line.h>
-#include <geometry/LineSegment.h>
-#include <geometry/Rectangle.h>
+#include <math/geometry/Circle.h>
+#include <math/geometry/Line.h>
+#include <math/geometry/LineSegment.h>
+#include <math/geometry/Rectangle.h>
 #include <gtest/gtest.h>
 #include <cmath>
 

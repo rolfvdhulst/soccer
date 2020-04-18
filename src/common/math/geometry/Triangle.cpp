@@ -2,9 +2,9 @@
 // Created by rolf on 24-01-20.
 //
 
-#include "Triangle.h"
-#include "Line.h"
-#include "LineSegment.h"
+#include "geometry/Triangle.h"
+#include "geometry/Line.h"
+#include "geometry/LineSegment.h"
 
 Triangle::Triangle(const Vector2 &point1, const Vector2 &point2, const Vector2 &point3) : corner1{point1}, corner2{point2}, corner3{point3} {}
 

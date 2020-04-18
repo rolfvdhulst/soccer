@@ -2,10 +2,10 @@
 // Created by rolf on 22-01-20.
 //
 
-#include <geometry/Line.h>
-#include <geometry/LineSegment.h>
-#include <geometry/Polygon.h>
-#include <geometry/Rectangle.h>
+#include <math/geometry/Line.h>
+#include <math/geometry/LineSegment.h>
+#include <math/geometry/Polygon.h>
+#include <math/geometry/Rectangle.h>
 #include <gtest/gtest.h>
 static Rectangle rect(Vector2(-1, 1), Vector2(1, 2));
 static Rectangle nullExample(Vector2(0, 0), Vector2(0, 0));

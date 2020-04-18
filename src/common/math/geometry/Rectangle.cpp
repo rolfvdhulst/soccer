@@ -1,10 +1,10 @@
 //
 // Created by rolf on 22-01-20.
 //
-#include "Rectangle.h"
-#include "Line.h"
-#include "LineSegment.h"
-#include "Polygon.h"
+#include "geometry/Rectangle.h"
+#include "geometry/Line.h"
+#include "geometry/LineSegment.h"
+#include "geometry/Polygon.h"
 
 constexpr const unsigned int INSIDE = 0x00;
 constexpr const unsigned int LEFT = 0x01;

@@ -4,7 +4,7 @@ add_library(refereeFilter STATIC
         )
 target_link_libraries(refereeFilter
         PUBLIC proto
-        PRIVATE geometry
+        PRIVATE protoUtils
         )
 target_include_directories(refereeFilter
         PRIVATE include/refereeFilter

@@ -7,11 +7,11 @@ add_library(world STATIC
         include/world/WorldState.h
         RobotID.cpp
         include/world/RobotID.h
-        )
+        include/world/WorldTeam.h)
 
 
 target_link_libraries(world
-        PUBLIC geometry
+        PUBLIC math
         PUBLIC proto
         PUBLIC core
         )

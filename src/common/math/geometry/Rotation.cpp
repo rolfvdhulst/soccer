@@ -2,7 +2,7 @@
 // Created by rolf on 28-2-20.
 //
 
-#include "Rotation.h"
+#include "geometry/Rotation.h"
 bool Rotation::operator==(const Rotation &other) const { return fabs(rotation - other.rotation) < VECTOR_PRECISION; }
 bool Rotation::operator==(const double &scalar) const { return fabs(rotation - scalar) < VECTOR_PRECISION; }
 bool Rotation::operator!=(const Rotation &other) const { return !(*this == other); }

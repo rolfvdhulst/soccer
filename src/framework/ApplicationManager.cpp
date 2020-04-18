@@ -4,7 +4,7 @@
 
 #include "ApplicationManager.h"
 #include <interfaceAPI/API.h>
-#include <geometry/Flip.h>
+#include <protoUtils/Flip.h>
 #include <protobuf/FrameLog.pb.h>
 #include <interfaceAPI/SettingsAPI.h>
 

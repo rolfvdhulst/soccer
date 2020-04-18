@@ -8,11 +8,13 @@ add_library(referee STATIC
         GameEvent.cpp
         include/referee/GameEvent.h
         Team.cpp
-        include/referee/Team.h TeamInfo.cpp include/referee/TeamInfo.h)
+        include/referee/Team.h
+        TeamInfo.cpp
+        include/referee/TeamInfo.h)
 
 
 target_link_libraries(referee
-        PUBLIC geometry
+        PUBLIC math
         PUBLIC proto
         PUBLIC world
         PUBLIC core

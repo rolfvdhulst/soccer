@@ -2,10 +2,10 @@
 // Created by emiel on 24-02-20.
 //
 
-#include "Circle.h"
-#include "Line.h"
-#include "LineSegment.h"
-#include "Rectangle.h"
+#include "geometry/Circle.h"
+#include "geometry/Line.h"
+#include "geometry/LineSegment.h"
+#include "geometry/Rectangle.h"
 
 bool Circle::doesIntersectOrContain(const Vector2 &other) { return std::abs((center - other).length()) <= radius; }
 

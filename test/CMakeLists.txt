@@ -38,7 +38,7 @@ add_executable(allTests
 
 target_link_libraries(allTests
         PRIVATE proto
-        PRIVATE geometry
+        PRIVATE math
         PRIVATE core
         PRIVATE world
         PRIVATE field

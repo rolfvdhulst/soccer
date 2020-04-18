@@ -7,7 +7,7 @@
 
 #include <protobuf/WorldBall.pb.h>
 #include <protobuf/messages_robocup_ssl_detection.pb.h>
-#include <math/KalmanFilter.h>
+#include <math/filters/KalmanFilter.h>
 #include <vision/BallObservation.h>
 
 #include "CameraFilter.h"

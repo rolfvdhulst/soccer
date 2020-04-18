@@ -5,7 +5,7 @@
 #ifndef RTT_CAMERA_H
 #define RTT_CAMERA_H
 
-#include <geometry/Vector3.h>
+#include <math/geometry/Vector3.h>
 #include <protobuf/messages_robocup_ssl_geometry.pb.h>
 #include <Eigen/Dense>
 

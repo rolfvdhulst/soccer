@@ -2,8 +2,8 @@
 // Created by rolf on 24-02-20.
 //
 
-#include "Tube.h"
-#include "Circle.h"
+#include "geometry/Tube.h"
+#include "geometry/Circle.h"
 
 bool Tube::contains(const Vector2& point) const {
     return lineSegment.distanceToLine(point) <= radius;  // If the point is within radius of the line the tube contains the point.

@@ -1,5 +1,5 @@
-#include <geometry/Angle.h>
-#include <geometry/Vector2.h>
+#include <math/geometry/Angle.h>
+#include <math/geometry/Vector2.h>
 #include <gtest/gtest.h>
 
 TEST(VectorTests, instantiation) {

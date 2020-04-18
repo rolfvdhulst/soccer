@@ -4,8 +4,8 @@
 
 #include <protobuf/messages_robocup_ssl_geometry.pb.h>
 #include "Flip.h"
-#include "Angle.h"
-#include "CommandSwitch.h"//TODO: fix this
+#include <math/geometry/Angle.h>
+#include "CommandSwitch.h"
 void flipRobot(proto::WorldRobot * robot){
     robot->mutable_pos()->set_x(robot->pos().x() * -1);
     robot->mutable_pos()->set_y(robot->pos().y() * -1);

@@ -2,9 +2,9 @@
 // Created by rolf on 14-5-19.
 //
 
-#include <geometry/Line.h>
-#include <geometry/Polygon.h>
-#include <geometry/Vector2.h>
+#include <math/geometry/Line.h>
+#include <math/geometry/Polygon.h>
+#include <math/geometry/Vector2.h>
 #include <gtest/gtest.h>
 
 TEST(PolygonTest, constructors) {

@@ -6,7 +6,7 @@
 #include "MainSettingsWidget.h"
 #include "MainTeamSettingsWidget.h"
 #include <QtWidgets/QLineEdit>
-#include <geometry/Flip.h>
+#include <protoUtils/Flip.h>
 #include "ReplayWidget.h"
 
 MainSettingsWidget::MainSettingsWidget(QWidget* parent) : QWidget(parent){

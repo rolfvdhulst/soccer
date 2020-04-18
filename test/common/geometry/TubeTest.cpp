@@ -2,8 +2,8 @@
 // Created by rolf on 24-02-20.
 //
 
-#include <geometry/Circle.h>
-#include <geometry/Tube.h>
+#include <math/geometry/Circle.h>
+#include <math/geometry/Tube.h>
 #include <gtest/gtest.h>
 
 TEST(Tube, basic) {

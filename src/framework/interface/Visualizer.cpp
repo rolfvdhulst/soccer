@@ -6,7 +6,7 @@
 #include <QTimer>
 #include <protobuf/RobotInfo.pb.h>
 #include <QGraphicsItem>
-#include <geometry/Angle.h>
+#include <math/geometry/Angle.h>
 #include <interfaceAPI/API.h>
 #include <QWheelEvent>
 #include <QtWidgets/QGraphicsEllipseItem>

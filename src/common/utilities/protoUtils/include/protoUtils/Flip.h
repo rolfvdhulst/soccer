@@ -8,9 +8,9 @@
 #include <protobuf/World.pb.h>
 #include <protobuf/messages_robocup_ssl_detection.pb.h>
 #include <protobuf/messages_robocup_ssl_geometry.pb.h>
-#include "LineSegment.h"
-#include "Rectangle.h"
-#include "Vector2.h"
+#include <math/geometry/LineSegment.h>
+#include <math/geometry/Rectangle.h>
+#include <math/geometry/Vector2.h>
 #include <protobuf/GameState.pb.h>
 
 void flipAndSwap(double &a, double &b);

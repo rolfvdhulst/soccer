@@ -2,9 +2,9 @@
 // Created by rolf on 19-4-19.
 //
 
-#include <geometry/Line.h>
-#include <geometry/LineSegment.h>
-#include <geometry/Vector2.h>
+#include <math/geometry/Line.h>
+#include <math/geometry/LineSegment.h>
+#include <math/geometry/Vector2.h>
 #include <gtest/gtest.h>
 TEST(LineTests, direction) {
     Vector2 v1(0.0, 0.0), v2(1.0, 1.0), v3(0.0, 0.0);
@@ -267,6 +267,18 @@ TEST(LineTests, Intersections) {
 
     EXPECT_EQ(one.intersects(three), Vector2(1, 1));
     EXPECT_EQ(three.intersects(one), Vector2(1, 1));
+
+    LineSegment a(Vector2(0, 0), Vector2(2, 2));
+    LineSegment b(Vector2(1, 1), Vector2(3, 3));
+    Line la(a);
+    Line lb(b);
+    EXPECT_TRUE(a.doesIntersect(b));
+    EXPECT_TRUE(b.doesIntersect(a));
+    EXPECT_NE(a.intersects(b), std::nullopt);
+    EXPECT_NE(a.intersects(b.reversed()), std::nullopt);
+    EXPECT_NE((a.reversed()).intersects(b), std::nullopt);
+    EXPECT_NE((a.reversed()).intersects(b.reversed()), std::nullopt);
+
 }
 TEST(LineTests, IntersectionsDifferentTypes) {
     Vector2 P1(0.0, 0.0), P2(2.0, 2.0), P3(2.0, 0.0), P4(0.0, 2.0);

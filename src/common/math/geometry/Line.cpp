@@ -2,8 +2,8 @@
 // Created by rolf on 28-2-20.
 //
 
-#include "Line.h"
-#include "LineSegment.h"
+#include "geometry/Line.h"
+#include "geometry/LineSegment.h"
 
 Line::Line(const LineSegment &other) {
     start = other.start;

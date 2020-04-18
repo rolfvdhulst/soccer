@@ -1,6 +1,6 @@
-#include "Vector2.h"
-#include "Angle.h"
-#include "Definitions.h"
+#include "geometry/Vector2.h"
+#include "geometry/Angle.h"
+#include "geometry/Definitions.h"
 
 Vector2::Vector2(Angle &angle, const double &length) : x{cos(angle.getAngle()) * length}, y{sin(angle.getAngle()) * length} {}
 

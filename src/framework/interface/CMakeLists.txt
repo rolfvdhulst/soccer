@@ -21,9 +21,10 @@ target_link_libraries(interface
         PUBLIC Qt5::Gui
         PUBLIC Qt5::Widgets
         PUBLIC proto
-        PRIVATE geometry
+        PRIVATE math
         PRIVATE referee
         PUBLIC interfaceAPI
+        PRIVATE protoUtils
         PRIVATE field
         PRIVATE logger
 )
