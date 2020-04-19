@@ -1,3 +1,4 @@
+add_subdirectory(benchmarks)
 set(geometryTests
         common/geometry/LineTest.cpp
         common/geometry/RectangleTest.cpp
@@ -20,7 +21,8 @@ set(mathTests
         )
 set(fieldTests
         common/field/CameraTest.cpp
-        common/field/CameraMapTest.cpp common/field/FieldStateTest.cpp)
+        common/field/CameraMapTest.cpp
+        common/field/FieldStateTest.cpp)
 set(helperClasses
         helpers/ProtoExamples.h
         helpers/RandomWorldGeneration.cpp

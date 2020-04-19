@@ -2,7 +2,7 @@
 // Created by rolf on 18-03-20.
 //
 #include "ProtoExamples.h"
-#include <math/geometryLineSegment.h>
+#include <math/geometry/LineSegment.h>
 void addLines(proto::SSL_GeometryFieldSize& field, int fieldLength, int fieldWidth, int defenseWidth, int lineWidth) {
     const int hLength = fieldLength / 2;
     const int hWidth = fieldWidth / 2;

@@ -26,6 +26,8 @@ google protobuf,
 
 Google Test,
 
+Google Benchmark (libbenchmark-dev)
+
 Qt5
 
 ### CLion Formatting
