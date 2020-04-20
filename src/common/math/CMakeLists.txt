@@ -28,10 +28,13 @@ SET(GEOMETRY_SOURCES
         )
 add_library(math STATIC
         ${GEOMETRY_SOURCES}
+        filters/PosVelFilter2D.cpp
+        include/math/filters/PosVelFilter2D.h
         )
 target_link_libraries(math
         PUBLIC proto
         PUBLIC Eigen3::Eigen
+        PUBLIC core
         )
 
 target_include_directories(math

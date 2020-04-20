@@ -12,13 +12,13 @@ set(geometryTests
         )
 set(coreTests
         common/core/TimeTest.cpp
-        )
+        common/core/RandomTest.cpp)
 set(worldTests
         common/world/RobotIDTest.cpp
         )
 set(mathTests
-        common/math/KalmanFilterTest.cpp
-        )
+        common/math/filters/KalmanFilterTest.cpp
+        common/math/filters/PosVelFilter2DTest.cpp)
 set(fieldTests
         common/field/CameraTest.cpp
         common/field/CameraMapTest.cpp

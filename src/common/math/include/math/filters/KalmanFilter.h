@@ -103,6 +103,22 @@ class KalmanFilter {
      * @param value. Value to set state[index] to
      */
     void modifyState(int index, double value) { X(index) = value; }
+
+    /**
+     * Completely resets the state. Note this does NOT reset the covariance!! Use with care
+     * @param state
+     */
+    void setState(const Vector& state){
+      X = state;
+    }
+
+    /**
+     * Completely resets the covariance. Use with care!
+     * @param covariance
+     */
+    void setCovariance(const Matrix& covariance){
+      P = covariance;
+    }
 };
 
 #endif  // RTT_KALMANFILTER_H

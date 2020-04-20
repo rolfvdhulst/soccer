@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 #include <math/filters/KalmanFilter.h>
 
-TEST(KalmanFilter, OneDimension ) {
+TEST(KalmanFilter, OneDimension) {
     // see https://www.kalmanfilter.net/kalman1d.html for where I got the values from
     // create a simple one dimensional kalman filter.
     KalmanFilter<1, 1>::Vector initialGuess;
@@ -26,9 +26,9 @@ TEST(KalmanFilter, OneDimension ) {
     // What our kalman filter should output after each update predict cycle.
     double outputs[10] = {49.69, 48.47, 50.57, 51.68, 51.33, 49.62, 49.21, 49.31, 49.53, 49.57};
     for (int i = 0; i < 10; ++i) {
-      KalmanFilter<1,1>::VectorO z;
-      z(0) =measurements[i];
-        filter.updateLarge(z);
+        KalmanFilter<1, 1>::VectorO z;
+        z(0) = measurements[i];
+        filter.update(z);
         filter.predict();
         // check if basestate and state match and if it matches predicted output.
         ASSERT_NEAR(filter.state()[0], outputs[i], 0.01);  // the values from internet have some rounding errors but are generally ok.
@@ -37,14 +37,13 @@ TEST(KalmanFilter, OneDimension ) {
     ASSERT_DOUBLE_EQ(filter.state()[0], 0);
 }
 
-TEST(KalmanFilter, construction){
-    //compile/run means everything should be atleast not throwing
-    KalmanFilter<6,3>::Vector initialGuess = KalmanFilter<6,3>::Vector::Zero();
-    KalmanFilter<6,3>::Matrix initalCovar = KalmanFilter<6,3>::Matrix::Identity();
-    KalmanFilter<6,3> filter1(initialGuess,initalCovar);
-    KalmanFilter<6,3>::VectorO z;
-    filter1.updateLarge(z);
+TEST(KalmanFilter, construction) {
+    // compile/run means everything should be atleast not throwing
+    KalmanFilter<6, 3>::Vector initialGuess = KalmanFilter<6, 3>::Vector::Zero();
+    KalmanFilter<6, 3>::Matrix initalCovar = KalmanFilter<6, 3>::Matrix::Identity();
+    KalmanFilter<6, 3> filter1(initialGuess, initalCovar);
+    KalmanFilter<6, 3>::VectorO z;
     filter1.update(z);
     filter1.predict();
-    KalmanFilter<6,3> filter2 = filter1;
+    KalmanFilter<6, 3> filter2 = filter1;
 }
