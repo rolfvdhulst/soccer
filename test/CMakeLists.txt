@@ -18,11 +18,16 @@ set(worldTests
         )
 set(mathTests
         common/math/filters/KalmanFilterTest.cpp
-        common/math/filters/PosVelFilter2DTest.cpp)
+        common/math/filters/PosVelFilter2DTest.cpp
+        common/math/filters/DEMAFilterTest.cpp
+        )
 set(fieldTests
         common/field/CameraTest.cpp
         common/field/CameraMapTest.cpp
         common/field/FieldStateTest.cpp)
+set(containerTests
+        containers/
+        common/containers/CircularBufferTest.cpp)
 set(helperClasses
         helpers/ProtoExamples.h
         helpers/RandomWorldGeneration.cpp
@@ -36,6 +41,7 @@ add_executable(allTests
         ${mathTests}
         ${worldTests}
         ${fieldTests}
+        ${containerTests}
         )
 
 target_link_libraries(allTests
@@ -45,6 +51,7 @@ target_link_libraries(allTests
         PRIVATE world
         PRIVATE field
         PRIVATE math
+        PRIVATE containers
         PRIVATE gtest
         )
 target_include_directories(allTests

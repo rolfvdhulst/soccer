@@ -30,6 +30,8 @@ add_library(math STATIC
         ${GEOMETRY_SOURCES}
         filters/PosVelFilter2D.cpp
         include/math/filters/PosVelFilter2D.h
+        filters/DEMAFilter.cpp
+        include/math/filters/DEMAFilter.h
         )
 target_link_libraries(math
         PUBLIC proto
@@ -39,6 +41,7 @@ target_link_libraries(math
 
 target_include_directories(math
         INTERFACE include
+        PRIVATE include/
         PRIVATE include/math
         )
 target_compile_features(math PUBLIC cxx_std_17)
