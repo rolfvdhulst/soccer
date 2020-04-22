@@ -20,7 +20,7 @@ set(mathTests
         common/math/filters/KalmanFilterTest.cpp
         common/math/filters/PosVelFilter2DTest.cpp
         common/math/filters/DEMAFilterTest.cpp
-        )
+        common/math/filters/ConstantMATest.cpp)
 set(fieldTests
         common/field/CameraTest.cpp
         common/field/CameraMapTest.cpp

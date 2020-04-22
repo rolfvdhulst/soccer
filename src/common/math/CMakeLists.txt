@@ -32,8 +32,10 @@ add_library(math STATIC
         include/math/filters/PosVelFilter2D.h
         filters/DEMAFilter.cpp
         include/math/filters/DEMAFilter.h
+        include/math/filters/ConstantMAFilter.h
         )
 target_link_libraries(math
+        PRIVATE containers
         PUBLIC proto
         PUBLIC Eigen3::Eigen
         PUBLIC core

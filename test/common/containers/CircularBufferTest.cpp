@@ -70,4 +70,16 @@ TEST(CircularBufferTest,iteratorBasics){
     EXPECT_EQ(*it,index*index+4);
     index--;
   }
+  index = 4;
+  for (circular_buffer<int,4>::const_reverse_iterator it = test.crbegin(); it != test.crend(); it++) {
+    EXPECT_EQ(*it,index*index+4);
+    index--;
+  }
+  //TODO: fix below
+  //circular_buffer<int,4>::const_reverse_iterator it = test.rbegin();
+//  index = 4;
+//  for (circular_buffer<int,4>::const_reverse_iterator it = test.rbegin(); it != test.rend(); it++) {
+//    EXPECT_EQ(*it,index*index+4);
+//    index--;
+//  }
 }
