@@ -19,29 +19,27 @@ bool Circle::doesIntersectOrContain(const Rectangle &other) {
     // https://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection
 
     Vector2 rectCenter = other.center();
-    Vector2 distanceToCircle;
+    Vector2 distanceToCircle = (center - rectCenter).abs();
 
     double rectWidth = other.width();
     double rectHeight = other.height();
 
-    distanceToCircle.x = abs(center.x - rectCenter.x);
-    distanceToCircle.y = abs(center.y - rectCenter.y);
 
-    if (distanceToCircle.x > (rectWidth / 2 + radius)) {
+    if (distanceToCircle.x() > (rectWidth / 2 + radius)) {
         return false;
     }
-    if (distanceToCircle.y > (rectHeight / 2 + radius)) {
+    if (distanceToCircle.y() > (rectHeight / 2 + radius)) {
         return false;
     }
 
-    if (distanceToCircle.x <= (rectWidth / 2)) {
+    if (distanceToCircle.x() <= (rectWidth / 2)) {
         return true;
     }
-    if (distanceToCircle.y <= (rectHeight / 2)) {
+    if (distanceToCircle.y() <= (rectHeight / 2)) {
         return true;
     }
 
-    double cornerDistance_sq = std::pow((distanceToCircle.x - rectWidth / 2), 2) + std::pow((distanceToCircle.y - rectHeight / 2), 2);
+    double cornerDistance_sq = std::pow((distanceToCircle.x() - rectWidth / 2), 2) + std::pow((distanceToCircle.y() - rectHeight / 2), 2);
 
     return (cornerDistance_sq <= (radius * radius));
 }
@@ -73,6 +71,6 @@ Circle Circle::operator/(double scale) const { return {center, radius / std::abs
 Circle Circle::operator*=(double scale) { return {center, radius *= std::abs(scale)}; }
 Circle Circle::operator/=(double scale) { return {center, radius /= std::abs(scale)}; }
 
-std::ostream &Circle::write(std::ostream &os) const { return os << "Circle({" << center.x << ", " << center.y << "}, " << radius << ")"; }
+std::ostream &Circle::write(std::ostream &os) const { return os << "Circle({" << center.x() << ", " << center.y() << "}, " << radius << ")"; }
 
 std::ostream &operator<<(std::ostream &os, Circle const &circle) { return circle.write(os); }

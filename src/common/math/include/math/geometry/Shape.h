@@ -1,0 +1,12 @@
+//
+// Created by rolf on 24-04-20.
+//
+
+#ifndef SOCCER_SRC_COMMON_MATH_GEOMETRY_SHAPE_H_
+#define SOCCER_SRC_COMMON_MATH_GEOMETRY_SHAPE_H_
+
+class Shape {
+
+};
+
+#endif //SOCCER_SRC_COMMON_MATH_GEOMETRY_SHAPE_H_

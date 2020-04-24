@@ -16,21 +16,27 @@ class Angle;
  * The only exception is operator=(const roboteam_msgs::Vector2f&).
  */
 class Vector2 {
-   public:
-    double x;
-    double y;
+ private:
+  double m_x;
+  double m_y;
+ public:
     /**
      * \brief The zero vector.
      */
-    constexpr Vector2() : x{0.0}, y{0.0} {}
+    constexpr Vector2() : m_x{0.0}, m_y{0.0} {}
 
-    constexpr Vector2(const Vector2 &copy) : x{copy.x}, y{copy.y} {};
+    constexpr Vector2(const Vector2 &copy) : m_x{copy.m_x}, m_y{copy.m_y} {};
 
-    constexpr Vector2(const double x, const double y) : x{x}, y{y} {}
+    constexpr Vector2(const double x, const double y) : m_x{x}, m_y{y} {}
 
     Vector2(const proto::Vector2f &msg) : Vector2(msg.x(), msg.y()) {}
 
     Vector2(const proto::Location &msg) : Vector2(msg.x(), msg.y()) {};
+
+    double& x();
+    double& y();
+    [[nodiscard]] const double& x() const;
+    [[nodiscard]] const double& y() const;
     explicit Vector2(Angle &angle, const double &length = 1.0);
 
     /**
@@ -144,6 +150,8 @@ class Vector2 {
      */
     bool operator<(const Vector2 &other) const;
 
+    Vector2 abs() const;
+
     Vector2 operator+=(const Vector2 &other);
 
     Vector2 operator-=(const Vector2 &other);
@@ -207,7 +215,7 @@ class Vector2 {
     /**
      * \brief Set the values of this vector to the ones in the given protobuf vector.
      */
-    void operator=(const proto::Vector2f &msg);
+    Vector2& operator=(const proto::Vector2f &msg);
 
     /**
      * \brief Casts or implicitly converts this vector to a Protobuf one.
@@ -217,7 +225,7 @@ class Vector2 {
     /**
      * \brief Casts or implicitly converts this vector into an Eigen one.
      */
-    operator Eigen::Vector2d() const { return {x, y}; }
+    operator Eigen::Vector2d() const { return {m_x, m_y}; }
     /**
      * \brief Writes a textual representation of this vector to the given output stream.
      */
@@ -235,8 +243,8 @@ std::ostream &operator<<(std::ostream &os, Vector2 const &vec);
 template <>
 struct std::hash<Vector2> {
     size_t operator()(const Vector2 &object) const {
-        size_t xHash = std::hash<double>()(object.x) + 0x9e3779b9;
-        return xHash ^ (std::hash<double>()(object.y) + 0x9e3779b9 + (xHash << 6u) + (xHash >> 2u));
+        size_t xHash = std::hash<double>()(object.x()) + 0x9e3779b9;
+        return xHash ^ (std::hash<double>()(object.y()) + 0x9e3779b9 + (xHash << 6u) + (xHash >> 2u));
     }
 };
 

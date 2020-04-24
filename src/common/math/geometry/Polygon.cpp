@@ -7,8 +7,8 @@
 
 /// constructor for rectangles oriented straight with respect to the x-axis.
 Polygon::Polygon(const Vector2 &lowerLeftCorner, double xlen, double ylen)
-    : vertices{lowerLeftCorner, Vector2{lowerLeftCorner.x + xlen, lowerLeftCorner.y}, Vector2{lowerLeftCorner.x + xlen, lowerLeftCorner.y + ylen},
-               Vector2{lowerLeftCorner.x, lowerLeftCorner.y + ylen}} {}
+    : vertices{lowerLeftCorner, Vector2{lowerLeftCorner.x() + xlen, lowerLeftCorner.y()}, Vector2{lowerLeftCorner.x() + xlen, lowerLeftCorner.y() + ylen},
+               Vector2{lowerLeftCorner.x(), lowerLeftCorner.y() + ylen}} {}
 
 Polygon::Polygon(const std::vector<Vector2> &_vertices) : vertices{_vertices} {}
 
@@ -100,8 +100,8 @@ bool Polygon::contains(const Vector2 &point) const {
     int c = 0;
     int n = amountOfVertices();
     for (int i = 0, j = n - 1; i < n; j = i++) {
-        if (((vertices[i].y > point.y) != (vertices[j].y > point.y)) &&
-            (point.x < (vertices[j].x - vertices[i].x) * (point.y - vertices[i].y) / (vertices[j].y - vertices[i].y) + vertices[i].x))
+        if (((vertices[i].y() > point.y()) != (vertices[j].y() > point.y())) &&
+            (point.x() < (vertices[j].x() - vertices[i].x()) * (point.y() - vertices[i].y()) / (vertices[j].y() - vertices[i].y()) + vertices[i].x()))
             c = !c;
     }
     return c;

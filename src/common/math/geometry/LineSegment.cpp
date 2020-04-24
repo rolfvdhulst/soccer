@@ -13,13 +13,13 @@ double LineSegment::length() const { return (end - start).length(); }
 
 double LineSegment::length2() const { return (end - start).length2(); }
 
-double LineSegment::slope() const { return (end.y - start.y) / (end.x - start.x); }
+double LineSegment::slope() const { return (end.y() - start.y()) / (end.x() - start.x()); }
 
-bool LineSegment::isVertical() const { return (end.x == start.x) && (end.y != start.y); }
+bool LineSegment::isVertical() const { return (end.x() == start.x()) && (end.y() != start.y()); }
 
 Vector2 LineSegment::direction() const { return Vector2(end - start); }
 
-double LineSegment::intercept() const { return start.y - this->slope() * start.x; }
+double LineSegment::intercept() const { return start.y() - this->slope() * start.x(); }
 
 std::pair<double, double> LineSegment::coefficients() const { return {slope(), intercept()}; }
 

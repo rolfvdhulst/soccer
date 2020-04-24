@@ -13,13 +13,13 @@ constexpr const unsigned int BOTTOM = 0x04;
 constexpr const unsigned int TOP = 0x08;
 
 Rectangle::Rectangle(const Vector2 &corner, const Vector2 &oppositeCorner) {
-    min = Vector2(fmin(corner.x, oppositeCorner.x), fmin(corner.y, oppositeCorner.y));
-    max = Vector2(fmax(corner.x, oppositeCorner.x), fmax(corner.y, oppositeCorner.y));
+    min = Vector2(fmin(corner.x(), oppositeCorner.x()), fmin(corner.y(), oppositeCorner.y()));
+    max = Vector2(fmax(corner.x(), oppositeCorner.x()), fmax(corner.y(), oppositeCorner.y()));
 }
-Rectangle::Rectangle(const Vector2 &bottomLeft, double x, double y) : min{bottomLeft}, max{Vector2(bottomLeft.x + x, bottomLeft.y + y)} {}
+Rectangle::Rectangle(const Vector2 &bottomLeft, double x, double y) : min{bottomLeft}, max{Vector2(bottomLeft.x() + x, bottomLeft.y() + y)} {}
 unsigned int Rectangle::CohenSutherlandCode(const Vector2 &point) const {
-    double x = point.x;
-    double y = point.y;
+    double x = point.x();
+    double y = point.y();
     unsigned int code = INSIDE;  // initialize code as if it's inside the clip window
     if (x < minX()) {
         code |= LEFT;
@@ -34,12 +34,12 @@ unsigned int Rectangle::CohenSutherlandCode(const Vector2 &point) const {
     }
     return code;
 }
-double Rectangle::minX() const { return min.x; }
-double Rectangle::maxX() const { return max.x; }
-double Rectangle::minY() const { return min.y; }
-double Rectangle::maxY() const { return max.y; }
-double Rectangle::width() const { return std::abs(min.x - max.x); }
-double Rectangle::height() const { return std::abs(min.y - max.y); }
+double Rectangle::minX() const { return min.x(); }
+double Rectangle::maxX() const { return max.x(); }
+double Rectangle::minY() const { return min.y(); }
+double Rectangle::maxY() const { return max.y(); }
+double Rectangle::width() const { return std::abs(min.x() - max.x()); }
+double Rectangle::height() const { return std::abs(min.y() - max.y()); }
 
 std::vector<Vector2> Rectangle::corners() const {
     std::vector<Vector2> corners = {min, Vector2(minX(), maxY()), max, Vector2(maxX(), minY())};
@@ -63,10 +63,10 @@ std::vector<Vector2> Rectangle::intersects(const LineSegment &line) const {
     unsigned int code1 = CohenSutherlandCode(line.end);
     std::vector<Vector2> intersections;
     bool accept = false;
-    double x0 = line.start.x;
-    double y0 = line.start.y;
-    double x1 = line.end.x;
-    double y1 = line.end.y;
+    double x0 = line.start.x();
+    double y0 = line.start.y();
+    double x1 = line.end.x();
+    double y1 = line.end.y();
     while (true) {
         if (!(code0 | code1)) {
             // bitwise OR is 0: both points inside window; trivially accept and exit loop
@@ -154,7 +154,7 @@ bool Rectangle::doesIntersect(const Line &line) const {
 }
 
 // include the boundary for this calculation!
-bool Rectangle::contains(const Vector2 &point) const { return maxX() >= point.x && minX() <= point.x && maxY() >= point.y && minY() <= point.y; }
+bool Rectangle::contains(const Vector2 &point) const { return maxX() >= point.x() && minX() <= point.x() && maxY() >= point.y() && minY() <= point.y(); }
 std::ostream &Rectangle::write(std::ostream &os) const { return os << "Rect: " << min << max; }
 
 std::ostream &operator<<(std::ostream &out, const Rectangle &rect) { return rect.write(out); }

@@ -25,7 +25,9 @@ SET(GEOMETRY_SOURCES
         include/math/geometry/Tube.h
         geometry/Vector3.cpp
         include/math/geometry/Vector3.h
-        )
+        geometry/LineBase.cpp
+        include/math/geometry/LineBase.h
+        geometry/Shape.cpp include/math/geometry/Shape.h)
 add_library(math STATIC
         ${GEOMETRY_SOURCES}
         filters/PosVelFilter2D.cpp
