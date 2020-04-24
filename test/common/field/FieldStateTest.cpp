@@ -18,35 +18,35 @@ bool checkConsistency(const FieldState &field) {
     consistent &= field.getTopMarginY() == (field.getFieldWidth() + 2 * field.getBoundaryWidth()) * 0.5;
     return consistent;
 }
-bool lineHorizontal(const LineSegment &line) { return line.start.y() == line.end.y(); }
+bool lineHorizontal(const LineSegment &line) { return line.start().y() == line.end().y(); }
 bool lineVertical(const LineSegment &line) { return line.isVertical(); }
-bool leftToRight(const LineSegment &line) { return line.start.x() < line.end.x(); }
+bool leftToRight(const LineSegment &line) { return line.start().x() < line.end().x(); }
 bool rightToLeft(const LineSegment &line) { return !leftToRight(line); }
-bool bottomToTop(const LineSegment &line) { return line.start.y() < line.end.y(); }
+bool bottomToTop(const LineSegment &line) { return line.start().y() < line.end().y(); }
 bool topToBottom(const LineSegment &line) { return !bottomToTop(line); }
 bool checkConsistency2(const FieldState &field) {
     bool consistent = true;
-    consistent &= field.getTopLine().start.y() == field.getFieldWidth() * 0.5;
-    consistent &= field.getTopLine().start.x() == -0.5 * field.getFieldLength();
-    consistent &= field.getTopLine().end.x() == 0.5 * field.getFieldLength();
+    consistent &= field.getTopLine().start().y() == field.getFieldWidth() * 0.5;
+    consistent &= field.getTopLine().start().x() == -0.5 * field.getFieldLength();
+    consistent &= field.getTopLine().end().x() == 0.5 * field.getFieldLength();
     consistent &= lineHorizontal(field.getTopLine());
     consistent &= leftToRight(field.getTopLine());
 
-    consistent &= field.getBottomLine().start.y() == field.getFieldWidth() * -0.5;
-    consistent &= field.getBottomLine().start.x() == 0.5 * field.getFieldLength();
-    consistent &= field.getBottomLine().end.x() == -0.5 * field.getFieldLength();
+    consistent &= field.getBottomLine().start().y() == field.getFieldWidth() * -0.5;
+    consistent &= field.getBottomLine().start().x() == 0.5 * field.getFieldLength();
+    consistent &= field.getBottomLine().end().x() == -0.5 * field.getFieldLength();
     consistent &= lineHorizontal(field.getBottomLine());
     consistent &= rightToLeft(field.getBottomLine());
 
-    consistent &= field.getLeftLine().start.x() == -field.getFieldLength() * 0.5;
-    consistent &= field.getLeftLine().start.y() == -0.5 * field.getFieldWidth();
-    consistent &= field.getLeftLine().end.y() == 0.5 * field.getFieldWidth();
+    consistent &= field.getLeftLine().start().x() == -field.getFieldLength() * 0.5;
+    consistent &= field.getLeftLine().start().y() == -0.5 * field.getFieldWidth();
+    consistent &= field.getLeftLine().end().y() == 0.5 * field.getFieldWidth();
     consistent &= lineVertical(field.getLeftLine());
     consistent &= bottomToTop(field.getLeftLine());
 
-    consistent &= field.getRightLine().start.x() == field.getFieldLength() * 0.5;
-    consistent &= field.getRightLine().start.y() == 0.5 * field.getFieldWidth();
-    consistent &= field.getRightLine().end.y() == -0.5 * field.getFieldWidth();
+    consistent &= field.getRightLine().start().x() == field.getFieldLength() * 0.5;
+    consistent &= field.getRightLine().start().y() == 0.5 * field.getFieldWidth();
+    consistent &= field.getRightLine().end().y() == -0.5 * field.getFieldWidth();
     consistent &= lineVertical(field.getRightLine());
     consistent &= topToBottom(field.getRightLine());
     return consistent;
@@ -55,74 +55,74 @@ bool checkConsistency2(const FieldState &field) {
 bool near(double x, double y) { return abs(x - y) < 1e-12; }
 bool checkConsistency3(const FieldState &field) {
     bool consistent = true;
-    consistent &= near(field.getLeftPenaltyLine().start.x(), -field.getFieldLength() * 0.5 + field.getGoalWidth());
-    consistent &= near(field.getLeftPenaltyLine().start.y(), -field.getGoalWidth());
-    consistent &= near(field.getLeftPenaltyLine().end.y(), field.getGoalWidth());
+    consistent &= near(field.getLeftPenaltyLine().start().x(), -field.getFieldLength() * 0.5 + field.getGoalWidth());
+    consistent &= near(field.getLeftPenaltyLine().start().y(), -field.getGoalWidth());
+    consistent &= near(field.getLeftPenaltyLine().end().y(), field.getGoalWidth());
     consistent &= lineVertical(field.getLeftPenaltyLine());
     consistent &= bottomToTop(field.getLeftPenaltyLine());
 
-    consistent &= near(field.getRightPenaltyLine().start.x(), field.getFieldLength() * 0.5 - field.getGoalWidth());
-    consistent &= near(field.getRightPenaltyLine().start.y(), field.getGoalWidth());
-    consistent &= near(field.getRightPenaltyLine().end.y(), -field.getGoalWidth());
+    consistent &= near(field.getRightPenaltyLine().start().x(), field.getFieldLength() * 0.5 - field.getGoalWidth());
+    consistent &= near(field.getRightPenaltyLine().start().y(), field.getGoalWidth());
+    consistent &= near(field.getRightPenaltyLine().end().y(), -field.getGoalWidth());
     consistent &= lineVertical(field.getRightPenaltyLine());
     consistent &= topToBottom(field.getRightPenaltyLine());
     return consistent;
 }
 bool checkOtherLines(const FieldState &field) {
     bool consistent = true;
-    consistent &= near(field.getHalfLine().start.x(), 0);
-    consistent &= near(field.getHalfLine().start.y(), field.getBottomY());
-    consistent &= near(field.getHalfLine().end.y(), field.getTopY());
+    consistent &= near(field.getHalfLine().start().x(), 0);
+    consistent &= near(field.getHalfLine().start().y(), field.getBottomY());
+    consistent &= near(field.getHalfLine().end().y(), field.getTopY());
     consistent &= lineVertical(field.getHalfLine());
     consistent &= bottomToTop(field.getHalfLine());
 
-    consistent &= near(field.getCenterLine().start.y(), 0);
-    consistent &= near(field.getCenterLine().start.x(), field.getLeftX());
-    consistent &= near(field.getCenterLine().end.x(), field.getRightX());
+    consistent &= near(field.getCenterLine().start().y(), 0);
+    consistent &= near(field.getCenterLine().start().x(), field.getLeftX());
+    consistent &= near(field.getCenterLine().end().x(), field.getRightX());
     consistent &= lineHorizontal(field.getCenterLine());
     consistent &= leftToRight(field.getCenterLine());
 
-    consistent &= near(field.getBottomLeftPenaltyStretch().start.x(), field.getLeftX());
-    consistent &= near(field.getBottomLeftPenaltyStretch().end.x(), field.getLeftX() + field.getGoalWidth());
+    consistent &= near(field.getBottomLeftPenaltyStretch().start().x(), field.getLeftX());
+    consistent &= near(field.getBottomLeftPenaltyStretch().end().x(), field.getLeftX() + field.getGoalWidth());
     consistent &= lineHorizontal(field.getBottomLeftPenaltyStretch());
-    consistent &= near(field.getBottomLeftPenaltyStretch().start.y(), -field.getGoalWidth());
+    consistent &= near(field.getBottomLeftPenaltyStretch().start().y(), -field.getGoalWidth());
     consistent &= leftToRight(field.getBottomLeftPenaltyStretch());
 
-    consistent &= near(field.getTopLeftPenaltyStretch().start.x(), field.getLeftX());
-    consistent &= near(field.getTopLeftPenaltyStretch().end.x(), field.getLeftX() + field.getGoalWidth());
+    consistent &= near(field.getTopLeftPenaltyStretch().start().x(), field.getLeftX());
+    consistent &= near(field.getTopLeftPenaltyStretch().end().x(), field.getLeftX() + field.getGoalWidth());
     consistent &= lineHorizontal(field.getTopLeftPenaltyStretch());
-    consistent &= near(field.getTopLeftPenaltyStretch().start.y(), field.getGoalWidth());
+    consistent &= near(field.getTopLeftPenaltyStretch().start().y(), field.getGoalWidth());
     consistent &= leftToRight(field.getTopLeftPenaltyStretch());
 
-    consistent &= near(field.getBottomRightPenaltyStretch().start.x(), field.getRightX());
-    consistent &= near(field.getBottomRightPenaltyStretch().end.x(), field.getRightX() - field.getGoalWidth());
+    consistent &= near(field.getBottomRightPenaltyStretch().start().x(), field.getRightX());
+    consistent &= near(field.getBottomRightPenaltyStretch().end().x(), field.getRightX() - field.getGoalWidth());
     consistent &= lineHorizontal(field.getBottomRightPenaltyStretch());
-    consistent &= near(field.getBottomRightPenaltyStretch().start.y(), -field.getGoalWidth());
+    consistent &= near(field.getBottomRightPenaltyStretch().start().y(), -field.getGoalWidth());
     consistent &= rightToLeft(field.getBottomRightPenaltyStretch());
 
-    consistent &= near(field.getTopRightPenaltyStretch().start.x(), field.getRightX());
-    consistent &= near(field.getTopRightPenaltyStretch().end.x(), field.getRightX() - field.getGoalWidth());
+    consistent &= near(field.getTopRightPenaltyStretch().start().x(), field.getRightX());
+    consistent &= near(field.getTopRightPenaltyStretch().end().x(), field.getRightX() - field.getGoalWidth());
     consistent &= lineHorizontal(field.getTopRightPenaltyStretch());
-    consistent &= near(field.getTopRightPenaltyStretch().start.y(), field.getGoalWidth());
+    consistent &= near(field.getTopRightPenaltyStretch().start().y(), field.getGoalWidth());
     consistent &= rightToLeft(field.getTopRightPenaltyStretch());
 
     return consistent;
 }
 bool checkGoals(const FieldState &field) {
     bool consistent = true;
-    consistent &= near(field.getLeftGoal().start.x(), field.getLeftX());
-    consistent &= near(field.getLeftGoal().start.y(), -0.5 * field.getGoalWidth());
-    consistent &= near(field.getLeftGoal().end.y(), 0.5 * field.getGoalWidth());
+    consistent &= near(field.getLeftGoal().start().x(), field.getLeftX());
+    consistent &= near(field.getLeftGoal().start().y(), -0.5 * field.getGoalWidth());
+    consistent &= near(field.getLeftGoal().end().y(), 0.5 * field.getGoalWidth());
     consistent &= lineVertical(field.getLeftGoal());
-    consistent &= field.getOurGoal().start.x() == field.getLeftGoal().start.x();
-    consistent &= field.getLeftGoal().start.x() == field.getGoal(true).start.x();
+    consistent &= field.getOurGoal().start().x() == field.getLeftGoal().start().x();
+    consistent &= field.getLeftGoal().start().x() == field.getGoal(true).start().x();
 
-    consistent &= near(field.getRightGoal().start.x(), field.getRightX());
-    consistent &= near(field.getRightGoal().start.y(), 0.5 * field.getGoalWidth());
-    consistent &= near(field.getRightGoal().end.y(), -0.5 * field.getGoalWidth());
+    consistent &= near(field.getRightGoal().start().x(), field.getRightX());
+    consistent &= near(field.getRightGoal().start().y(), 0.5 * field.getGoalWidth());
+    consistent &= near(field.getRightGoal().end().y(), -0.5 * field.getGoalWidth());
     consistent &= lineVertical(field.getRightGoal());
-    consistent &= field.getTheirGoal().start.x() == field.getRightGoal().start.x();
-    consistent &= field.getRightGoal().start.x() == field.getGoal(false).start.x();
+    consistent &= field.getTheirGoal().start().x() == field.getRightGoal().start().x();
+    consistent &= field.getRightGoal().start().x() == field.getGoal(false).start().x();
 
     consistent &= near(field.getLeftGoalCenter().x(), field.getLeftGoal().center().x());
     consistent &= near(field.getLeftGoalCenter().y(), field.getLeftGoal().center().y());

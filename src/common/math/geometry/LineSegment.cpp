@@ -4,41 +4,12 @@
 
 #include "geometry/LineSegment.h"
 #include "geometry/Line.h"
+LineSegment::LineSegment(const Line &line) : LineBase(line) {}
 
-LineSegment::LineSegment(const Line &line) {
-    start = line.start;
-    end = line.end;
-}
-double LineSegment::length() const { return (end - start).length(); }
+double LineSegment::length() const { return (m_end - m_start).length(); }
 
-double LineSegment::length2() const { return (end - start).length2(); }
+double LineSegment::length2() const { return (m_end - m_start).length2(); }
 
-double LineSegment::slope() const { return (end.y() - start.y()) / (end.x() - start.x()); }
-
-bool LineSegment::isVertical() const { return (end.x() == start.x()) && (end.y() != start.y()); }
-
-Vector2 LineSegment::direction() const { return Vector2(end - start); }
-
-double LineSegment::intercept() const { return start.y() - this->slope() * start.x(); }
-
-std::pair<double, double> LineSegment::coefficients() const { return {slope(), intercept()}; }
-
-bool LineSegment::isPoint() const { return start == end; }
-
-bool LineSegment::isParallel(const LineSegment &line) const {
-    // check if line is vertical, otherwise check the slope
-    if (this->isVertical() || line.isVertical()) {
-        return this->isVertical() && line.isVertical();
-    }
-    return this->slope() == line.slope();
-}
-bool LineSegment::isParallel(const Line &line) const {
-    // check if line is vertical, otherwise check the slope
-    if (this->isVertical() || line.isVertical()) {
-        return this->isVertical() && line.isVertical();
-    }
-    return this->slope() == line.slope();
-}
 bool LineSegment::doesIntersect(const Line &line) const {
     if (intersects(line)) {
         return true;
@@ -50,7 +21,7 @@ bool LineSegment::doesIntersect(const Line &line) const {
 // https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
 // takes overlaps into account in contrast to the intersect() function
 bool LineSegment::doesIntersect(const LineSegment &line) const {
-    Vector2 p = start, q = line.start, r = direction(), s = line.direction();
+    Vector2 p = m_start, q = line.m_start, r = direction(), s = line.direction();
     double denom = r.cross(s);
     double numer = (q - p).cross(r);
     if (denom == 0) {
@@ -76,7 +47,7 @@ bool LineSegment::doesIntersect(const LineSegment &line) const {
 }
 
 bool LineSegment::nonSimpleDoesIntersect(const LineSegment &line) const {
-    Vector2 p = start, q = line.start, r = direction(), s = line.direction();
+    Vector2 p = m_start, q = line.start(), r = direction(), s = line.direction();
     double denom = r.cross(s);
     double numer = (q - p).cross(r);
     if (denom != 0) {
@@ -91,26 +62,26 @@ bool LineSegment::nonSimpleDoesIntersect(const LineSegment &line) const {
     return false;
 }
 
-//see intersects below. This is basically the same but slightly modified to accomodate the fact that line is infinite
+// see intersects below. This is basically the same but slightly modified to accomodate the fact that line is infinite
 std::optional<Vector2> LineSegment::intersects(const Line &line) const {
-    Vector2 p = start;
-    Vector2 r = end - start;
-    Vector2 q = line.start;
-    Vector2 s = line.end-line.start;
+    Vector2 p = m_start;
+    Vector2 r = direction();
+    Vector2 q = line.start();
+    Vector2 s = line.direction();
     double denom = r.cross(s);
     if (denom == 0) {
-        //lines are parallel. we need to check if they are not on the same line:
-        if((q-p).cross(r) == 0){
-            return start;//line and this line are the same, we return the start of the lineSegment (though every point on it intersects)
-        }else{
+        // lines are parallel. we need to check if they are not on the same line:
+        if ((q - p).cross(r) == 0) {
+            return m_start;  // line and this line are the same, we return the start of the lineSegment (though every point on it intersects)
+        } else {
             return std::nullopt;
         }
-    }else{
-        //Lines are not parallel
-        double t = (q-p).cross(s) /denom;
-        //if intersection point lies on segment we return it
-        if(t>=0 && t<=1){
-            return p+r*t;
+    } else {
+        // Lines are not parallel
+        double t = (q - p).cross(s) / denom;
+        // if intersection point lies on segment we return it
+        if (t >= 0 && t <= 1) {
+            return p + r * t;
         }
     }
     return std::nullopt;
@@ -118,68 +89,68 @@ std::optional<Vector2> LineSegment::intersects(const Line &line) const {
 
 // https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
 std::optional<Vector2> LineSegment::intersects(const LineSegment &line) const {
-    //These copies will get optimized away but make it easier to read w.r.t the stackoverflow link
-    Vector2 p = start;
-    Vector2 r = end - start;
-    Vector2 q = line.start;
-    Vector2 s = line.end-line.start;
+    // These copies will get optimized away but make it easier to read w.r.t the stackoverflow link
+    Vector2 p = m_start;
+    Vector2 r = direction();
+    Vector2 q = line.start();
+    Vector2 s = line.direction();
 
     double uDenom = r.cross(s);
-    double uNumer = (q-p).cross(r);
-    if(uDenom == 0){
-        if(uNumer == 0){
-            //Lines are colinear;
-            //if the interval between t0 and t1 intersects [0,1] they lines overlap on this interval
-            double t0 = (q-p).dot(r) /(r.dot(r));
-            double t1 = t0 + s.dot(r) /(r.dot(r));
-            if(t0<0){
-                if(t1>=0){
-                    //interval overlaps, we pick closest point which is from the start to the end of the line (p+0*r);
+    double uNumer = (q - p).cross(r);
+    if (uDenom == 0) {
+        if (uNumer == 0) {
+            // Lines are colinear;
+            // if the interval between t0 and t1 intersects [0,1] they lines overlap on this interval
+            double t0 = (q - p).dot(r) / (r.dot(r));
+            double t1 = t0 + s.dot(r) / (r.dot(r));
+            if (t0 < 0) {
+                if (t1 >= 0) {
+                    // interval overlaps, we pick closest point which is from the start to the end of the line (p+0*r);
                     return p;
                 }
-            } else if(t0>1){
-                if(t1<=1){
-                    return p+r;// Similar but now we have the end of the line
+            } else if (t0 > 1) {
+                if (t1 <= 1) {
+                    return p + r;  // Similar but now we have the end of the line
                 }
-            } else{
-                //t0 is between 0 and one so we just return that point
-                return p+r*t0;
+            } else {
+                // t0 is between 0 and one so we just return that point
+                return p + r * t0;
             }
-            return std::nullopt; //there was no intersection with the interval [0,1] so the lineas are colinear but have no overlap
-        } else{
-            return std::nullopt;//Lines are parallel and nonintersecting
+            return std::nullopt;  // there was no intersection with the interval [0,1] so the lineas are colinear but have no overlap
+        } else {
+            return std::nullopt;  // Lines are parallel and nonintersecting
         }
-    }else{
-        //if we find t and u such that p+tr=q+us for t and u between 0 and 1, we have found a valid intersection.
-        double u = uNumer/ uDenom;
-        if(u>=0&&u<=1){
-            double t = (q-p).cross(s)/uDenom;
-            if(t>=0 && t<=1){
-                return p+r*t;//we found a intersection point!
+    } else {
+        // if we find t and u such that p+tr=q+us for t and u between 0 and 1, we have found a valid intersection.
+        double u = uNumer / uDenom;
+        if (u >= 0 && u <= 1) {
+            double t = (q - p).cross(s) / uDenom;
+            if (t >= 0 && t <= 1) {
+                return p + r * t;  // we found a intersection point!
             }
         }
     }
     return std::nullopt;
 }
 
-double LineSegment::distanceToLine(const Vector2 &point) const { return (this->project(point) - point).length(); }
+double LineSegment::distanceTo(const Vector2 &point) const { return (this->project(point) - point).length(); }
 
 // same principle but now we do not necessarily have an orthogonal vector but just pick the closest point on the segment
 Vector2 LineSegment::project(const Vector2 &point) const {
-    Vector2 AB = end-start;
-    Vector2 AP = point - start;
+    Vector2 AB = direction();
+    Vector2 AP = point - m_start;
     double t = AP.dot(AB) / length2();
     if (t < 0) {
-        return Vector2(start);
+        return m_start;
     } else if (t > 1) {
-        return Vector2(end);
+        return m_end;
     }
-    return Vector2(start + AB * t);
+    return m_start + AB * t;
 }
 
-bool LineSegment::isOnLine(const Vector2 &point) const {
-    Vector2 A = end - start;
-    Vector2 B = point - start;
+bool LineSegment::hits(const Vector2 &point) const {
+    Vector2 A = direction();
+    Vector2 B = point - m_start;
     double cross = A.cross(B);
     if (cross != 0) {
         return false;
@@ -196,15 +167,15 @@ bool LineSegment::isOnLine(const Vector2 &point) const {
 }
 
 std::optional<Vector2> LineSegment::nonSimpleIntersects(const LineSegment &line) const {
-    Vector2 A = start - end;
-    Vector2 B = line.start - line.end;
-    Vector2 C = start - line.start;
+    Vector2 A = m_start - m_end;
+    Vector2 B = line.start() - line.end();
+    Vector2 C = m_start - line.start();
     double denom = A.cross(B);
     if (denom != 0) {
         double t = C.cross(B) / denom;
         double u = -A.cross(C) / denom;
         if (!(t <= 0 || t >= 1) && !(u <= 0 || u >= 1)) {
-            return start - A * t;
+            return m_start - A * t;
         }
     }
     return std::nullopt;
@@ -212,11 +183,11 @@ std::optional<Vector2> LineSegment::nonSimpleIntersects(const LineSegment &line)
 
 // http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment
 // for implementation hints. This is complicated unfortunately. There are methods that are a lot simpler but they are also much slower.
-//TODO: write better unit tests
-double LineSegment::distanceToLine(const LineSegment &line) const {
-    Vector2 u = end - start;
-    Vector2 v = line.end - line.start;
-    Vector2 w = start - line.start;
+// TODO: write better unit tests
+double LineSegment::distanceTo(const LineSegment &line) const {
+    Vector2 u = direction();
+    Vector2 v = line.direction();
+    Vector2 w = m_start - line.start();
     double uu = u.dot(u);
     double uv = u.dot(v);
     double vv = v.dot(v);
@@ -276,8 +247,8 @@ double LineSegment::distanceToLine(const LineSegment &line) const {
     return diff.length();
 }
 
-void LineSegment::reverse() { std::swap(start, end); }
+void LineSegment::reverse() { std::swap(m_start, m_end); }
 
-LineSegment LineSegment::reversed() const { return {end, start}; }
+LineSegment LineSegment::reversed() const { return {m_end, m_start}; }
 
-Vector2 LineSegment::center() const { return (start + end) * 0.5; }
+Vector2 LineSegment::center() const { return (m_start + m_end) * 0.5; }

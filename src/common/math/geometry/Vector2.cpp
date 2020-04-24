@@ -4,18 +4,10 @@
 
 Vector2::Vector2(Angle &angle, const double &length) : m_x{cos(angle.getAngle()) * length}, m_y{sin(angle.getAngle()) * length} {}
 
-double &Vector2::x() {
-  return m_x;
-}
-double &Vector2::y() {
-  return m_y;
-}
-const double &Vector2::x() const {
-  return m_x;
-}
-const double &Vector2::y() const{
-  return m_y;
-}
+double &Vector2::x() { return m_x; }
+double &Vector2::y() { return m_y; }
+const double &Vector2::x() const { return m_x; }
+const double &Vector2::y() const { return m_y; }
 double Vector2::dot(const Vector2 &other) const { return this->m_x * other.m_x + this->m_y * other.m_y; }
 
 double Vector2::dist(const Vector2 &other) const { return sqrt(dist2(other)); }
@@ -75,13 +67,12 @@ Vector2 Vector2::stretchToLength(double desiredLength) const {
     double frac = desiredLength / length();
     return {m_x * frac, m_y * frac};
 }
-Vector2 Vector2::abs() const {
-  return {std::abs(m_x),std::abs(m_y)};
-}
+Vector2 Vector2::abs() const { return {std::abs(m_x), std::abs(m_y)}; }
 
 double Vector2::cross(const Vector2 &other) const { return this->m_x * other.m_y - this->m_y * other.m_x; }
 
-bool Vector2::operator==(const Vector2 &other) const { return fabs(this->m_x - other.m_x) < VECTOR_PRECISION && fabs(this->m_y - other.m_y) < VECTOR_PRECISION; }
+bool Vector2::operator==(const Vector2 &other) const { return this->m_x == other.m_x && this->m_y == other.m_y; }
+bool Vector2::approx(const Vector2 &other) const { return fabs(this->m_x - other.m_x) < VECTOR_PRECISION && fabs(this->m_y - other.m_y) < VECTOR_PRECISION; }
 
 bool Vector2::operator!=(const Vector2 &other) const { return !(*this == other); }
 
@@ -122,7 +113,7 @@ Vector2 Vector2::operator/(const Vector2 &other) const { return {this->m_x / oth
 
 Vector2 Vector2::operator/(const double &scalar) const { return {m_x / scalar, m_y / scalar}; }
 
-Vector2& Vector2::operator=(const proto::Vector2f &msg) {
+Vector2 &Vector2::operator=(const proto::Vector2f &msg) {
     m_x = msg.x();
     m_y = msg.y();
     return *this;
