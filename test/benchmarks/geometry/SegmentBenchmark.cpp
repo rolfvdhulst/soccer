@@ -6,7 +6,7 @@
 #include <core/Random.h>
 #include <core/Time.h>
 static std::vector<std::pair<LineSegment,LineSegment>> samples(){
-  Random random(Time::now());
+  Random random(1337);
   std::vector<std::pair<LineSegment,LineSegment>> linePairs;
   int count = 0;
   while (count != 1000) {
@@ -22,7 +22,7 @@ static std::vector<std::pair<LineSegment,LineSegment>> samples(){
 
 static std::pair<LineSegment,LineSegment> sample(){
 
-  Random random(Time::now());
+  Random random(57);
   std::pair<LineSegment,LineSegment> lines;
   while(true){
     lines =   std::make_pair(LineSegment(Vector2(random.getUniform(),random.getUniform()),Vector2(random.getUniform(),random.getUniform())),
@@ -45,7 +45,7 @@ static void segmentSegmentBaseSingle(benchmark::State& state) {
   auto pair = sample();
   // Code inside this loop is measured repeatedly
   for (auto _ : state) {
-    Vector2 value = pair.first.start();
+    Vector2 value = pair.first.start;
     benchmark::DoNotOptimize(value);
   }
 }
@@ -65,7 +65,7 @@ static void segmentSegmentBaseMultiple(benchmark::State& state) {
   // Code inside this loop is measured repeatedly
   for (auto _ : state) {
     for(const auto& pair : pairs){
-      Vector2 out = pair.first.start();
+      Vector2 out = pair.first.start;
       benchmark::DoNotOptimize(out);
     }
   }
