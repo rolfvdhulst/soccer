@@ -16,10 +16,11 @@ class Angle;
  * The only exception is operator=(const roboteam_msgs::Vector2f&).
  */
 class Vector2 {
- private:
-  double m_x;
-  double m_y;
- public:
+   private:
+    double m_x;
+    double m_y;
+
+   public:
     /**
      * \brief The zero vector.
      */
@@ -31,12 +32,12 @@ class Vector2 {
 
     Vector2(const proto::Vector2f &msg) : Vector2(msg.x(), msg.y()) {}
 
-    Vector2(const proto::Location &msg) : Vector2(msg.x(), msg.y()) {};
+    Vector2(const proto::Location &msg) : Vector2(msg.x(), msg.y()){};
 
-    double& x();
-    double& y();
-    [[nodiscard]] const double& x() const;
-    [[nodiscard]] const double& y() const;
+    double &x();
+    double &y();
+    [[nodiscard]] const double &x() const;
+    [[nodiscard]] const double &y() const;
     explicit Vector2(Angle &angle, const double &length = 1.0);
 
     /**
@@ -135,10 +136,14 @@ class Vector2 {
     [[nodiscard]] Vector2 stretchToLength(double length) const;
 
     /**
-     * \brief Checks for equality.
+     * \brief Checks for EXACT equality. You should avoid using this if you can because it is prone to floating point precision problems.
      */
     bool operator==(const Vector2 &other) const;
 
+    /**
+     * @brief Checks if the points are approximately equal
+     */
+    [[nodiscard]] bool approx(const Vector2 &other) const;
     /**
      * \brief Checks for inequality.
      */
@@ -215,7 +220,7 @@ class Vector2 {
     /**
      * \brief Set the values of this vector to the ones in the given protobuf vector.
      */
-    Vector2& operator=(const proto::Vector2f &msg);
+    Vector2 &operator=(const proto::Vector2f &msg);
 
     /**
      * \brief Casts or implicitly converts this vector to a Protobuf one.

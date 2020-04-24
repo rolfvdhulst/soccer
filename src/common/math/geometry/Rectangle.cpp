@@ -59,14 +59,14 @@ Vector2 Rectangle::center() const { return (min + max) * 0.5; }
 // code borrowed from https://www.geeksforgeeks.org/line-clipping-set-1-cohen-sutherland-algorithm/
 // and wikipedia. (I know it's way too long)
 std::vector<Vector2> Rectangle::intersects(const LineSegment &line) const {
-    unsigned int code0 = CohenSutherlandCode(line.start);
-    unsigned int code1 = CohenSutherlandCode(line.end);
+    unsigned int code0 = CohenSutherlandCode(line.start());
+    unsigned int code1 = CohenSutherlandCode(line.end());
     std::vector<Vector2> intersections;
     bool accept = false;
-    double x0 = line.start.x();
-    double y0 = line.start.y();
-    double x1 = line.end.x();
-    double y1 = line.end.y();
+    double x0 = line.start().x();
+    double y0 = line.start().y();
+    double x1 = line.end().x();
+    double y1 = line.end().y();
     while (true) {
         if (!(code0 | code1)) {
             // bitwise OR is 0: both points inside window; trivially accept and exit loop

@@ -5,20 +5,19 @@
 #ifndef SOCCER_LINESEGMENT_H
 #define SOCCER_LINESEGMENT_H
 
-#include "Vector2.h"
+#include "LineBase.h"
 
-class Line;
 /**
  * @brief LineSegment class
  *
  */
-class LineSegment {
+class LineSegment : public LineBase {
    public:
     /**
      * @brief Constructs a new LineSegment
      *
      */
-    constexpr LineSegment() = default;
+    constexpr LineSegment() : LineBase() {}
 
     /**
      * @brief Constructs a LineSegment
@@ -27,30 +26,19 @@ class LineSegment {
      * @param _end End of the Line
      *
      */
-    constexpr LineSegment(const Vector2 &_start, const Vector2 &_end) : start{_start}, end{_end} {};
+    constexpr LineSegment(const Vector2 &_start, const Vector2 &_end) : LineBase(_start, _end){};
     /**
      * @brief Construct a LineSegment from a line.
      * @param line Line to construct LineSegment from
      */
     explicit LineSegment(const Line &line);
-    /**
-     * @brief Destroy the Line Segment object
-     *
-     */
-    ~LineSegment() = default;
+
+    explicit LineSegment(const Ray &ray);
 
     /**
-     * @brief Start of the line
+     * @return The middle point of the end and start point (e.g. the exact middle)
      */
-
-    Vector2 start;
-
-    /**
-     * @brief End of the line
-     *
-     */
-    Vector2 end;
-
+    [[nodiscard]] Vector2 center() const;
     /**
      * @brief Gets the length of the vector representation of this line
      * Literally:
@@ -65,67 +53,14 @@ class LineSegment {
      * @return double Length of this Line
      */
     [[nodiscard]] double length2() const;
-
     /**
-     * @brief Gets the slope of this line
-     *
-     * @return double Slope of the line
+     * @brief swaps the start and end of this LineSegment so that the direction is turned by 180 degrees
      */
-    [[nodiscard]] double slope() const;
-
+    void reverse();
     /**
-     * @brief Gets the intercept of this line
-     * Literally:
-     *      start.y - slope() * start.x;
-     * @return double Intercept of this line
+     * @return The same LineSegment but with end and start reversed
      */
-    [[nodiscard]] double intercept() const;
-
-    /**
-     * @brief Gets the direction of the Line
-     *
-     * @return Vector2 Vector representation of the direction of this vector
-     */
-    [[nodiscard]] Vector2 direction() const;
-
-    /**
-     * @brief Gets a pair of coefficients
-     *
-     * @return std::pair<double, double> Pair of doubles where .first == slope() and .second == intercept()
-     */
-    [[nodiscard]] std::pair<double, double> coefficients() const;
-
-    /**
-     * @brief Checks whether line is vertical
-     *
-     * @return true True if line is vertical, will be true if isPoint is true
-     * @return false False if line is not vertical
-     */
-    [[nodiscard]] bool isVertical() const;
-
-    /**
-     * @brief Checks whether 2 lines are parallel
-     *
-     * @param line Other line to check against
-     * @return true True if this->slope() == line.slope()
-     * @return false False if this->slope() != line.slope()
-     */
-    [[nodiscard]] bool isParallel(const Line &line) const;
-    /**
-     * @brief Checks whether 2 lines are parallel
-     *
-     * @param line Other line to check against
-     * @return true True if this->slope() == line.slope()
-     * @return false False if this->slope() != line.slope()
-     */
-    [[nodiscard]] bool isParallel(const LineSegment &line) const;
-    /**
-     * @brief Checks whether line is a single point
-     *
-     * @return true True if start == end
-     * @return false False if start != end
-     */
-    [[nodiscard]] bool isPoint() const;
+    [[nodiscard]] LineSegment reversed() const;
 
     /**
      * @brief Gets the distance from the line to a point
@@ -133,13 +68,13 @@ class LineSegment {
      * @param point Point to get distance to
      * @return double distance between line and point
      */
-    [[nodiscard]] double distanceToLine(const Vector2 &point) const;
+    [[nodiscard]] double distanceTo(const Vector2 &point) const override;
     /**
      * @brief Gets the shortest distance between any two points on both line segments
      * @param point Point to get distance to
      * @return distance between this line and the passed line.
      */
-    [[nodiscard]] double distanceToLine(const LineSegment &line) const;
+    [[nodiscard]] double distanceTo(const LineSegment &line) const;
     /**
      * @brief Checks whether a point is on the line
      *
@@ -147,7 +82,7 @@ class LineSegment {
      * @return true True if the point is on this line
      * @return false False if the point is not on this line
      */
-    [[nodiscard]] bool isOnLine(const Vector2 &point) const;
+    [[nodiscard]] bool hits(const Vector2 &point) const override;
 
     /**
      * @brief Gets the projection of \ref point to `this`
@@ -155,7 +90,7 @@ class LineSegment {
      * @param point Point to project
      * @return Vector2 Vector representation of this projectoin
      */
-    [[nodiscard]] Vector2 project(const Vector2 &point) const;
+    [[nodiscard]] Vector2 project(const Vector2 &point) const override;
 
     /**
      * @brief Gets the intersection of the lines
@@ -164,7 +99,7 @@ class LineSegment {
      * @param line Line to get an intersection from
      * @return std::shared_ptr<Vector2> Vector representation of this intersection
      */
-    [[nodiscard]] std::optional<Vector2> intersects(const Line &line) const;
+    [[nodiscard]] std::optional<Vector2> intersects(const Line &line) const override;
 
     /**
      * @brief Gets the intersection of the lines
@@ -173,7 +108,7 @@ class LineSegment {
      * @param line LineSegment to get an intersection from
      * @return std::shared_ptr<Vector2> Vector representation of this intersection
      */
-    [[nodiscard]] std::optional<Vector2> intersects(const LineSegment &line) const;
+    [[nodiscard]] std::optional<Vector2> intersects(const LineSegment &line) const override;
 
     /**
      * @brief Checks whether \ref line intersects `this`
@@ -182,7 +117,7 @@ class LineSegment {
      * @return true if \ref line intersects `this`
      * @return false False if \ref line does not intersect `this`
      */
-    [[nodiscard]] bool doesIntersect(const Line &line) const;
+    [[nodiscard]] bool doesIntersect(const Line &line) const override;
 
     /**
      * @brief Checks whether \ref line intersects `this`
@@ -191,7 +126,7 @@ class LineSegment {
      * @return true True if \ref line intersects `this`
      * @return false False if \ref line does not intersect `this`
      */
-    [[nodiscard]] bool doesIntersect(const LineSegment &line) const;
+    [[nodiscard]] bool doesIntersect(const LineSegment &line) const override;
 
     /**
      * @brief Same as normal intersect, but always returns false if the lines are parallel
@@ -213,18 +148,6 @@ class LineSegment {
      * @return std::shared_ptr<Vector2> Returns a shared_ptr to a Vector2 that represents the intersection
      */
     [[nodiscard]] std::optional<Vector2> nonSimpleIntersects(const LineSegment &line) const;
-    /**
-     * @brief swaps the start and end of this LineSegment so that the direction is turned by 180 degrees
-     */
-    void reverse();
-    /**
-     * @return The same LineSegment but with end and start reversed
-     */
-    [[nodiscard]] LineSegment reversed() const;
-    /**
-     * @return The middle point of the end and start point (e.g. the exact middle)
-     */
-    [[nodiscard]] Vector2 center() const;
 };
 
 #endif  // SOCCER_LINESEGMENT_H
