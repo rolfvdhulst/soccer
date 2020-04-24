@@ -51,6 +51,36 @@ TEST(PosVelFilter2D, constantVelocity) {
   EXPECT_NEAR(filter.getPositionUncertainty().y(),0,0.05);
   EXPECT_NEAR(filter.getVelocityUncertainty().x(),0,0.1); //within .1 m/s
   EXPECT_NEAR(filter.getVelocityUncertainty().y(),0,0.1); //within .1 m/s
+
+  filter.setMeasurementError(1e-8);
+  filter.predict(Time(1.01));
+  filter.update({5.05,5.05});
+  EXPECT_NEAR(filter.getVelocity().x(),velocity,0.01*velocity); //within 5% of actual velocity
+  EXPECT_NEAR(filter.getVelocity().y(),velocity,0.01*velocity);
+
+  auto state =filter.getState();
+  EXPECT_DOUBLE_EQ(state[0],filter.getPosition().x());
+  EXPECT_DOUBLE_EQ(state[1],filter.getPosition().y());
+  EXPECT_DOUBLE_EQ(state[2],filter.getVelocity().x());
+  EXPECT_DOUBLE_EQ(state[3],filter.getVelocity().y());
+
+  filter.setState(Eigen::Vector4d::Identity());
+  EXPECT_DOUBLE_EQ(filter.getState()[0],1.0);
+  EXPECT_DOUBLE_EQ(filter.getState()[2],0.0);
+  filter.setVelocity(Eigen::Vector2d::Identity());
+  EXPECT_DOUBLE_EQ(filter.getState()[2],1.0);
+  filter.setPosition(3*Eigen::Vector2d::Identity());
+  EXPECT_DOUBLE_EQ(filter.getState()[0],3.0);
+
+  EXPECT_DOUBLE_EQ(filter.getPositionEstimate(Time(0.0))[0],3.0); //from before
+  EXPECT_DOUBLE_EQ(filter.getPositionEstimate(Time(1.01))[0],3.0); //Right now
+  EXPECT_DOUBLE_EQ(filter.getPositionEstimate(Time(2.01))[0],4.0); //3.0 +1.0 m/s * 1 second
+
+  EXPECT_NE(filter.getPositionUncertainty()[0],1.0);
+  filter.setCovariance(Eigen::Matrix4d::Identity());
+  EXPECT_DOUBLE_EQ(filter.getPositionUncertainty()[0],1.0);
+  EXPECT_THROW(filter.predict(Time(-1.0)),std::invalid_argument);
+
 }
 TEST(PosVelFilter2D, missingUpdates) {
     int numSamples = 100;

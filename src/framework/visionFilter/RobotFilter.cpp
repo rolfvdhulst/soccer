@@ -65,6 +65,9 @@ void RobotFilter::KalmanInit(const proto::SSL_DetectionRobot &detectionRobot) {
 
 void RobotFilter::predict(Time time, bool permanentUpdate, bool cameraSwitched) {
     double dt = (time - lastUpdateTime).asSeconds();
+  if(dt<0){
+    std::__throw_bad_alloc();
+  }
     // forward model:
     kalman->F = Kalman::Matrix::Identity();
     kalman->F(0, 3) = dt;
@@ -74,8 +77,6 @@ void RobotFilter::predict(Time time, bool permanentUpdate, bool cameraSwitched) 
     // Set B
     kalman->B = kalman->F;
 
-    // Set u (we have no control input at the moment)
-    kalman->u = Kalman::Vector::Zero();
 
     // Set Q
     const double posNoise = 1.0;
@@ -96,7 +97,7 @@ void RobotFilter::predict(Time time, bool permanentUpdate, bool cameraSwitched) 
     }
     kalman->Q = G.transpose() * G;
 
-    kalman->predict(permanentUpdate);
+    kalman->predict();
     if (permanentUpdate) {
         lastUpdateTime = time;
     }
@@ -121,8 +122,6 @@ void RobotFilter::applyObservation(const RobotObservation &observation) {
     double difference = limitAngle(observation.bot.orientation() - stateRot);
     obsState(2) = limitedRot + difference;
 
-    kalman->z = obsState;
-
     kalman->R = Kalman::MatrixOO::Zero();
     // we put much more trust in observations done by our main camera.
     if (observation.cameraID == mainCamera) {
@@ -139,7 +138,7 @@ void RobotFilter::applyObservation(const RobotObservation &observation) {
         kalman->R(1, 1) = posVar;
         kalman->R(2, 2) = rotVar;
     }
-    kalman->update();
+    kalman->update(obsState);
 }
 
 double RobotFilter::limitAngle(double angle) const {

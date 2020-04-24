@@ -4,7 +4,8 @@
 
 #include "GeometryFilter.h"
 bool GeometryFilter::process(const proto::SSL_GeometryData &geometryData) {
-    //We serialize the data to string and check if it is the same as the last one.
+    //We serialize the data to string and check if it is the same as the string of last message
+    //There is no pretty way to compare protobufs unfortunately, so this is the most reliable/best we can do.
     //If so, there's no point in updating the geometry and we just return.
     lastGeomTime = Time::now();
     std::string geomString = geometryData.SerializeAsString();
@@ -17,6 +18,8 @@ bool GeometryFilter::process(const proto::SSL_GeometryData &geometryData) {
     for (const auto& cameraCalib : geometryData.calib()) {
         cameras[cameraCalib.camera_id()] = cameraCalib;
     }
+    //In our interpreted geometry we save all the latest camera information we received.
+    // This is relevant as during some previous robocups camera geometry was sent from multiple pc's
     combinedGeometry.clear_calib();
     for (const auto& cam : cameras){
         auto calibration = combinedGeometry.add_calib();

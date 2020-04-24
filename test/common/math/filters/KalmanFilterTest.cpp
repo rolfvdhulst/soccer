@@ -35,6 +35,12 @@ TEST(KalmanFilter, OneDimension) {
     }
     filter.modifyState(0, 0);
     ASSERT_DOUBLE_EQ(filter.state()[0], 0);
+  filter.setState(KalmanFilter<1, 1>::Vector(10));
+  EXPECT_DOUBLE_EQ(filter.state()[0],10);
+  KalmanFilter<1,1>::Matrix covar(57.0);
+  EXPECT_NE(filter.covariance()[0],57.0);
+  filter.setCovariance(covar);
+  EXPECT_DOUBLE_EQ(filter.covariance()[0],57.0);
 }
 
 TEST(KalmanFilter, construction) {
@@ -42,8 +48,12 @@ TEST(KalmanFilter, construction) {
     KalmanFilter<6, 3>::Vector initialGuess = KalmanFilter<6, 3>::Vector::Zero();
     KalmanFilter<6, 3>::Matrix initalCovar = KalmanFilter<6, 3>::Matrix::Identity();
     KalmanFilter<6, 3> filter1(initialGuess, initalCovar);
-    KalmanFilter<6, 3>::VectorO z;
-    filter1.update(z);
+    filter1.update(KalmanFilter<6, 3>::VectorO::Zero());
     filter1.predict();
     KalmanFilter<6, 3> filter2 = filter1;
+    KalmanFilter<6, 3>::Vector control = KalmanFilter<6, 3>::Vector::Identity();
+    filter1.predict();
+    filter2.predict(control);
+    EXPECT_NE(filter1.state()[0],filter2.state()[0]);
+    EXPECT_EQ(filter2.state()[0],1);
 }

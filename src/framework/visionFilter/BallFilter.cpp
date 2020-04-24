@@ -27,8 +27,6 @@ void BallFilter::KalmanInit(const proto::SSL_DetectionBall &detectionBall) {
 }
 void BallFilter::applyObservation(const BallObservation &observation) {
     Kalman::VectorO obsPos = {mmToM(observation.ball.x()), mmToM(observation.ball.y())};
-    // TODO: do things with the other ball fields (pixel pos, area)
-    kalman->z = obsPos;
 
     // Observations which are not from the main camera are added but are seen as much more noisy
     const double posVar = 0.002;  // should be somewhere in the order of 0.01~0.001 m (maybe a bit more or less but this is roughly realistic)
@@ -41,7 +39,7 @@ void BallFilter::applyObservation(const BallObservation &observation) {
         kalman->R(0, 0) = posVarOtherCamera;
         kalman->R(1, 1) = posVarOtherCamera;
     }
-    kalman->update();
+    kalman->update(obsPos);
 }
 proto::WorldBall BallFilter::asWorldBall() const {
     proto::WorldBall msg;
@@ -62,6 +60,9 @@ double BallFilter::distanceTo(double x, double y) const {
 }
 void BallFilter::predict(Time time, bool permanentUpdate, bool cameraSwitched) {
     double dt = (time - lastUpdateTime).asSeconds();
+    if(dt<0) {
+      std::__throw_bad_alloc();
+    }
     // forward model:
     kalman->F = Kalman::Matrix::Identity();
     kalman->F(0, 2) = dt;
@@ -71,7 +72,6 @@ void BallFilter::predict(Time time, bool permanentUpdate, bool cameraSwitched) {
     // Set B
     kalman->B = kalman->F;
     // Set u (we have no control input at the moment)
-    kalman->u = Kalman::Vector::Zero();
 
     // Set Q matrix
     const float posNoise = 0.1;  // TODO: tune
@@ -86,7 +86,7 @@ void BallFilter::predict(Time time, bool permanentUpdate, bool cameraSwitched) {
     }
     kalman->Q = G.transpose() * G;
 
-    kalman->predict(permanentUpdate);
+    kalman->predict();
     lastPredictTime = time;
     if (permanentUpdate) {
         lastUpdateTime = time;

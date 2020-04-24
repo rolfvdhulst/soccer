@@ -27,14 +27,12 @@ if (CODE_COVERAGE)
     target_add_coverage_flags(field)
     target_add_coverage_flags(referee)
     target_add_coverage_flags(vision)
-    target_add_coverage_flags(application)
-    target_add_coverage_flags(visionFilter)
-    target_add_coverage_flags(refereeFilter)
-    target_compile_options(math INTERFACE
-            -O0
-            -g
-            --coverage
-            )
+    #TODO: enable again later with integration tests
+#    target_add_coverage_flags(application)
+#    target_add_coverage_flags(visionFilter)
+#    target_add_coverage_flags(refereeFilter)
+    target_add_coverage_flags(math)
+
 endif (CODE_COVERAGE)
 
 function(target_add_release_flags TARGET)

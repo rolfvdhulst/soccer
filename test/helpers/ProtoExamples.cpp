@@ -166,3 +166,38 @@ proto::SSL_DetectionRobot cam1Detection() {
     robot.set_height(147);
     return robot;
 }
+proto::SSL_GeometryCameraCalibration RoboCup2018Cam7() {
+  proto::SSL_GeometryCameraCalibration camera;
+  camera.set_camera_id(7);
+  camera.set_derived_camera_world_tx(4641.71338);
+  camera.set_derived_camera_world_ty(2299.41284);
+  camera.set_derived_camera_world_tz(4076.74609);
+
+  camera.set_tx(-2207.13184);
+  camera.set_ty(-4751.98242);
+  camera.set_tz(4000);
+
+  camera.set_q0(-0.695419014);
+  camera.set_q1(-0.71855098);
+  camera.set_q2(-0.00857300032);
+  camera.set_q3(-0.00217600004);
+
+  camera.set_focal_length(704.623901);
+  camera.set_distortion(0.5);
+
+  camera.set_principal_point_x(389.336395);
+  camera.set_principal_point_y(285.465973);
+  return camera;
+}
+proto::SSL_DetectionRobot cam7Detection() {
+  proto::SSL_DetectionRobot robot;
+  robot.set_confidence(0.95174914598464966);
+  robot.set_robot_id(7);
+  robot.set_x(4773.73486328125);
+  robot.set_y(1777.4578857421875);
+  robot.set_orientation(-3.0892334);
+  robot.set_pixel_x(285.5428466796875);
+  robot.set_pixel_y(299.35714721679688);
+  robot.set_height(140);
+  return robot;
+}

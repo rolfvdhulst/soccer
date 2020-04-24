@@ -7,7 +7,7 @@
 #include "ProtoExamples.h"
 
 TEST(Camera, basics) {
-    std::vector<proto::SSL_GeometryCameraCalibration> testData = {RoboCup2019Cam0(), RoboCup2019Cam1()};
+    std::vector<proto::SSL_GeometryCameraCalibration> testData = {RoboCup2019Cam0(), RoboCup2019Cam1(),RoboCup2018Cam7()};
     for (const auto &camera : testData) {
         Camera cam(camera);
         Vector3 worldPos = cam.worldPos();
@@ -28,7 +28,10 @@ TEST(Camera, basics) {
     }
 }
 TEST(Camera, projections) {
-    std::vector<std::pair<proto::SSL_GeometryCameraCalibration, proto::SSL_DetectionRobot>> testData = {{RoboCup2019Cam0(), cam0Detection()}, {RoboCup2019Cam1(), cam1Detection()}};
+    std::vector<std::pair<proto::SSL_GeometryCameraCalibration, proto::SSL_DetectionRobot>> testData =
+        {{RoboCup2019Cam0(), cam0Detection()},
+         {RoboCup2019Cam1(), cam1Detection()},
+         {RoboCup2018Cam7(), cam7Detection()}};
     for (const auto &data : testData) {
         Camera cam(data.first);
         auto robot = data.second;
@@ -41,6 +44,7 @@ TEST(Camera, projections) {
         Vector3 detectionPos(robot.x(), robot.y(), robot.height());
         // The robocup 2019 cameras were imperfectly calibrated due to no negative distortion support
         // so there is some error in the inverse model, but it should be minor (less than 10 pixels on a 4 k camera)
+        // the error for well calibrated camera's should be <<1 pixel (e.g. it's ~10^-4 - 10^-5 for RoboCup 2018
         Vector2Eigen inverseImagePos = cam.fieldToImage(detectionPos);
         EXPECT_NEAR(inverseImagePos.x(), robot.pixel_x(), 10);
         EXPECT_NEAR(inverseImagePos.y(), robot.pixel_y(), 10);

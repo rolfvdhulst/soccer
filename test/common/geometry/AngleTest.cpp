@@ -113,3 +113,17 @@ TEST(AngleTests, angleDifference) {
     EXPECT_DOUBLE_EQ(a.angleDiff(-2 + M_PI + 0.1), M_PI - 0.1);
     EXPECT_DOUBLE_EQ(a.angleDiff(-2 + M_PI - 0.1), -(M_PI - 0.1));
 }
+
+TEST(AngleTests, conversions){
+  Angle x(0.0),y(M_PI),z(-M_PI),d(M_PI_2),e(-M_PI_2);
+  EXPECT_DOUBLE_EQ(x.degrees(),0.0);
+  EXPECT_DOUBLE_EQ(y.degrees(),-180.0); //Flips to other side so is -180!
+  EXPECT_DOUBLE_EQ(z.degrees(),-180.0);
+  EXPECT_DOUBLE_EQ(d.degrees(),90.0);
+  EXPECT_DOUBLE_EQ(e.degrees(),-90.0);
+  EXPECT_DOUBLE_EQ(x.getAngle(),toRadians(0.0));
+  EXPECT_DOUBLE_EQ(y.getAngle(),toRadians(-180.0)); //Flips to other side so is -180!
+  EXPECT_DOUBLE_EQ(z.getAngle(),toRadians(-180.0));
+  EXPECT_DOUBLE_EQ(d.getAngle(),toRadians(90.0));
+  EXPECT_DOUBLE_EQ(e.getAngle(),toRadians(-90.0));
+}

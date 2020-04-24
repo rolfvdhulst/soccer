@@ -74,8 +74,16 @@ TEST(TimeTests, booleans) {
     EXPECT_TRUE(time <= time3);
     EXPECT_TRUE(time <= time2);
 }
-TEST(TimTests,doubleConstructor){
+TEST(TimeTests,doubleConstructor){
     double duration = 3.482930;
     Time time(duration);
     EXPECT_DOUBLE_EQ(time.asSeconds(),duration);
+}
+
+TEST(TimeTests,minusBug){
+  Time one(1.01);
+  Time two(2.01);
+  Time three = two - one;
+  EXPECT_DOUBLE_EQ((two-one).asSeconds(),1.0);
+  EXPECT_DOUBLE_EQ(three.asSeconds(),1.0);
 }
