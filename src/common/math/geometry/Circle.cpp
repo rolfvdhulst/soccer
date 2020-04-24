@@ -9,9 +9,9 @@
 
 bool Circle::doesIntersectOrContain(const Vector2 &other) { return std::abs((center - other).length()) <= radius; }
 
-bool Circle::doesIntersectOrContain(const Line &other) { return other.distanceTo(center) <= radius; }
+bool Circle::doesIntersectOrContain(const Line &other) { return other.distanceToLine(center) <= radius; }
 
-bool Circle::doesIntersectOrContain(const LineSegment &other) { return other.distanceTo(center) <= radius; }
+bool Circle::doesIntersectOrContain(const LineSegment &other) { return other.distanceToLine(center) <= radius; }
 
 bool Circle::doesIntersectOrContain(const Circle &other) { return std::abs((center - other.center).length()) <= (radius + other.radius); }
 
@@ -23,6 +23,7 @@ bool Circle::doesIntersectOrContain(const Rectangle &other) {
 
     double rectWidth = other.width();
     double rectHeight = other.height();
+
 
     if (distanceToCircle.x() > (rectWidth / 2 + radius)) {
         return false;

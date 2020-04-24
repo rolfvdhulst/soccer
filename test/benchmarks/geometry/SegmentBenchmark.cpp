@@ -45,7 +45,7 @@ static void segmentSegmentBaseSingle(benchmark::State& state) {
   auto pair = sample();
   // Code inside this loop is measured repeatedly
   for (auto _ : state) {
-    Vector2 value = pair.first.start();
+    Vector2 value = pair.first.start;
     benchmark::DoNotOptimize(value);
   }
 }
@@ -65,7 +65,7 @@ static void segmentSegmentBaseMultiple(benchmark::State& state) {
   // Code inside this loop is measured repeatedly
   for (auto _ : state) {
     for(const auto& pair : pairs){
-      Vector2 out = pair.first.start();
+      Vector2 out = pair.first.start;
       benchmark::DoNotOptimize(out);
     }
   }

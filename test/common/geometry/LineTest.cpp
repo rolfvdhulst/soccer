@@ -2,10 +2,10 @@
 // Created by rolf on 19-4-19.
 //
 
-#include <gtest/gtest.h>
 #include <math/geometry/Line.h>
 #include <math/geometry/LineSegment.h>
 #include <math/geometry/Vector2.h>
+#include <gtest/gtest.h>
 TEST(LineTests, direction) {
     Vector2 v1(0.0, 0.0), v2(1.0, 1.0), v3(0.0, 0.0);
     Line l1(v1, v2), l2(v2, v1);
@@ -97,17 +97,28 @@ TEST(LineTests, slopeAndIntercept) {
     EXPECT_DOUBLE_EQ(G.coefficients().second, G.intercept());
     EXPECT_DOUBLE_EQ(H.coefficients().second, H.intercept());
 }
-
-TEST(LineTests, distanceToPoint) {
+TEST(LineTests, lineLengths) {
+    Vector2 A(0.0, 0.0), B(2.0, 0.0), C(1.0, 2.0);
+    Line D(A, B);
+    Line E(A, C);
+    Line F(B, C);
+    EXPECT_DOUBLE_EQ(D.length(), 2.0);
+    EXPECT_DOUBLE_EQ(D.length2(), 4.0);
+    EXPECT_DOUBLE_EQ(E.length(), sqrt(5));
+    EXPECT_DOUBLE_EQ(E.length2(), 5.0);
+    EXPECT_DOUBLE_EQ(F.length(), sqrt(5));
+    EXPECT_DOUBLE_EQ(F.length2(), 5.0);
+}
+TEST(LineTests, distanceToLine) {
     Vector2 A(0.0, 0.0), B(2.0, 2.0);
     Vector2 point1(2.0, 0.0), point2(4.0, 6.0);
     Line l1(A, B);
     LineSegment l2(A, B);
 
-    EXPECT_EQ(l1.distanceTo(point1), sqrt(2.0));
-    EXPECT_EQ(l2.distanceTo(point1), sqrt(2.0));
-    EXPECT_EQ(l1.distanceTo(point2), sqrt(2.0));
-    EXPECT_EQ(l2.distanceTo(point2), sqrt(20.0));
+    EXPECT_EQ(l1.distanceToLine(point1), sqrt(2.0));
+    EXPECT_EQ(l2.distanceToLine(point1), sqrt(2.0));
+    EXPECT_EQ(l1.distanceToLine(point2), sqrt(2.0));
+    EXPECT_EQ(l2.distanceToLine(point2), sqrt(20.0));
 
     Vector2 shouldProj1(1.0, 1.0), shouldProj2(5.0, 5.0);
     EXPECT_EQ(l1.project(point1), shouldProj1);
@@ -120,42 +131,42 @@ TEST(LineTests, pointOnLine) {
     Line l1(A, B), l2(A, C), l3(A, D);
     LineSegment ls1(A, B), ls2(A, C), ls3(A, D);
     Vector2 point1(2.0, 1.0), point2(4.0, 1.0);
-    EXPECT_TRUE(l1.hits(point1));
-    EXPECT_TRUE(l1.hits(point2));
-    EXPECT_TRUE(ls1.hits(point1));
-    EXPECT_FALSE(ls1.hits(point2));
+    EXPECT_TRUE(l1.isOnLine(point1));
+    EXPECT_TRUE(l1.isOnLine(point2));
+    EXPECT_TRUE(ls1.isOnLine(point1));
+    EXPECT_FALSE(ls1.isOnLine(point2));
 
     // check the original points
-    EXPECT_TRUE(l1.hits(B));
-    EXPECT_TRUE(ls1.hits(B));
-    EXPECT_TRUE(l1.hits(A));
-    EXPECT_TRUE(ls1.hits(A));
+    EXPECT_TRUE(l1.isOnLine(B));
+    EXPECT_TRUE(ls1.isOnLine(B));
+    EXPECT_TRUE(l1.isOnLine(A));
+    EXPECT_TRUE(ls1.isOnLine(A));
 
     Vector2 point3(1.0, 2.0), point4(1.0, 4.0);
-    EXPECT_TRUE(l2.hits(point3));
-    EXPECT_TRUE(l2.hits(point4));
-    EXPECT_TRUE(ls2.hits(point3));
-    EXPECT_FALSE(ls2.hits(point4));  // check the original points
+    EXPECT_TRUE(l2.isOnLine(point3));
+    EXPECT_TRUE(l2.isOnLine(point4));
+    EXPECT_TRUE(ls2.isOnLine(point3));
+    EXPECT_FALSE(ls2.isOnLine(point4));  // check the original points
 
-    EXPECT_TRUE(l2.hits(C));
-    EXPECT_TRUE(ls2.hits(C));
-    EXPECT_TRUE(l2.hits(A));
-    EXPECT_TRUE(ls2.hits(A));
+    EXPECT_TRUE(l2.isOnLine(C));
+    EXPECT_TRUE(ls2.isOnLine(C));
+    EXPECT_TRUE(l2.isOnLine(A));
+    EXPECT_TRUE(ls2.isOnLine(A));
 
     Vector2 point5(2.0, 2.0), point6(4.0, 4.0);
-    EXPECT_TRUE(l3.hits(point5));
-    EXPECT_TRUE(l3.hits(point6));
-    EXPECT_TRUE(ls3.hits(point5));
-    EXPECT_FALSE(ls3.hits(point6));  // check the original points
+    EXPECT_TRUE(l3.isOnLine(point5));
+    EXPECT_TRUE(l3.isOnLine(point6));
+    EXPECT_TRUE(ls3.isOnLine(point5));
+    EXPECT_FALSE(ls3.isOnLine(point6));  // check the original points
 
-    EXPECT_TRUE(l3.hits(D));
-    EXPECT_TRUE(ls3.hits(D));
-    EXPECT_TRUE(l3.hits(A));
-    EXPECT_TRUE(ls3.hits(A));
+    EXPECT_TRUE(l3.isOnLine(D));
+    EXPECT_TRUE(ls3.isOnLine(D));
+    EXPECT_TRUE(l3.isOnLine(A));
+    EXPECT_TRUE(ls3.isOnLine(A));
 
     Vector2 point7(0.0, 1.0), point8(0.0, 2.0);
-    EXPECT_FALSE(ls1.hits(point7));
-    EXPECT_FALSE(ls1.hits(point8));
+    EXPECT_FALSE(ls1.isOnLine(point7));
+    EXPECT_FALSE(ls1.isOnLine(point8));
 }
 
 TEST(LineTests, Intersections) {
@@ -165,15 +176,15 @@ TEST(LineTests, Intersections) {
     Vector2 intersect(2.0, 2.0);
 
     // Test constructors
-    EXPECT_EQ(Line(LS1).start(), L1.start());
-    EXPECT_EQ(Line(LS1).end(), L1.end());
-    EXPECT_NE(Line(LS1).start(), L2.start());
-    EXPECT_NE(Line(LS1).end(), L2.end());
-    EXPECT_EQ(LineSegment(L1).start(), LS1.start());
-    EXPECT_EQ(LineSegment(L1).end(), LS1.end());
+    EXPECT_EQ(Line(LS1).start, L1.start);
+    EXPECT_EQ(Line(LS1).end, L1.end);
+    EXPECT_NE(Line(LS1).start, L2.start);
+    EXPECT_NE(Line(LS1).end, L2.end);
+    EXPECT_EQ(LineSegment(L1).start, LS1.start);
+    EXPECT_EQ(LineSegment(L1).end, LS1.end);
 
-    EXPECT_NE(LineSegment(L1).start(), LS2.start());
-    EXPECT_NE(LineSegment(L1).end(), LS2.end());
+    EXPECT_NE(LineSegment(L1).start, LS2.start);
+    EXPECT_NE(LineSegment(L1).end, LS2.end);
 
     ASSERT_NE(L1.intersects(L2), std::nullopt);
     ASSERT_TRUE(L1.doesIntersect(L2));
@@ -267,6 +278,7 @@ TEST(LineTests, Intersections) {
     EXPECT_NE(a.intersects(b.reversed()), std::nullopt);
     EXPECT_NE((a.reversed()).intersects(b), std::nullopt);
     EXPECT_NE((a.reversed()).intersects(b.reversed()), std::nullopt);
+
 }
 TEST(LineTests, IntersectionsDifferentTypes) {
     Vector2 P1(0.0, 0.0), P2(2.0, 2.0), P3(2.0, 0.0), P4(0.0, 2.0);
@@ -313,18 +325,18 @@ TEST(LineTests, IntersectionsDifferentTypes) {
 TEST(LineTests, reverse) {
     Vector2 A(1, 1), B(2, 2);
     LineSegment x(A, B);
-    EXPECT_EQ(x.start(), A);
-    EXPECT_EQ(x.end(), B);
+    EXPECT_EQ(x.start, A);
+    EXPECT_EQ(x.end, B);
     x.reverse();
-    EXPECT_EQ(x.start(), B);
-    EXPECT_EQ(x.end(), A);
+    EXPECT_EQ(x.start, B);
+    EXPECT_EQ(x.end, A);
 
     LineSegment y(A, B);
-    EXPECT_EQ(y.start(), A);
-    EXPECT_EQ(y.end(), B);
+    EXPECT_EQ(y.start, A);
+    EXPECT_EQ(y.end, B);
     LineSegment z = y.reversed();
-    EXPECT_EQ(z.start(), B);
-    EXPECT_EQ(z.end(), A);
+    EXPECT_EQ(z.start, B);
+    EXPECT_EQ(z.end, A);
 }
 
 TEST(LineTests, center) {

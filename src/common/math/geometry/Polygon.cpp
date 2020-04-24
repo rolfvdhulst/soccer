@@ -124,7 +124,7 @@ bool Polygon::isOnBoundary(const Vector2 &point) const {
     for (size_t i = 0; i < n; i++) {
         LineSegment segment(vertices[i],
                             vertices[(i + 1) % n]);  // maybe there is a nice way to do this 'circular' access with iterators?
-        if (segment.hits(point)) {
+        if (segment.isOnLine(point)) {
             return true;
         }
     }
@@ -143,7 +143,7 @@ std::vector<Vector2> Polygon::intersections(const LineSegment &line) const {
             intersections.push_back(*intersect);
         }
         // check the vertices explicitly (so we don't double count if we do line intersection)
-        if (line.hits(vertices[i])) {
+        if (line.isOnLine(vertices[i])) {
             intersections.push_back(vertices[i]);
         }
     }

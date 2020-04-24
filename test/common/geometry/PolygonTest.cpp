@@ -2,10 +2,10 @@
 // Created by rolf on 14-5-19.
 //
 
-#include <gtest/gtest.h>
 #include <math/geometry/Line.h>
 #include <math/geometry/Polygon.h>
 #include <math/geometry/Vector2.h>
+#include <gtest/gtest.h>
 
 TEST(PolygonTest, constructors) {
     Vector2 leftCorner(1.0, 1.0), rightBottom(3.0, 1.0), rightTop(3.0, 4.0), leftTop(1.0, 4.0);
@@ -118,13 +118,13 @@ TEST(PolygonTest, boundaryTests) {
     for (const Polygon &obj : objects) {
         std::vector<LineSegment> lines = obj.getBoundary();
         for (int i = 0; i < lines.size(); ++i) {
-            EXPECT_EQ(lines[i].start(), obj[i]);
-            EXPECT_EQ(lines[i].end(), i == lines.size() - 1 ? obj[0] : obj[i + 1]);
+            EXPECT_EQ(lines[i].start, obj[i]);
+            EXPECT_EQ(lines[i].end, i == lines.size() - 1 ? obj[0] : obj[i + 1]);
         }
         for (const LineSegment &line : lines) {
-            EXPECT_TRUE(obj.isOnBoundary(line.start()));
-            EXPECT_TRUE(obj.isOnBoundary(line.end()));
-            EXPECT_TRUE(obj.isOnBoundary((line.start() + line.end()) * 0.5));
+            EXPECT_TRUE(obj.isOnBoundary(line.start));
+            EXPECT_TRUE(obj.isOnBoundary(line.end));
+            EXPECT_TRUE(obj.isOnBoundary((line.start + line.end) * 0.5));
         }
         double lenSum = 0;
         for (const LineSegment &line : lines) {
@@ -156,7 +156,7 @@ TEST(PolygonTest, areas) {
     Vector2 G(-3.57, 0.4);
     Polygon triangleE({A, D, G});
     Line l(A, D);
-    EXPECT_EQ(triangleE.area(), 0.5 * (l.start() - l.end()).length() * l.distanceTo(G));
+    EXPECT_EQ(triangleE.area(), 0.5 * l.length() * l.distanceToLine(G));
 }
 TEST(PolygonTest, intersections) {
     Vector2 leftCorner(1.0, 1.0), rightBottom(3.0, 1.0), rightTop(3.0, 3.0), leftTop(1.0, 3.0);

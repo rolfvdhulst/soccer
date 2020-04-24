@@ -2,11 +2,11 @@
 // Created by rolf on 22-01-20.
 //
 
-#include <gtest/gtest.h>
 #include <math/geometry/Line.h>
 #include <math/geometry/LineSegment.h>
 #include <math/geometry/Polygon.h>
 #include <math/geometry/Rectangle.h>
+#include <gtest/gtest.h>
 static Rectangle rect(Vector2(-1, 1), Vector2(1, 2));
 static Rectangle nullExample(Vector2(0, 0), Vector2(0, 0));
 TEST(Rectangle, cohenCodes) {
@@ -90,11 +90,11 @@ TEST(Rectangle, simpleFunctions) {
     EXPECT_DOUBLE_EQ(corners[3].y(), -1.0);
 
     for (int i = 0; i < 4; ++i) {
-        EXPECT_EQ(lines[i].start(), corners[i]);
+        EXPECT_EQ(lines[i].start, corners[i]);
         if (i < 3) {
-            EXPECT_EQ(lines[i].end(), corners[i + 1]);
+            EXPECT_EQ(lines[i].end, corners[i + 1]);
         } else {
-            EXPECT_EQ(lines[i].end(), corners[0]);
+            EXPECT_EQ(lines[i].end, corners[0]);
         }
     }
 

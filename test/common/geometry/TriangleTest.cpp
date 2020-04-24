@@ -2,10 +2,10 @@
 // Created by rolf on 28-01-20.
 //
 
-#include <gtest/gtest.h>
 #include <math/geometry/Line.h>
 #include <math/geometry/LineSegment.h>
 #include <math/geometry/Triangle.h>
+#include <gtest/gtest.h>
 TEST(Triangle, basic) {
     Vector2 point1(1, 1);
     Vector2 point2(3, 1);
@@ -18,9 +18,9 @@ TEST(Triangle, basic) {
         EXPECT_TRUE(corner == point1 || corner == point2 || corner == point3);
     }
     for (const auto &line : triangle.lines()) {
-        EXPECT_TRUE(line.start() == point1 || line.start() == point2 || line.start() == point3);
-        EXPECT_TRUE(line.end() == point1 || line.end() == point2 || line.end() == point3);
-        EXPECT_TRUE(line.start() != line.end());
+        EXPECT_TRUE(line.start == point1 || line.start == point2 || line.start == point3);
+        EXPECT_TRUE(line.end == point1 || line.end == point2 || line.end == point3);
+        EXPECT_TRUE(line.start != line.end);
     }
 }
 

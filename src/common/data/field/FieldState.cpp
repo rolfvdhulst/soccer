@@ -180,8 +180,8 @@ void FieldState::setCoreLines(const proto::SSL_GeometryFieldSize &sslGeometry, c
 double FieldState::mmToM(double value) { return value / 1000.0; }
 Vector2 FieldState::mmToM(const Vector2 &value) { return value * 0.001; }
 void FieldState::mmToM(LineSegment &line) {
-    line.start() = mmToM(line.start());
-    line.end() = mmToM(line.end());
+    line.start = mmToM(line.start);
+    line.end = mmToM(line.end);
 }
 bool FieldState::threeTrue(bool a, bool b, bool c, bool d) {
     int count = 0;
@@ -215,13 +215,13 @@ void FieldState::fixOutsideFieldLines(bool topLineSet, bool leftLineSet, bool bo
 }
 void FieldState::fixOneOutsideLineMissing(bool topLineSet, bool leftLineSet, bool bottomLineSet, bool rightLineSet) {
     if (!topLineSet) {
-        topLine = LineSegment(leftLine.end(), rightLine.start());
+        topLine = LineSegment(leftLine.end, rightLine.start);
     } else if (!leftLineSet) {
-        leftLine = LineSegment(bottomLine.end(), topLine.start());
+        leftLine = LineSegment(bottomLine.end, topLine.start);
     } else if (!bottomLineSet) {
-        bottomLine = LineSegment(rightLine.end(), leftLine.start());
+        bottomLine = LineSegment(rightLine.end, leftLine.start);
     } else if (!rightLineSet) {
-        rightLine = LineSegment(topLine.end(), bottomLine.start());
+        rightLine = LineSegment(topLine.end, bottomLine.start);
     }
 }
 void FieldState::makeOutsideLines() {
@@ -242,9 +242,9 @@ void FieldState::fixPenaltyFieldLines(bool leftPenaltyLineSet, bool rightPenalty
     double penaltySize = getGoalWidth(backupField);
     // If one of the penalty lines was set we override it and assume symmetry
     if (leftPenaltyLineSet) {
-        penaltySize = abs(leftPenaltyLine.start().x() - leftX);
+        penaltySize = abs(leftPenaltyLine.start.x() - leftX);
     } else if (rightPenaltyLineSet) {
-        penaltySize = abs(rightX - rightPenaltyLine.start().x());
+        penaltySize = abs(rightX - rightPenaltyLine.start.x());
     }
     if (!leftPenaltyLineSet) {
         Vector2 top(leftX + penaltySize, penaltySize);
@@ -341,23 +341,23 @@ void FieldState::makeOtherLines(bool halfLineSet, bool centerLineSet, bool botto
     }
 
     if (!bottomLeftPenaltyStretchSet) {
-        Vector2 leftBottomLeft(leftX, leftPenaltyLine.start().y());
-        Vector2 leftBottomRight = leftPenaltyLine.start();
+        Vector2 leftBottomLeft(leftX, leftPenaltyLine.start.y());
+        Vector2 leftBottomRight = leftPenaltyLine.start;
         bottomLeftPenaltyStretch = LineSegment(leftBottomLeft, leftBottomRight);
     }
     if (!topLeftPenaltyStretchSet) {
-        Vector2 leftTopLeft(leftX, leftPenaltyLine.end().y());
-        Vector2 leftTopRight = leftPenaltyLine.end();
+        Vector2 leftTopLeft(leftX, leftPenaltyLine.end.y());
+        Vector2 leftTopRight = leftPenaltyLine.end;
         topLeftPenaltyStretch = LineSegment(leftTopLeft, leftTopRight);
     }
     if (!bottomRightPenaltyStretchSet) {
-        Vector2 rightBottomRight(rightX, rightPenaltyLine.end().y());
-        Vector2 rightBottomLeft = rightPenaltyLine.end();
+        Vector2 rightBottomRight(rightX, rightPenaltyLine.end.y());
+        Vector2 rightBottomLeft = rightPenaltyLine.end;
         bottomRightPenaltyStretch = LineSegment(rightBottomRight, rightBottomLeft);
     }
     if (!topRightPenaltyStretchSet) {
-        Vector2 rightTopRight(rightX, rightPenaltyLine.start().y());
-        Vector2 rightTopLeft = rightPenaltyLine.start();
+        Vector2 rightTopRight(rightX, rightPenaltyLine.start.y());
+        Vector2 rightTopLeft = rightPenaltyLine.start;
         topRightPenaltyStretch = LineSegment(rightTopRight, rightTopLeft);
     }
 }
@@ -376,8 +376,8 @@ void FieldState::setCenterCircle(const proto::SSL_GeometryFieldSize &sslGeometry
     }
 }
 void FieldState::defineDefenceRectangles() {
-    leftDefenceArea = Rectangle(bottomLeftPenaltyStretch.start(), leftPenaltyLine.end());
-    rightDefenceArea = Rectangle(rightPenaltyLine.end(), topRightPenaltyStretch.start());
+    leftDefenceArea = Rectangle(bottomLeftPenaltyStretch.start, leftPenaltyLine.end);
+    rightDefenceArea = Rectangle(rightPenaltyLine.end, topRightPenaltyStretch.start);
 }
 void FieldState::defineFieldRectangles() {
     field = Rectangle(Vector2(leftX, bottomY), fieldLength, fieldWidth);
