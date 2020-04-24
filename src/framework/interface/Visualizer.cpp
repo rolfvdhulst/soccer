@@ -276,12 +276,12 @@ void Visualizer::drawField(QPainter* painter) {
                                     field.getBottomRightPenaltyStretch(),
                                     field.getTopRightPenaltyStretch()
     }){
-        QLineF graphicLine(line.start.x, -line.start.y, line.end.x, -line.end.y);//QT mirrors y-axis
+        QLineF graphicLine(line.start.x(), -line.start.y(), line.end.x(), -line.end.y());//QT mirrors y-axis
         painter->drawLine(graphicLine);
     }
     for (const Circle& circle : {field.getCenterCircle()}){
         double radius = circle.radius-field.getLineThickness();//Center circle has already larger radius to account for lineWidth
-        painter->drawEllipse(QPointF(circle.center.x,-circle.center.y),radius,radius);
+        painter->drawEllipse(QPointF(circle.center.x(),-circle.center.y()),radius,radius);
     }
     pen.setWidthF(field.getLineThickness()*0.3);
     painter->setPen(pen);
@@ -383,7 +383,7 @@ void Visualizer::drawCameraOutLines(QPainter* painter) {
         painter->setPen(pen);
         painter->setOpacity(0.55);
         drawConnectedLines(painter,visPoints);
-        painter->drawLine(QPointF(visPoints.back().x,-visPoints.back().y),QPointF(visPoints.front().x,-visPoints.front().y));
+        painter->drawLine(QPointF(visPoints.back().x(),-visPoints.back().y()),QPointF(visPoints.front().x(),-visPoints.front().y()));
         //TODO: it's possible to also visualize the ID of the camera quite easily
     }
 
@@ -393,7 +393,7 @@ void Visualizer::drawConnectedLines(QPainter* painter, const std::vector<Vector2
         for (int i= 1; i<points.size(); i++){
             const Vector2& end=points.at(i);
             const Vector2& start=points.at(i-1);
-            painter->drawLine(QPointF(start.x,-start.y),QPointF(end.x,-end.y));//QT y--axis inversion..
+            painter->drawLine(QPointF(start.x(),-start.y()),QPointF(end.x(),-end.y()));//QT y--axis inversion..
         }
     }
 }

@@ -242,9 +242,9 @@ void FieldState::fixPenaltyFieldLines(bool leftPenaltyLineSet, bool rightPenalty
     double penaltySize = getGoalWidth(backupField);
     // If one of the penalty lines was set we override it and assume symmetry
     if (leftPenaltyLineSet) {
-        penaltySize = abs(leftPenaltyLine.start.x - leftX);
+        penaltySize = abs(leftPenaltyLine.start.x() - leftX);
     } else if (rightPenaltyLineSet) {
-        penaltySize = abs(rightX - rightPenaltyLine.start.x);
+        penaltySize = abs(rightX - rightPenaltyLine.start.x());
     }
     if (!leftPenaltyLineSet) {
         Vector2 top(leftX + penaltySize, penaltySize);
@@ -341,22 +341,22 @@ void FieldState::makeOtherLines(bool halfLineSet, bool centerLineSet, bool botto
     }
 
     if (!bottomLeftPenaltyStretchSet) {
-        Vector2 leftBottomLeft(leftX, leftPenaltyLine.start.y);
+        Vector2 leftBottomLeft(leftX, leftPenaltyLine.start.y());
         Vector2 leftBottomRight = leftPenaltyLine.start;
         bottomLeftPenaltyStretch = LineSegment(leftBottomLeft, leftBottomRight);
     }
     if (!topLeftPenaltyStretchSet) {
-        Vector2 leftTopLeft(leftX, leftPenaltyLine.end.y);
+        Vector2 leftTopLeft(leftX, leftPenaltyLine.end.y());
         Vector2 leftTopRight = leftPenaltyLine.end;
         topLeftPenaltyStretch = LineSegment(leftTopLeft, leftTopRight);
     }
     if (!bottomRightPenaltyStretchSet) {
-        Vector2 rightBottomRight(rightX, rightPenaltyLine.end.y);
+        Vector2 rightBottomRight(rightX, rightPenaltyLine.end.y());
         Vector2 rightBottomLeft = rightPenaltyLine.end;
         bottomRightPenaltyStretch = LineSegment(rightBottomRight, rightBottomLeft);
     }
     if (!topRightPenaltyStretchSet) {
-        Vector2 rightTopRight(rightX, rightPenaltyLine.start.y);
+        Vector2 rightTopRight(rightX, rightPenaltyLine.start.y());
         Vector2 rightTopLeft = rightPenaltyLine.start;
         topRightPenaltyStretch = LineSegment(rightTopRight, rightTopLeft);
     }

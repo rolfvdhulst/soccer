@@ -342,6 +342,6 @@ TEST(LineTests, reverse) {
 TEST(LineTests, center) {
     Vector2 A(1, 2), B(3, 6);
     LineSegment line(A, B);
-    EXPECT_EQ(line.center().x, 2);
-    EXPECT_EQ(line.center().y, 4);
+    EXPECT_EQ(line.center().x(), 2);
+    EXPECT_EQ(line.center().y(), 4);
 }

@@ -22,8 +22,8 @@ TEST(DEMAFilter, twoDim){
   Vector2 initialVal(0,0);
   double alpha = 0.5;
   DEMAFilter2D test(alpha,initialVal);
-  EXPECT_DOUBLE_EQ(test.getState().x,initialVal.x);
-  EXPECT_DOUBLE_EQ(test.getState().y,initialVal.y);
+  EXPECT_DOUBLE_EQ(test.getState().x(),initialVal.x());
+  EXPECT_DOUBLE_EQ(test.getState().y(),initialVal.y());
   EXPECT_DOUBLE_EQ(test.getAlpha(),alpha);
   double newAlpha = 0.8;
   test.setAlpha(newAlpha);

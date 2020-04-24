@@ -25,10 +25,10 @@ void addLines(proto::SSL_GeometryFieldSize& field, int fieldLength, int fieldWid
         proto::SSL_FieldLineSegment segment;
         segment.set_name(line.first);
         const LineSegment& lineSeg = line.second;
-        segment.mutable_p1()->set_x(lineSeg.start.x);
-        segment.mutable_p1()->set_y(lineSeg.start.y);
-        segment.mutable_p2()->set_x(lineSeg.end.x);
-        segment.mutable_p2()->set_y(lineSeg.end.y);
+        segment.mutable_p1()->set_x(lineSeg.start.x());
+        segment.mutable_p1()->set_y(lineSeg.start.y());
+        segment.mutable_p2()->set_x(lineSeg.end.x());
+        segment.mutable_p2()->set_y(lineSeg.end.y());
         segment.set_thickness(lineWidth);
         field.add_field_lines()->CopyFrom(segment);
     }
@@ -55,10 +55,10 @@ void addLinesSwapped(proto::SSL_GeometryFieldSize& field, int fieldLength, int f
         proto::SSL_FieldLineSegment segment;
         segment.set_name(line.first);
         const LineSegment& lineSeg = line.second;
-        segment.mutable_p1()->set_x(lineSeg.end.x);
-        segment.mutable_p1()->set_y(lineSeg.end.y);
-        segment.mutable_p2()->set_x(lineSeg.start.x);
-        segment.mutable_p2()->set_y(lineSeg.start.y);
+        segment.mutable_p1()->set_x(lineSeg.end.x());
+        segment.mutable_p1()->set_y(lineSeg.end.y());
+        segment.mutable_p2()->set_x(lineSeg.start.x());
+        segment.mutable_p2()->set_y(lineSeg.start.y());
         segment.set_thickness(lineWidth);
         field.add_field_lines()->CopyFrom(segment);
     }

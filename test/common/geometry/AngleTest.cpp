@@ -41,12 +41,12 @@ TEST(AngleTests, setAngle) {
 TEST(AngleTests, toVector2) {
     Vector2 start(1.0, 0);
     Angle angle(start);
-    EXPECT_DOUBLE_EQ(angle.toVector2(1.0).x, start.x);
-    EXPECT_DOUBLE_EQ(angle.toVector2(1.0).y, start.y);
+    EXPECT_DOUBLE_EQ(angle.toVector2(1.0).x(), start.x());
+    EXPECT_DOUBLE_EQ(angle.toVector2(1.0).y(), start.y());
     Angle angle2(Vector2(1, 1));
     Vector2 test = angle2.toVector2(1.0);
-    EXPECT_DOUBLE_EQ(test.x, sqrt(2) * 0.5);
-    EXPECT_DOUBLE_EQ(test.y, sqrt(2) * 0.5);
+    EXPECT_DOUBLE_EQ(test.x(), sqrt(2) * 0.5);
+    EXPECT_DOUBLE_EQ(test.y(), sqrt(2) * 0.5);
 }
 TEST(AngleTests, copyAssignment) {
     Angle angle(1.0);

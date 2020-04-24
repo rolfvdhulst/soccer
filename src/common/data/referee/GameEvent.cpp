@@ -286,8 +286,8 @@ std::string Goal::toString() const {
     std::string base = "Goal for " +team.toString();
     std::string byTeam = kickingTeam?  " by " + kickingTeam->toString() :"";
     std::string byBot = botID? " bot " + botID->toString() : "";
-    std::string at = location ? " at x: " + std::to_string(location->x)+", y: " + std::to_string(location->y):"";
-    std::string from = kickLocation ? " from x: " + std::to_string(kickLocation->x)+", y: " + std::to_string(kickLocation->y):"";
+    std::string at = location ? " at x: " + std::to_string(location->x())+", y: " + std::to_string(location->y()):"";
+    std::string from = kickLocation ? " from x: " + std::to_string(kickLocation->x())+", y: " + std::to_string(kickLocation->y()):"";
     return base+byTeam+byBot+at+from;
 }
 BallLeftField::BallLeftField(const proto::GameEvent_BallLeftField &event, bool atGoalLine) {
@@ -305,7 +305,7 @@ std::string BallLeftField::toString() const {
     std::string line = throughGoalLine? "goal line" : "touch line";
     std::string next = " by " + team.toString();
     std::string id = botID ? " bot "+(*botID).toString() : "";
-    std::string at = location ? " at x: " + std::to_string(location->x)+", y: " + std::to_string(location->y):"";
+    std::string at = location ? " at x: " + std::to_string(location->x())+", y: " + std::to_string(location->y()):"";
     return base+line+next+id+at;
 }
 AimlessKick::AimlessKick(const proto::GameEvent_AimlessKick &event) {
@@ -323,8 +323,8 @@ AimlessKick::AimlessKick(const proto::GameEvent_AimlessKick &event) {
 std::string AimlessKick::toString() const {
     std::string base="AimlessKick by "+ team.toString();
     std::string id = botID ? " bot "+(*botID).toString() : "";
-    std::string at = location ? " at x: " + std::to_string(location->x)+", y: " + std::to_string(location->y):"";
-    std::string from = kickLocation ? " from x: " + std::to_string(kickLocation->x)+", y: " + std::to_string(kickLocation->y):"";
+    std::string at = location ? " at x: " + std::to_string(location->x())+", y: " + std::to_string(location->y()):"";
+    std::string from = kickLocation ? " from x: " + std::to_string(kickLocation->x())+", y: " + std::to_string(kickLocation->y()):"";
     return base+id+at+from;
 }
 IndirectGoal::IndirectGoal(const proto::GameEvent_IndirectGoal &event) {
@@ -342,8 +342,8 @@ IndirectGoal::IndirectGoal(const proto::GameEvent_IndirectGoal &event) {
 std::string IndirectGoal::toString() const {
     std::string base = "IndirectGoal by " +team.toString();
     std::string byBot = botID? " bot " + botID->toString() : "";
-    std::string at = location ? " at x: " + std::to_string(location->x)+", y: " + std::to_string(location->y):"";
-    std::string from = kickLocation ? " from x: " + std::to_string(kickLocation->x)+", y: " + std::to_string(kickLocation->y):"";
+    std::string at = location ? " at x: " + std::to_string(location->x())+", y: " + std::to_string(location->y()):"";
+    std::string from = kickLocation ? " from x: " + std::to_string(kickLocation->x())+", y: " + std::to_string(kickLocation->y()):"";
     return base+byBot+at+from;
 }
 ChippedGoal::ChippedGoal(const proto::GameEvent_ChippedGoal &event) {
@@ -365,8 +365,8 @@ std::string ChippedGoal::toString() const {
     std::string base = "ChippedGoal by " +team.toString();
     std::string byBot = botID? " bot " + botID->toString() : "";
     std::string height = ballHeight ? " with ballHeight " + std::to_string(*ballHeight) : "";
-    std::string at = location ? " at x: " + std::to_string(location->x)+", y: " + std::to_string(location->y):"";
-    std::string from = kickLocation ? " from x: " + std::to_string(kickLocation->x)+", y: " + std::to_string(kickLocation->y):"";
+    std::string at = location ? " at x: " + std::to_string(location->x())+", y: " + std::to_string(location->y()):"";
+    std::string from = kickLocation ? " from x: " + std::to_string(kickLocation->x())+", y: " + std::to_string(kickLocation->y()):"";
 
     return base+byBot+height+at+from;
 }
@@ -385,7 +385,7 @@ BotTooFastInStop::BotTooFastInStop(const proto::GameEvent_BotTooFastInStop &even
 std::string BotTooFastInStop::toString() const {
     std::string base = "BotTooFastInStop by " +team.toString();
     std::string byBot = botID? " bot " + botID->toString() : "";
-    std::string at = location ? " at x: " + std::to_string(location->x)+", y: " + std::to_string(location->y):"";
+    std::string at = location ? " at x: " + std::to_string(location->x())+", y: " + std::to_string(location->y()):"";
     std::string withSpeed = speed ? " with " +std::to_string(*speed) + " m/s" : "";
     return base+byBot+at+withSpeed;
 }
@@ -501,7 +501,7 @@ BotTippedOver::BotTippedOver(const proto::GameEvent_BotTippedOver &event) {
 std::string BotTippedOver::toString() const {
     std::string base = "BotTippedOver by " +team.toString();
     std::string offender = botID? " bot " + botID->toString() : "";
-    std::string at = location ? " at x: " + std::to_string(location->x)+", y: " + std::to_string(location->y):"";
+    std::string at = location ? " at x: " + std::to_string(location->x())+", y: " + std::to_string(location->y()):"";
     return base+offender+at;
 }
 DefenderInDefenseArea::DefenderInDefenseArea(const proto::GameEvent_DefenderInDefenseArea &event) {

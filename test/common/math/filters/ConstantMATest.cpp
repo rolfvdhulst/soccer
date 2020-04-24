@@ -22,22 +22,22 @@ TEST(ConstantMAFilter, twoDim){
   ConstantMAFilter2D<3> filter;
   Vector2 initial(3.0,6.0);
   Vector2 result =filter.update(initial);
-  EXPECT_DOUBLE_EQ(result.x,initial.x);
-  EXPECT_DOUBLE_EQ(result.y,initial.y);
+  EXPECT_DOUBLE_EQ(result.x(),initial.x());
+  EXPECT_DOUBLE_EQ(result.y(),initial.y());
 
   result = filter.update(Vector2());
-  EXPECT_DOUBLE_EQ(result.x,1.5);
-  EXPECT_DOUBLE_EQ(result.y,3.0);
+  EXPECT_DOUBLE_EQ(result.x(),1.5);
+  EXPECT_DOUBLE_EQ(result.y(),3.0);
 
   result = filter.update(Vector2());
-  EXPECT_DOUBLE_EQ(result.x,1.0);
-  EXPECT_DOUBLE_EQ(result.y,2.0);
+  EXPECT_DOUBLE_EQ(result.x(),1.0);
+  EXPECT_DOUBLE_EQ(result.y(),2.0);
 
   result = filter.update(Vector2());
-  EXPECT_DOUBLE_EQ(result.x,0.0);
-  EXPECT_DOUBLE_EQ(result.y,0.0);
+  EXPECT_DOUBLE_EQ(result.x(),0.0);
+  EXPECT_DOUBLE_EQ(result.y(),0.0);
 
   result = filter.update({-3.0,0.0});
-  EXPECT_DOUBLE_EQ(result.x,-1.0);
-  EXPECT_DOUBLE_EQ(result.y,0.0);
+  EXPECT_DOUBLE_EQ(result.x(),-1.0);
+  EXPECT_DOUBLE_EQ(result.y(),0.0);
 }
