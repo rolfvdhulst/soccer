@@ -90,7 +90,7 @@ class Line : public LineBase {
      */
     [[nodiscard]] bool doesIntersect(const LineSegment &line) const override;
 
-    [[nodiscard]] BoundingBox2D getBoundingBox() const override;
+    [[nodiscard]] BoundingBox2D boundingBox() const override;
 };
 
 #endif  // SOCCER_LINE_H

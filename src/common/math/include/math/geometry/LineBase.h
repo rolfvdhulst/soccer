@@ -135,7 +135,7 @@ class LineBase {
     //   * @return an optional that contains the intersection of this and ray if it exists. Otherwise, it is empty.
     //   */
     //  [[nodiscard]] virtual std::optional<Vector2> intersects(const Ray& ray) const = 0;
-    [[nodiscard]] virtual BoundingBox2D getBoundingBox() const = 0;
+    [[nodiscard]] virtual BoundingBox2D boundingBox() const = 0;
 };
 
 #endif  // SOCCER_SRC_COMMON_MATH_GEOMETRY_LINEBASE_H_

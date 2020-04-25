@@ -12,10 +12,11 @@
 class Vector2;
 class LineSegment;
 class Ray;
+class BoundingBox2D;
 class Shape {
    public:
     [[nodiscard]] virtual bool contains(const Vector2& point) const = 0;
-    [[nodiscard]] virtual Rectangle boundingBox() const = 0;
+    [[nodiscard]] virtual BoundingBox2D boundingBox() const = 0;
     [[nodiscard]] virtual bool doesIntersect(const LineSegment& segment) const = 0;
     [[nodiscard]] virtual bool doesIntersect(const Ray& ray) const = 0;
     [[nodiscard]] virtual std::vector<Vector2> intersects(const LineSegment& segment) = 0;

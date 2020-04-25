@@ -255,6 +255,6 @@ LineSegment LineSegment::reversed() const { return {m_end, m_start}; }
 
 Vector2 LineSegment::center() const { return (m_start + m_end) * 0.5; }
 
-BoundingBox2D LineSegment::getBoundingBox() const {
+BoundingBox2D LineSegment::boundingBox() const {
   return BoundingBox2D(m_start, m_end);
 }

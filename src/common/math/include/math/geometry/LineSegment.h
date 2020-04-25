@@ -149,7 +149,7 @@ class LineSegment : public LineBase {
      */
     [[nodiscard]] std::optional<Vector2> nonSimpleIntersects(const LineSegment &line) const;
 
-    [[nodiscard]] BoundingBox2D getBoundingBox() const override;
+    [[nodiscard]] BoundingBox2D boundingBox() const override;
 };
 
 #endif  // SOCCER_LINESEGMENT_H

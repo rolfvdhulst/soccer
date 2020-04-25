@@ -67,7 +67,7 @@ bool Line::doesIntersect(const LineSegment &line) const {
     }
     return false;
 }
-BoundingBox2D Line::getBoundingBox() const {
+BoundingBox2D Line::boundingBox() const {
   if(isVertical()){
     return BoundingBox2D(m_start.x(),-std::numeric_limits<double>::infinity(),m_start.x(),std::numeric_limits<double>::infinity());
   }else if(isHorizontal()){
