@@ -89,6 +89,8 @@ class Line : public LineBase {
      * @return false False if \ref line does not intersect `this`
      */
     [[nodiscard]] bool doesIntersect(const LineSegment &line) const override;
+
+    [[nodiscard]] BoundingBox2D getBoundingBox() const override;
 };
 
 #endif  // SOCCER_LINE_H

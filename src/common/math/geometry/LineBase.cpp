@@ -2,7 +2,7 @@
 // Created by rolf on 24-04-20.
 //
 
-#include "math/geometry/LineBase.h"
+#include "geometry/LineBase.h"
 
 double LineBase::slope() const { return (m_end.y() - m_start.y()) / (m_end.x() - m_start.x()); }
 

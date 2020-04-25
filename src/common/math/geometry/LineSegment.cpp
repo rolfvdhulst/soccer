@@ -4,6 +4,8 @@
 
 #include "geometry/LineSegment.h"
 #include "geometry/Line.h"
+#include "geometry/BoundingBox2D.h"
+
 LineSegment::LineSegment(const Line &line) : LineBase(line) {}
 
 double LineSegment::length() const { return (m_end - m_start).length(); }
@@ -252,3 +254,7 @@ void LineSegment::reverse() { std::swap(m_start, m_end); }
 LineSegment LineSegment::reversed() const { return {m_end, m_start}; }
 
 Vector2 LineSegment::center() const { return (m_start + m_end) * 0.5; }
+
+BoundingBox2D LineSegment::getBoundingBox() const {
+  return BoundingBox2D(m_start, m_end);
+}

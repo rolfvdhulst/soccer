@@ -28,6 +28,8 @@ SET(GEOMETRY_SOURCES
         geometry/LineBase.cpp
         include/math/geometry/LineBase.h
         include/math/geometry/Shape.h
+        geometry/BoundingBox2D.cpp
+        include/math/geometry/BoundingBox2D.h
         )
 add_library(math STATIC
         ${GEOMETRY_SOURCES}

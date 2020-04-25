@@ -4,6 +4,8 @@
 
 #include "geometry/Line.h"
 #include "geometry/LineSegment.h"
+#include "geometry/BoundingBox2D.h"
+
 Line::Line(const LineSegment &other) : LineBase(other) {}
 double Line::distanceTo(const Vector2 &point) const { return (this->project(point) - point).length(); }
 
@@ -65,3 +67,13 @@ bool Line::doesIntersect(const LineSegment &line) const {
     }
     return false;
 }
+BoundingBox2D Line::getBoundingBox() const {
+  if(isVertical()){
+    return BoundingBox2D(m_start.x(),-std::numeric_limits<double>::infinity(),m_start.x(),std::numeric_limits<double>::infinity());
+  }else if(isHorizontal()){
+    return BoundingBox2D(-std::numeric_limits<double>::infinity(),m_start.y(),std::numeric_limits<double>::infinity(),m_start.y());
+  }
+  return BoundingBox2D();//returns a bounding box which is infinite in both directions
+}
+
+

@@ -9,6 +9,7 @@
 class Line;
 class LineSegment;
 class Ray;
+class BoundingBox2D;
 /**
  * @brief An abstract base class for line-like objects (lines, line segments and rays), which contains some shared functions.
  * Note that none of the derived classes are actually responsible for the case when the user defines a degenerate line (e.g. which has two and the same points).
@@ -134,7 +135,7 @@ class LineBase {
     //   * @return an optional that contains the intersection of this and ray if it exists. Otherwise, it is empty.
     //   */
     //  [[nodiscard]] virtual std::optional<Vector2> intersects(const Ray& ray) const = 0;
-    // TODO: bounding box
+    [[nodiscard]] virtual BoundingBox2D getBoundingBox() const = 0;
 };
 
 #endif  // SOCCER_SRC_COMMON_MATH_GEOMETRY_LINEBASE_H_

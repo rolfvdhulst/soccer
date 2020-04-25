@@ -148,6 +148,8 @@ class LineSegment : public LineBase {
      * @return std::shared_ptr<Vector2> Returns a shared_ptr to a Vector2 that represents the intersection
      */
     [[nodiscard]] std::optional<Vector2> nonSimpleIntersects(const LineSegment &line) const;
+
+    [[nodiscard]] BoundingBox2D getBoundingBox() const override;
 };
 
 #endif  // SOCCER_LINESEGMENT_H
