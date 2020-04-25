@@ -15,7 +15,18 @@ class Ray;
 class BoundingBox2D;
 class Shape {
    public:
+    /**
+     * Moves the shape by the vector given. Does not perform any rotations on the shape.
+     */
+    virtual void move(const Vector2& by) const = 0;
+    /**
+     * Checks if a given shape contains a point. If the point is on the boundary of the shape or inside of it, this should return true!
+     */
     [[nodiscard]] virtual bool contains(const Vector2& point) const = 0;
+    /**
+     * Returns the smallest bounding box the shape fits in
+     * @return
+     */
     [[nodiscard]] virtual BoundingBox2D boundingBox() const = 0;
     [[nodiscard]] virtual bool doesIntersect(const LineSegment& segment) const = 0;
     [[nodiscard]] virtual bool doesIntersect(const Ray& ray) const = 0;
