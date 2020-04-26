@@ -1,5 +1,5 @@
 find_package(Eigen3 REQUIRED)
-SET(GEOMETRY_SOURCES
+set(GEOMETRY_SOURCES
         geometry/Vector2.cpp
         include/math/geometry/Vector2.h
         geometry/Angle.cpp
@@ -30,6 +30,8 @@ SET(GEOMETRY_SOURCES
         include/math/geometry/Shape.h
         geometry/BoundingBox2D.cpp
         include/math/geometry/BoundingBox2D.h
+        geometry/Ray.cpp
+        include/math/geometry/Ray.h
         )
 add_library(math STATIC
         ${GEOMETRY_SOURCES}

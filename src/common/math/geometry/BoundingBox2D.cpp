@@ -3,6 +3,9 @@
 //
 
 #include "math/geometry/BoundingBox2D.h"
+#include "geometry/LineSegment.h"
+#include "geometry/Ray.h"
+
 BoundingBox2D::BoundingBox2D()
     : min{Vector2(-std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity())},
       max{Vector2(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity())} {}
@@ -67,3 +70,10 @@ std::optional<BoundingBox2D> BoundingBox2D::overlap(const BoundingBox2D &other) 
     BoundingBox2D box{fmax(xMin(), other.xMin()), fmax(yMin(), other.yMin()), fmin(xMax(), other.xMax()), fmin(yMax(), other.yMax())};
     return box;
 }
+bool BoundingBox2D::contains(const Vector2 &point) {
+    return point.x()>= xMin() && point.x() <= xMax() && point.y() >= yMin() && point.y() <= yMax();
+}
+bool BoundingBox2D::doesIntersect(const LineSegment &segment) {
+
+}
+

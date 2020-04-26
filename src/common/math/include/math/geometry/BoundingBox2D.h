@@ -6,6 +6,9 @@
 #define SOCCER_SRC_COMMON_MATH_GEOMETRY_BOUNDINGBOX_H_
 
 #include "Vector2.h"
+
+class Ray;
+class LineSegment;
 /**
  * This class represents an axis-aligned bounding box (AABB) in 2 dimensions
  * This is often used to do collision checking/pruning as this is quite cheap using min/max
@@ -33,6 +36,11 @@ class BoundingBox2D {
     [[nodiscard]] double xMax() const;
     [[nodiscard]] double yMax() const;
 
+    bool contains(const Vector2& point);
+
+    bool doesIntersect(const LineSegment& segment);
+
+    bool doesIntersect(const Ray& ray);
     /**
      * @param other
      * @return True if the two bounding boxes overlap somewhere
