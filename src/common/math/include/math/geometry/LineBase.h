@@ -115,11 +115,11 @@ class LineBase {
      * @return true if this intersects given line segment
      */
     [[nodiscard]] virtual bool doesIntersect(const LineSegment& segment) const = 0;
-    //  /**
-    //   * @param ray
-    //   * @return true if this intersects given ray
-    //   */
-    //  [[nodiscard]] virtual bool doesIntersect(const Ray& ray) const = 0;
+    /**
+     * @param ray
+     * @return true if this intersects given ray
+     */
+    [[nodiscard]] virtual bool doesIntersect(const Ray& ray) const = 0;
     /**
      * @param line
      * @return an optional that contains the intersection of this and line if it exists. Otherwise, it is empty.
@@ -130,11 +130,12 @@ class LineBase {
      * @return an optional that contains the intersection of this and segment if it exists. Otherwise, it is empty.
      */
     [[nodiscard]] virtual std::optional<Vector2> intersects(const LineSegment& segment) const = 0;
-    //  /**
-    //   * @param ray
-    //   * @return an optional that contains the intersection of this and ray if it exists. Otherwise, it is empty.
-    //   */
-    //  [[nodiscard]] virtual std::optional<Vector2> intersects(const Ray& ray) const = 0;
+    /**
+     * @param ray
+     * @return an optional that contains the intersection of this and ray if it exists. Otherwise, it is empty.
+     */
+    [[nodiscard]] virtual std::optional<Vector2> intersects(const Ray& ray) const = 0;
+
     [[nodiscard]] virtual BoundingBox2D boundingBox() const = 0;
 };
 

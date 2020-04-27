@@ -26,7 +26,7 @@ class LineSegment : public LineBase {
      * @param _end End of the Line
      *
      */
-    constexpr LineSegment(const Vector2 &_start, const Vector2 &_end) : LineBase(_start, _end){};
+    LineSegment(const Vector2 &_start, const Vector2 &_end) : LineBase(_start, _end){};
     /**
      * @brief Construct a LineSegment from a line.
      * @param line Line to construct LineSegment from
@@ -109,7 +109,14 @@ class LineSegment : public LineBase {
      * @return std::shared_ptr<Vector2> Vector representation of this intersection
      */
     [[nodiscard]] std::optional<Vector2> intersects(const LineSegment &line) const override;
-
+  /**
+   * @brief Gets the intersection of the lines
+   * See https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection for help
+   *
+   * @param line LineSegment to get an intersection from
+   * @return std::shared_ptr<Vector2> Vector representation of this intersection
+   */
+  [[nodiscard]] std::optional<Vector2> intersects(const Ray &ray) const override;
     /**
      * @brief Checks whether \ref line intersects `this`
      *
@@ -127,6 +134,14 @@ class LineSegment : public LineBase {
      * @return false False if \ref line does not intersect `this`
      */
     [[nodiscard]] bool doesIntersect(const LineSegment &line) const override;
+  /**
+* @brief Checks whether \ref line intersects `this`
+*
+* @param line Line to check against
+* @return true True if \ref line intersects `this`
+* @return false False if \ref line does not intersect `this`
+*/
+  [[nodiscard]] bool doesIntersect(const Ray &ray) const override;
 
     /**
      * @brief Same as normal intersect, but always returns false if the lines are parallel

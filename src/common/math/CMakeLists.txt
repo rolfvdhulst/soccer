@@ -32,6 +32,8 @@ set(GEOMETRY_SOURCES
         include/math/geometry/BoundingBox2D.h
         geometry/Ray.cpp
         include/math/geometry/Ray.h
+        geometry/RobotShape.cpp
+        include/math/geometry/RobotShape.h
         )
 add_library(math STATIC
         ${GEOMETRY_SOURCES}

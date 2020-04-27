@@ -4,6 +4,7 @@
 
 #include "geometry/LineSegment.h"
 #include "geometry/Line.h"
+#include "geometry/Ray.h"
 #include "geometry/BoundingBox2D.h"
 
 LineSegment::LineSegment(const Line &line) : LineBase(line) {}
@@ -21,7 +22,6 @@ bool LineSegment::doesIntersect(const Line &line) const {
 
 // this is the algorithm from
 // https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
-// takes overlaps into account in contrast to the intersect() function
 bool LineSegment::doesIntersect(const LineSegment &line) const {
     Vector2 p = m_start, q = line.m_start, r = direction(), s = line.direction();
     double denom = r.cross(s);
@@ -76,15 +76,14 @@ std::optional<Vector2> LineSegment::intersects(const Line &line) const {
         if ((q - p).cross(r) == 0) {
             return m_start;  // line and this line are the same, we return the start of the lineSegment (though every point on it intersects)
         } else {
-            return std::nullopt;
+            return std::nullopt; //actually parallel
         }
-    } else {
-        // Lines are not parallel
-        double t = (q - p).cross(s) / denom;
-        // if intersection point lies on segment we return it
-        if (t >= 0 && t <= 1) {
-            return p + r * t;
-        }
+    }
+    // Lines are not parallel
+    double t = (q - p).cross(s) / denom;
+    // if intersection point lies on segment we return it
+    if (t >= 0 && t <= 1) {
+      return p + r * t;
     }
     return std::nullopt;
 }
@@ -115,8 +114,8 @@ std::optional<Vector2> LineSegment::intersects(const LineSegment &line) const {
                     return p + r;  // Similar but now we have the end of the line
                 }
             } else {
-                // t0 is between 0 and one so we just return that point
-                return p + r * t0;
+                // we return the point closest to the start of p
+                return p + r * fmin(t0,t1);
             }
             return std::nullopt;  // there was no intersection with the interval [0,1] so the lineas are colinear but have no overlap
         } else {
@@ -257,4 +256,51 @@ Vector2 LineSegment::center() const { return (m_start + m_end) * 0.5; }
 
 BoundingBox2D LineSegment::boundingBox() const {
   return BoundingBox2D(m_start, m_end);
+}
+std::optional<Vector2> LineSegment::intersects(const Ray &ray) const {
+  // These copies will get optimized away but make it easier to read w.r.t the stackoverflow link
+  Vector2 p = m_start;
+  Vector2 r = direction();
+  Vector2 q = ray.start();
+  Vector2 s = ray.direction();
+
+  double uDenom = r.cross(s);
+  double uNumer = (q - p).cross(r);
+  if (uDenom == 0) {
+    if (uNumer == 0) {
+      // Ray and line are colinear
+      // if the interval between t0 and t1 intersects [0,1] they lines overlap on this interval
+      double t0 = (q - p).dot(r) / (r.dot(r));
+      double t1 = t0 +s.dot(r)/(r.dot(r));
+      if (t0 < 0) {
+        if (t1 > t0) {
+          // interval overlaps, we pick closest point which is from the start to the end of the line (p+0*r);
+          return p;
+        }
+      } else if (t0 > 1) {
+        if (t1 < t0) {
+          return p + r;  // Similar but now we have the end of the line
+        }
+      } else {
+        // we return the point closest to the start of p
+        return p + r * fmin(t0,t1);
+      }
+      return std::nullopt;  // there was no intersection with the interval [0,1] so the lineas are colinear but have no overlap
+    } else {
+      return std::nullopt;  // Lines are parallel and nonintersecting
+    }
+  } else {
+    // if we find t and u such that p+tr=q+us for t and u between 0 and 1, we have found a valid intersection.
+    double u = uNumer / uDenom;
+    if (u >= 0) {
+      double t = (q - p).cross(s) / uDenom;
+      if (t >= 0 && t <= 1) {
+        return p + r * t;  // we found a intersection point!
+      }
+    }
+  }
+  return std::nullopt;
+}
+bool LineSegment::doesIntersect(const Ray &ray) const {
+  return intersects(ray) != std::nullopt;
 }

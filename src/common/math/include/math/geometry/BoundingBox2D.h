@@ -9,6 +9,7 @@
 
 class Ray;
 class LineSegment;
+class Line;
 /**
  * This class represents an axis-aligned bounding box (AABB) in 2 dimensions
  * This is often used to do collision checking/pruning as this is quite cheap using min/max
@@ -41,6 +42,9 @@ class BoundingBox2D {
     bool doesIntersect(const LineSegment& segment);
 
     bool doesIntersect(const Ray& ray);
+    bool doesIntersectA(const Ray& ray);
+    bool doesIntersectB(const Ray& ray);
+    bool doesIntersect(const Line& line);
     /**
      * @param other
      * @return True if the two bounding boxes overlap somewhere

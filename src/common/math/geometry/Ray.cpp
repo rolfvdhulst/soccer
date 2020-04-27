@@ -8,8 +8,10 @@
 #include "geometry/LineSegment.h"
 
 Ray::Ray() : LineBase(){ }
-
 Ray::Ray(const Vector2& start, const Vector2& end) : LineBase(start,end){}
+Ray::Ray(const LineSegment &segment) : LineBase(segment){ }
+Ray::Ray(const Line &line) : LineBase(line) { }
+
 double Ray::distanceTo(const Vector2 &point) const {
     return (project(point)-point).length();
 }
@@ -107,4 +109,57 @@ bool Ray::doesIntersect(const Line &line) const {
 }
 bool Ray::doesIntersect(const LineSegment &segment) const {
     return intersects(segment) != std::nullopt;
+}
+bool Ray::doesIntersect(const Ray &ray) const {
+  Vector2 p = m_start, q = ray.m_start, r = direction(), s = ray.direction();
+  double denom = r.cross(s);
+  double numer = (q - p).cross(r);
+  if (denom == 0) {
+    if (numer == 0) {
+      // rays are colinear. it simplifies to the following statement:
+      // (this is not trivial but it's the same logic as for segment-segment intersection
+      double t0 = (q - p).dot(r);
+      return t0>=0 || s.dot(r) >=0;
+    }
+  } else {
+    double u = numer / denom;
+    if (u>=0) {  // check if it's on the ray
+      double t = (q - p).cross(s) / denom;
+      return (t>=0);  // check if it's on the ray
+    }
+  }
+  return false;
+}
+
+std::optional<Vector2> Ray::intersects(const Ray &ray) const {
+  Vector2 p = m_start, q = ray.m_start, r = direction(), s = ray.direction();
+  double denom = r.cross(s);
+  double numer = (q - p).cross(r);
+  if (denom == 0) {
+    if (numer == 0) {
+      // rays are colinear. it simplifies to the following statement:
+      // (this is not trivial but it's the same logic as for segment-segment intersection
+      double t0 = (q - p).dot(r)/r.length2();
+      if (s.dot(r)>=0){ //both rays pointed in same direction
+        if(t0>=0){
+          return p+r*t0; // this one is 'behind' the other ray
+        }
+        return p; //the other ray is behind this one.
+      }
+      if(t0>=0){ //rays are opposite directions but starts are enough apart
+        return p;
+      }else{
+        return std::nullopt;
+      }
+    }
+  } else {
+    double u = numer / denom;
+    if (u>=0) {  // check if it's on the ray
+      double t = (q - p).cross(s) / denom;
+      if(t>=0){
+        return p+r*t;
+      }
+    }
+  }
+  return std::nullopt;
 }

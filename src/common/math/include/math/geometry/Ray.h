@@ -51,9 +51,15 @@ class Ray : public LineBase{
          * See https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection for help
          *
          * @param line LineSegment to get an intersection from
-         * @return std::shared_ptr<Vector2> Vector representation of this intersection
+         * @return std::optional<Vector2> Vector representation of this intersection
          */
         [[nodiscard]] std::optional<Vector2> intersects(const LineSegment &segment) const override;
+        /**
+         * Computes a ray-ray intersection if it exists
+         * @param ray
+         * @return optional Vector2 of the intersection
+         */
+        [[nodiscard]] std::optional<Vector2> intersects(const Ray &ray) const override;
 
         /**
          * @brief Checks whether \ref line intersects `this`
@@ -72,6 +78,13 @@ class Ray : public LineBase{
          * @return false False if \ref line does not intersect `this`
          */
         [[nodiscard]] bool doesIntersect(const LineSegment &segment) const override;
+
+        /**
+         * Checks whether \ref ray intersects `this`
+         * @param ray to check against
+         * @return true if rays intersect, false otherwise.
+         */
+        [[nodiscard]] bool doesIntersect(const Ray& ray) const override;
 
         [[nodiscard]] BoundingBox2D boundingBox() const override;
 };

@@ -76,4 +76,50 @@ bool BoundingBox2D::contains(const Vector2 &point) {
 bool BoundingBox2D::doesIntersect(const LineSegment &segment) {
 
 }
+bool BoundingBox2D::doesIntersect(const Line &line) {
+
+}
+bool BoundingBox2D::doesIntersect(const Ray &ray) {
+  Vector2 rayDir = ray.direction();
+  Vector2 origin = ray.start();
+  double t1 = (xMin()-origin.x()) / rayDir.x();
+  double t2 = (xMax()-origin.x()) / rayDir.x();
+
+  double tmin = fmin(t1,t2);
+  double tmax = fmax(t1,t2);
+
+  t1 = (yMin() - origin.y()) / rayDir.y();
+  t2 = (yMax() - origin.y()) / rayDir.y();
+
+  tmin = fmax(tmin, fmin(fmin(t1,t2),tmax));
+  tmax = fmin(tmax, fmax(fmax(t1,t2),tmin));
+  return tmax >= fmax(tmin,0.0);
+}
+bool BoundingBox2D::doesIntersectA(const Ray &ray) {
+
+  Vector2 rayDir = ray.direction();
+  Vector2 origin = ray.start();
+  Vector2 Vt1 = (min-origin)/rayDir;
+  Vector2 Vt2 = (max-origin)/rayDir;
+
+  auto minMax = std::minmax(Vt1.x(),Vt2.x());
+  auto minMax2 = std::minmax(Vt1.y(),Vt2.y());
+
+  double tMin = fmax(minMax.first,fmin(minMax2.first,minMax.second));
+  double tMax = fmin(minMax.second, fmax(minMax2.second,minMax.first));
+
+  return tMax >= fmax(tMin,0.0);
+}
+bool BoundingBox2D::doesIntersectB(const Ray &ray) {
+  Vector2 rayDir = ray.direction();
+  Vector2 origin = ray.start();
+  Vector2 t1 = (min-origin)/rayDir;
+  Vector2 t2 = (max-origin)/rayDir;
+
+  double tmin = fmin(t1.x(),t2.x());
+  double tmax = fmax(t1.x(),t2.x());
+  tmin = fmax(tmin, fmin(t1.y(),t2.y()));
+  tmax = fmin(tmax, fmax(t1.y(),t2.y()));
+  return tmax >= fmax(tmin,0.0) ;
+}
 
