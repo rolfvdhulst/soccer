@@ -14,6 +14,8 @@
 
 template<std::size_t N> //templated with the amount of vertices
 class Polygon : public Shape {
+  static_assert(N>2);// Polygon's of size 2 or smaller do not make sense.
+  static_assert(N<=50);// This class is not built for large number of vertices. Some functions do well but other's don't.
  private:
   std::array<Vector2,N> vertices;
   //TODO: perhaps precompute bounding box and boundary?
@@ -22,7 +24,14 @@ class Polygon : public Shape {
    * @brief Construct a new Polygon object
    * @param vertices Vertices that will literally be copied to this->vertices
    */
-  Polygon(const std::vector<Vector2> &vertices) : vertices{vertices}{}
+  explicit Polygon(const std::vector<Vector2>& _vertices){
+    assert(_vertices.size() == N);
+    std::copy_n(std::make_move_iterator(_vertices.begin()),N,vertices.begin());
+  }
+  template<class ... Args>
+  explicit Polygon(Args &&... args) :vertices{Vector2(args)...}{
+    static_assert(sizeof...(Args) == N, "Invalid number of constructor arguments");
+  }
   /**
    * @brief Moves a polygon
    *
@@ -44,13 +53,29 @@ class Polygon : public Shape {
   // this is black magic but if it works it works
   //TODO: fix boundary? Might cost a lot of performance, though.
   [[nodiscard]] bool contains(const Vector2 &point) const override{
-    bool c = false;
-    for (int i = 0, j = N - 1; i < N; j = i++) {
-      if (((vertices[i].y() > point.y()) != (vertices[j].y() > point.y())) &&
-          (point.x() < (vertices[j].x() - vertices[i].x()) * (point.y() - vertices[i].y()) / (vertices[j].y() - vertices[i].y()) + vertices[i].x()))
-        c = !c;
+    //Efficient implementation for triangle, also counts boundary
+    if(N==3){
+      Vector2 as = point - vertices[0];
+      bool s_ab = (vertices[1]-vertices[0]).cross(as) >= 0;
+      if (((vertices[2]-vertices[0]).cross(as)> 0) == s_ab) {
+        return false;
+      }
+      return ((vertices[2]-vertices[1]).cross(point-vertices[1])>=0) == s_ab;
+    }else if(N==4){
+      //Divide quadrilateral up into two triangles. This does assume that the quadrilateral is simple though..
+      Polygon<3> triangleOne(vertices[0],vertices[1],vertices[2]);
+      Polygon<3> triangleTwo(vertices[0],vertices[3],vertices[2]);
+      return triangleOne.contains(point) || triangleTwo.contains(point);
     }
-    return c;
+    else{
+      bool c = false;
+      for (std::size_t i = 0, j = N - 1; i < N; j = i++) {
+        if (((vertices[i].y() > point.y()) != (vertices[j].y() > point.y())) &&
+            (point.x() < (vertices[j].x() - vertices[i].x()) * (point.y() - vertices[i].y()) / (vertices[j].y() - vertices[i].y()) + vertices[i].x()))
+          c = !c;
+      }
+      return c;
+    }
   }
   /**
    * @brief Returns the vector at index \ref idx
@@ -71,10 +96,10 @@ class Polygon : public Shape {
     double maxX = -std::numeric_limits<double>::infinity();
     double maxY = -std::numeric_limits<double>::infinity();
     for (const auto& vertex :vertices){
-      minX = fmin(vertex.x,minX);
-      minY = fmin(vertex.y,minY);
-      maxX = fmax(vertex.x,maxX);
-      maxY = fmax(vertex.y,maxY);
+      minX = fmin(vertex.x(),minX);
+      minY = fmin(vertex.y(),minY);
+      maxX = fmax(vertex.x(),maxX);
+      maxY = fmax(vertex.y(),maxY);
     }
     return BoundingBox2D(minX,minY,maxX,maxY);
   }
@@ -253,7 +278,7 @@ class Polygon : public Shape {
    * @return true True if simple
    * @return false False if not simple
    */
-  [[nodiscard]] bool isSimple() const{
+  [[nodiscard]]bool isSimple() const{
     // we loop over every unique pair
     std::vector<LineSegment> lines{};
     for (auto first = vertices.begin(); first != vertices.end(); first++) {
@@ -313,5 +338,11 @@ class Polygon : public Shape {
     }
     return sum;
   }
+
+  [[nodiscard]] std::array<Vector2,N> corners() const{
+    return vertices;
+  }
 };
+typedef Polygon<3> Triangle;
+typedef Polygon<4> Quadrilateral;
 #endif  // SOCCER_POLYGON_H

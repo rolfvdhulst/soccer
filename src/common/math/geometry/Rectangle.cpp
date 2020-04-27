@@ -4,7 +4,6 @@
 #include "geometry/Rectangle.h"
 #include "geometry/Line.h"
 #include "geometry/LineSegment.h"
-#include "geometry/Polygon.h"
 
 constexpr const unsigned int INSIDE = 0x00;
 constexpr const unsigned int LEFT = 0x01;
@@ -52,7 +51,6 @@ std::vector<LineSegment> Rectangle::lines() const {
     return lines;
 }
 
-Polygon Rectangle::asPolygon() const { return Polygon(corners()); }
 
 Vector2 Rectangle::center() const { return (min + max) * 0.5; }
 

@@ -102,10 +102,6 @@ TEST(Rectangle, simpleFunctions) {
     EXPECT_DOUBLE_EQ(centre.x(), 0.0);
     EXPECT_DOUBLE_EQ(centre.y(), -0.5);
 
-    Polygon polygon = rectangle.asPolygon();
-    for (int i = 0; i < 4; ++i) {
-        EXPECT_EQ(polygon.vertices.at(i), corners[i]);
-    }
 
     std::cout << rectangle << std::endl;
 }

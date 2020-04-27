@@ -5,19 +5,19 @@
 #include <gtest/gtest.h>
 #include <math/geometry/Line.h>
 #include <math/geometry/LineSegment.h>
-#include <math/geometry/Triangle.h>
+#include <math/geometry/Polygon.h>
 TEST(Triangle, basic) {
     Vector2 point1(1, 1);
     Vector2 point2(3, 1);
     Vector2 point3(2, 4);
     Triangle triangle(point1, point2, point3);
-    EXPECT_EQ(point1, triangle.corner1);
-    EXPECT_EQ(point2, triangle.corner2);
-    EXPECT_EQ(point3, triangle.corner3);
+    EXPECT_EQ(point1, triangle[0]);
+    EXPECT_EQ(point2, triangle[1]);
+    EXPECT_EQ(point3, triangle[2]);
     for (const auto &corner : triangle.corners()) {
         EXPECT_TRUE(corner == point1 || corner == point2 || corner == point3);
     }
-    for (const auto &line : triangle.lines()) {
+    for (const auto &line : triangle.getBoundary()) {
         EXPECT_TRUE(line.start() == point1 || line.start() == point2 || line.start() == point3);
         EXPECT_TRUE(line.end() == point1 || line.end() == point2 || line.end() == point3);
         EXPECT_TRUE(line.start() != line.end());
@@ -55,14 +55,11 @@ TEST(Triangle, intersections) {
     Vector2 point2(3, 1);
     Vector2 point3(2, 4);
     Triangle triangle(point1, point2, point3);
-    Line testLine(Vector2(1, 2), Vector2(1, 3));
     LineSegment segment(Vector2(1, 2), Vector2(1, 3));
     LineSegment second(Vector2(1, 0), Vector2(1, 3));
-    EXPECT_TRUE(triangle.doesIntersect(testLine));
     EXPECT_FALSE(triangle.doesIntersect(segment));
     EXPECT_TRUE(triangle.doesIntersect(second));
 
-    EXPECT_GT(triangle.intersects(testLine).size(), 0);
     EXPECT_GT(triangle.intersects(second).size(), 0);
     EXPECT_EQ(triangle.intersects(segment).size(), 0);
 }

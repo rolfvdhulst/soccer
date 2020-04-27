@@ -13,14 +13,9 @@ set(GEOMETRY_SOURCES
         include/math/geometry/Line.h
         geometry/Circle.cpp
         include/math/geometry/Circle.h
-        geometry/Triangle.cpp
-        include/math/geometry/Triangle.h
-        geometry/Polygon.cpp
         include/math/geometry/Polygon.h
         geometry/Rectangle.cpp
         include/math/geometry/Rectangle.h
-        geometry/Triangle.cpp
-        include/math/geometry/Triangle.h
         geometry/Tube.cpp
         include/math/geometry/Tube.h
         geometry/Vector3.cpp

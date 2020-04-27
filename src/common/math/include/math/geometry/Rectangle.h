@@ -9,7 +9,7 @@
 
 class LineSegment;
 class Line;
-class Polygon;
+
 /**
  * @brief Represents a rectangle (with horizontal and vertical lines) by storing 2 opposite corners as the min and max
  * values of the x and y dimensions.
@@ -86,11 +86,7 @@ class Rectangle {
      * @return A vector with 4 line segments which define the boundary of this rectangle
      */
     [[nodiscard]] std::vector<LineSegment> lines() const;
-    /**
-     * @brief Creates a polygon from the corners of the rectangle
-     * @return A polygon of all four points
-     */
-    [[nodiscard]] Polygon asPolygon() const;
+
     /**
      * @brief Checks whether a given line intersects with `this`
      * @param line line segment to check for
