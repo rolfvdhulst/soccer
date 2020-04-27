@@ -144,8 +144,8 @@ class LineSegment : public LineBase {
   [[nodiscard]] bool doesIntersect(const Ray &ray) const override;
 
     /**
-     * @brief Same as normal intersect, but always returns false if the lines are parallel
-     * intersection points of non-parallel lines are called non-simple (hence the name)
+     * @brief Same as normal intersect, but handles differently in some edge cases.
+     * Useful for polygons to avoid double counting intersections
      *
      * @param line Line to check against
      * @return true True if \ref line intersects `this`
@@ -163,7 +163,16 @@ class LineSegment : public LineBase {
      * @return std::shared_ptr<Vector2> Returns a shared_ptr to a Vector2 that represents the intersection
      */
     [[nodiscard]] std::optional<Vector2> nonSimpleIntersects(const LineSegment &line) const;
-
+  /**
+   * @brief Gets a vector representation of an intersection
+   *
+   * same as normal intersect, but always returns false if the lines are parallel
+   * intersection points of non-parallel lines are called non-simple (hence the name)
+   *
+   * @param line Line to check against
+   * @return std::shared_ptr<Vector2> Returns a shared_ptr to a Vector2 that represents the intersection
+   */
+  [[nodiscard]] std::optional<Vector2> nonSimpleIntersects(const Ray &ray) const;
     [[nodiscard]] BoundingBox2D boundingBox() const override;
 };
 

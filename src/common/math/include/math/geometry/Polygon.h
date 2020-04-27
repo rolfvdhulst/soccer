@@ -5,158 +5,313 @@
 #ifndef SOCCER_POLYGON_H
 #define SOCCER_POLYGON_H
 
-#include <iostream>
-#include <vector>
-#include "LineSegment.h"
+#include <numeric>
+#include "Shape.h"
 #include "Vector2.h"
+#include "LineSegment.h"
+#include "BoundingBox2D.h"
+#include "Ray.h"
 
-class Polygon {
-   public:
-    /**
-     * @brief Vertices that belong to this polygon
-     *
-     */
-    std::vector<Vector2> vertices;
+template<std::size_t N> //templated with the amount of vertices
+class Polygon : public Shape {
+ private:
+  std::array<Vector2,N> vertices;
+  //TODO: perhaps precompute bounding box and boundary?
+ public:
+  /**
+   * @brief Construct a new Polygon object
+   * @param vertices Vertices that will literally be copied to this->vertices
+   */
+  Polygon(const std::vector<Vector2> &vertices) : vertices{vertices}{}
+  /**
+   * @brief Moves a polygon
+   *
+   * @param moveBy Moves the polygon by this much
+   */
+  void move(const Vector2& by) override{
+    for(Vector2& vertex : vertices){
+      vertex += by;
+    }
+  }
+  /**
+   * @brief Checks whether a point is contained within this polygon. Points on the boundary are included into the polygon
+   * TODO: On the boundary this function does not work!! see documentation if you are interested
+   * @param point Point to check
+   * @return true True if contained
+   * @return false False if not contained
+   */
+  // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
+  // this is black magic but if it works it works
+  //TODO: fix boundary? Might cost a lot of performance, though.
+  [[nodiscard]] bool contains(const Vector2 &point) const override{
+    bool c = false;
+    for (int i = 0, j = N - 1; i < N; j = i++) {
+      if (((vertices[i].y() > point.y()) != (vertices[j].y() > point.y())) &&
+          (point.x() < (vertices[j].x() - vertices[i].x()) * (point.y() - vertices[i].y()) / (vertices[j].y() - vertices[i].y()) + vertices[i].x()))
+        c = !c;
+    }
+    return c;
+  }
+  /**
+   * @brief Returns the vector at index \ref idx
+   *
+   * @param idx Index in vector
+   * @return Vector2 Vector that is at index \ref
+   */
+  [[nodiscard]] const Vector2& operator[](size_t idx) const{
+    return vertices[idx];
+  }
+  /**
+   * Computes the bounding box of the polygon
+   * @return
+   */
+  [[nodiscard]] BoundingBox2D boundingBox() const override{
+    double minX = std::numeric_limits<double>::infinity();
+    double minY = std::numeric_limits<double>::infinity();
+    double maxX = -std::numeric_limits<double>::infinity();
+    double maxY = -std::numeric_limits<double>::infinity();
+    for (const auto& vertex :vertices){
+      minX = fmin(vertex.x,minX);
+      minY = fmin(vertex.y,minY);
+      maxX = fmax(vertex.x,maxX);
+      maxY = fmax(vertex.y,maxY);
+    }
+    return BoundingBox2D(minX,minY,maxX,maxY);
+  }
+  /**
+   * @brief Checks whether a Line intersects a polygon
+   *
+   * @param line Line to check
+   * @return true True if it's intersecting
+   * @return false False if it's not intersecting
+   */
+  [[nodiscard]] bool doesIntersect(const LineSegment &line) const override{
+    for (size_t i = 0; i < N; i++) {
+      LineSegment segment(vertices[i], vertices[(i + 1) % N]);
+      if (line.doesIntersect(segment)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  /**
+   * @brief Gets intersections with a polygon and line
+   *
+   * @param line Line to get intersections with
+   * @return std::vector<Vector2> Vector filled with vector representations of the intersections
+   */
+  [[nodiscard]] std::vector<Vector2> intersects(const LineSegment &line) const override{
+    std::vector<Vector2> intersections;
+    for (size_t i = 0; i < N; i++) {
+      LineSegment segment(vertices[i], vertices[(i + 1) % N]);
+      // maybe there is a nice way to do this 'circular' access with iterators?
+      // the nonSimple intersects does not count any intersection that only touch the start or end of the line
+      auto intersect = line.nonSimpleIntersects(segment);
+      if (intersect) {
+        intersections.push_back(*intersect);
+      }
+    }
+    return intersections;
+  }
+  /**
+ * @brief Checks whether a Ray intersects a polygon
+ *
+ * @param ray Ray to check
+ * @return true True if it's intersecting
+ * @return false False if it's not intersecting
+ */
+  [[nodiscard]] bool doesIntersect(const Ray &ray) const override{
+    for (size_t i = 0; i < N; i++) {
+      LineSegment segment(vertices[i], vertices[(i + 1) % N]);
+      if (ray.doesIntersect(segment)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  /**
+   * @brief Gets intersections with a polygon and line
+   *
+   * @param line Line to get intersections with
+   * @return std::vector<Vector2> Vector filled with vector representations of the intersections
+   */
+  [[nodiscard]] std::vector<Vector2> intersects(const Ray &ray) const override{
+    std::vector<Vector2> intersections;
+    for (size_t i = 0; i < N; i++) {
+      LineSegment segment(vertices[i], vertices[(i + 1) % N]);
+      // maybe there is a nice way to do this 'circular' access with iterators?
+      // the nonSimple intersects does not count any intersection that only touch the start or end of the line
+      auto intersect = segment.nonSimpleIntersects(ray);
+      if (intersect) {
+        intersections.push_back(*intersect);
+      }
+    }
+    return intersections;
+  }
+  /**
+   * @brief Gets the centroid of this polygon
+   *
+   * @return Vector2 Vector representation of the centroid
+   */
+  [[nodiscard]] Vector2 centroid() const{
+    if (N <4){
+      return verticeCentroid();
+    }
+    double signedAreaTwice = doubleSignedArea();
+    // calculation can still make sense in a geometric way if area is 0, e.g. it becomes finding the average of points on a line
+    Vector2 sum = {0, 0};
+    for (std::size_t i = 0; i < N; i++) {
+      sum += (vertices[i] + vertices[(i + 1) % N]) * vertices[i].cross(vertices[(i + 1) % N]);
+    }
+    return sum /= (3 * signedAreaTwice);
+  }
+  /**
+   * @brief The centroid of the set of vertices.
+   *
+   * Is generally NOT the same as centroid for polygons with more than 3 sides
+   *
+   * @return Vector2 Vector representation of the centroid
+   */
+  [[nodiscard]] Vector2 verticeCentroid() const{
+    return std::accumulate(vertices.begin(), vertices.end(), Vector2(0, 0)) /= N;
+  }
 
-    /**
-     * @brief Construct a new Polygon object
-     *
-     * It's a rectangular polygon that's placed horizontally
-     *
-     * @param lowerLeftCorner Lower left corner of the polygon
-     * @param xlen X-axis length of the polygon
-     * @param ylen Y-axis length of the polygon
-     */
-    Polygon(const Vector2 &lowerLeftCorner, double xlen, double ylen);
+  /**
+   * @brief Returns the amount of vertices in this polygon
+   *
+   * Note: O(1)
+   *
+   * @return size_t Amount of vertices
+   */
+  [[nodiscard]] constexpr size_t amountOfVertices() const{
+    return N;
+  }
+  /**
+   * @brief Get the boundary of the polygon
+   *
+   * @return std::vector<LineSegment> A vector of LineSegments which represent the boundary
+   */
+  [[nodiscard]] std::array<LineSegment,N> getBoundary() const{
+    std::array<LineSegment,N> boundary;
+    for (size_t i = 0; i < N; i++) {
+      boundary[i]=LineSegment(vertices[i], vertices[(i + 1) % N]);
+    }
+    return boundary;
+  }
+  /**
+   * @brief Gets the length of the perimeter of the current polygon
+   *
+   * @return double Gets the length of the perimeter
+   */
+  [[nodiscard]] double perimeterLength() const{
+    double totalLength = 0;
+    for (size_t i = 0; i < N; i++) {
+      totalLength += (vertices[i] - vertices[(i + 1) % N]).length();  // maybe there is a nice way to do this 'circular' access with iterators?
+    }
+    return totalLength;
+  }
+  /**
+   * @brief Checks whether this is a convex hull
+   *
+   * NOTE: This function only works if your polygon is already simple!
+   * In 90% of the cases when a polygon is not simple, it will not be convex
+   *
+   * @return true True if it's a convex
+   * @return false False if not a convex
+   */
+  // https://stackoverflow.com/questions/471962/how-do-i-efficiently-determine-if-a-polygon-is-convex-non-convex-or-complex
+  [[nodiscard]] bool isConvex() const{
+    if(N<4){
+      return true;
+    }
+    //the way this works is essentially we check if the lines keep rotating in the same direction. If not, the polygon is not convex.
+    bool sign = false;
+    bool signSet = false;
+    for (std::size_t i = 0; i < N; i++) {
+      Vector2 d1 = vertices[(i + 2) % N] - vertices[(i + 1) % N];
+      Vector2 d2 = vertices[i] - vertices[(i + 1) % N];
+      double cross = d1.cross(d2);
+      // on a crossproduct of zero the points lie in one line and we can simply ignore this point's contribution to the convexity
+      if (cross != 0.0) {
+        if (!signSet) {
+          signSet = true;
+          sign = cross > 0;
+        } else if (sign != (cross > 0)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+  /**
+   * @brief Checks whether the polygon is simple
+   *
+   * There are multiple possible algorithms, see
+   * https://www.quora.com/What-is-the-simplest-algorithm-to-know-if-a-polygon-is-simple-or-not
+   * this is the 'naive' O(N^2) approach which is fine for small cases (polygons with less than say 8-10 vertices)
+   *
+   * @return true True if simple
+   * @return false False if not simple
+   */
+  [[nodiscard]] bool isSimple() const{
+    // we loop over every unique pair
+    std::vector<LineSegment> lines{};
+    for (auto first = vertices.begin(); first != vertices.end(); first++) {
+      LineSegment boundarySegment;
+      if (first == std::prev(vertices.end())) {
+        boundarySegment = LineSegment(*first, vertices[0]);
+      } else {
+        boundarySegment = LineSegment(*first, *(first + 1));
+      }
+      for (const auto& line : lines) {
+        if (boundarySegment.nonSimpleDoesIntersect(line)) {
+          return false;
+        }
+      }
+      lines.push_back(boundarySegment);
+    }
+    return true;
+  }
 
-    /**
-     * @brief Construct a new Polygon object
-     *
-     * @param vertices Vertices that will literally be copied to this->vertices
-     */
-    Polygon(const std::vector<Vector2> &vertices);
+  /**
+   * @brief Checks whether a point is on the boundary of a polygon
+   *
+   * @param point Point to check
+   * @return true True if it's on boundary
+   * @return false False if it's not on boundary
+   */
+  [[nodiscard]] bool isOnBoundary(const Vector2 &point) const{
+    for (size_t i = 0; i < N; i++) {
+      LineSegment segment(vertices[i],
+                          vertices[(i + 1) % N]);  // maybe there is a nice way to do this 'circular' access with iterators?
+      if (segment.hits(point)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  /**
+   * @brief Gets the area of a polygon
+   *
+   * @return double Area of polygon
+   */
+  [[nodiscard]] double area() const{
+    return 0.5*abs(doubleSignedArea());
+  }
 
-    /**
-     * @brief Moves a polygon
-     *
-     * @param moveBy Moves the polygon by this much
-     */
-    void move(const Vector2 &moveBy);
-
-    /**
-     * @brief Gets the centroid of this polygon
-     *
-     * @return Vector2 Vector representation of the centroid
-     */
-    [[nodiscard]] Vector2 centroid() const;
-
-    /**
-     * @brief The centroid of the set of vertices.
-     *
-     * Is generally NOT the same as centroid for polygons with more than 3 sides
-     *
-     * @return Vector2 Vector representation of the centroid
-     */
-    [[nodiscard]] Vector2 verticeCentroid() const;
-
-    /**
-     * @brief Returns the vector at index \ref idx
-     *
-     * @param idx Index in vector
-     * @return Vector2 Vector that is at index \ref
-     */
-    [[nodiscard]] Vector2 operator[](size_t idx) const;
-
-    /**
-     * @brief Returns the amount of vertices in this polygon
-     *
-     * Note: O(1)
-     *
-     * @return size_t Amount of vertices
-     */
-    [[nodiscard]] size_t amountOfVertices() const;
-
-    /**
-     * @brief Get the boundary of the polygon
-     *
-     * @return std::vector<LineSegment> A vector of LineSegments which represent the boundary
-     */
-    [[nodiscard]] std::vector<LineSegment> getBoundary() const;
-
-    /**
-     * @brief Gets the length of the perimeter of the current polygon
-     *
-     * @return double Gets the length of the perimeter
-     */
-    [[nodiscard]] double perimeterLength() const;
-
-    /**
-     * @brief Checks whether this is a convex hull
-     *
-     * @return true True if it's a convex
-     * @return false False if not a convex
-     */
-    [[nodiscard]] bool isConvex() const;
-
-    /**
-     * @brief Checks whether the polygon is simple
-     *
-     * There are multiple possible algorithms, see
-     * https://www.quora.com/What-is-the-simplest-algorithm-to-know-if-a-polygon-is-simple-or-not
-     * this is the 'naive' O(N^2) approach which is fine for small cases (polygons with less than say 8-10 vertices)
-     *
-     * @return true True if simple
-     * @return false False if not simple
-     */
-    [[nodiscard]] bool isSimple() const;
-
-    /**
-     * @brief Checks whether a point is contained within this polygon
-     *
-     * @param point Point to check
-     * @return true True if contained
-     * @return false False if not contained
-     */
-    [[nodiscard]] bool contains(const Vector2 &point) const;
-
-    /**
-     * @brief Checks whether a point is on the boundary of a polygon
-     *
-     * @param point Point to check
-     * @return true True if it's on boundary
-     * @return false False if it's not on boundary
-     */
-    [[nodiscard]] bool isOnBoundary(const Vector2 &point) const;
-
-    /**
-     * @brief Checks whether a Line intersects a polygon
-     *
-     * @param line Line to check
-     * @return true True if it's intersecting
-     * @return false False if it's not intersecting
-     */
-    [[nodiscard]] bool doesIntersect(const LineSegment &line) const;
-
-    /**
-     * @brief Gets intersections with a polygon and line
-     *
-     * @param line Line to get intersections with
-     * @return std::vector<Vector2> Vector filled with vector representations of the intersections
-     */
-    [[nodiscard]] std::vector<Vector2> intersections(const LineSegment &line) const;
-
-    /**
-     * @brief Gets the area of a polygon
-     *
-     * @return double Area of polygon
-     */
-    [[nodiscard]] double area() const;
-
-    /**
-     * @brief Gets the area of a polygon
-     *
-     * @return double Area of the polygon
-     */
-    [[nodiscard]] double doubleSignedArea() const;
+  /**
+   * @brief Gets the area of a polygon
+   *
+   * @return double Area of the polygon
+   */
+  // https://en.wikipedia.org/wiki/Shoelace_formula
+  // area is well defined only for simple polygons
+  [[nodiscard]] double doubleSignedArea() const{
+    double sum = 0;
+    for (std::size_t i = 0; i < N; i++) {
+      sum += vertices[i].cross(vertices[(i + 1) % N]);
+    }
+    return sum;
+  }
 };
 #endif  // SOCCER_POLYGON_H

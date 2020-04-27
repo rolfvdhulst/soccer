@@ -52,14 +52,26 @@ bool LineSegment::nonSimpleDoesIntersect(const LineSegment &line) const {
     Vector2 p = m_start, q = line.start(), r = direction(), s = line.direction();
     double denom = r.cross(s);
     double numer = (q - p).cross(r);
-    if (denom != 0) {
-        double u = numer / denom;
-        if (!(u <= 0 || u >= 1)) {
-            double t = (q - p).cross(s) / denom;
-            if (!(t <= 0 || t >= 1)) {
-                return true;
-            }
+    if (denom == 0) {
+      if (numer == 0) {
+        // lines are colinear
+        double t0 = (q - p).dot(r) / r.length2();
+        double t1 = t0 + s.dot(r) / r.length2();
+        if (t0 <= 0) {
+          return t1 > 0;
+        } else if (t0 >= 1) {
+          return t1 < 1;
         }
+        return true;
+      }
+    } else{
+      double u = numer / denom;
+      if (u > 0  && u < 1) {
+        double t = (q - p).cross(s) / denom;
+        if (t>0 && t<1) {
+          return true;
+        }
+      }
     }
     return false;
 }
@@ -161,25 +173,52 @@ bool LineSegment::hits(const Vector2 &point) const {
     if (dot < 0) {
         return false;
     }
-    if (dot > A.dot(A)) {
-        return false;
-    }
-    return true;
+    return dot <= A.dot(A);
 }
 
 std::optional<Vector2> LineSegment::nonSimpleIntersects(const LineSegment &line) const {
-    Vector2 A = m_start - m_end;
-    Vector2 B = line.start() - line.end();
-    Vector2 C = m_start - line.start();
-    double denom = A.cross(B);
-    if (denom != 0) {
-        double t = C.cross(B) / denom;
-        double u = -A.cross(C) / denom;
-        if (!(t <= 0 || t >= 1) && !(u <= 0 || u >= 1)) {
-            return m_start - A * t;
+  // These copies will get optimized away but make it easier to read w.r.t the stackoverflow link
+  Vector2 q = m_start;
+  Vector2 s = direction();
+  Vector2 p = line.start();
+  Vector2 r = line.direction();
+
+  double uDenom = r.cross(s);
+  double uNumer = (q - p).cross(r);
+  if (uDenom == 0) {
+    if (uNumer == 0) {
+      // Lines are colinear;
+      // if the interval between t0 and t1 intersects [0,1) the lines overlap on this interval
+      double t0 = (q - p).dot(r) / (r.dot(r));
+      double t1 = t0 + s.dot(r) / (r.dot(r));
+      if (t0 < 0) {
+        if (t1 >= 0) {
+          // interval overlaps, we pick closest point which is from the start to the end of the line (p+0*r);
+          return p;
         }
+      } else if (t0 > 1) {
+        if (t1 < 1) {
+          return p + r*fmax(t1,0);  // Similar but now we have the end of the line
+        }
+      } else {
+        // we return the point closest to the start of p
+        return p + r * fmax(fmin(t0,t1),0);
+      }
+      return std::nullopt;  // there was no intersection with the interval [0,1) so the lines are colinear but have no overlap
+    } else {
+      return std::nullopt;  // Lines are parallel and nonintersecting
     }
-    return std::nullopt;
+  } else {
+    // if we find t and u such that p+tr=q+us for t and u between 0 and 1, we have found a valid intersection.
+    double u = uNumer / uDenom;
+    if (u >= 0 && u <= 1) {
+      double t = (q - p).cross(s) / uDenom;
+      if (t >= 0 && t < 1) {
+        return p + r * t;  // we found a intersection point!
+      }
+    }
+  }
+  return std::nullopt;
 }
 
 // http://geomalgorithms.com/a07-_distance.html#dist3D_Segment_to_Segment
@@ -283,7 +322,8 @@ std::optional<Vector2> LineSegment::intersects(const Ray &ray) const {
         }
       } else {
         // we return the point closest to the start of p
-        return p + r * fmin(t0,t1);
+        double t = t1 < t0 ? 0 : t0;
+        return p + r * t;
       }
       return std::nullopt;  // there was no intersection with the interval [0,1] so the lineas are colinear but have no overlap
     } else {
@@ -303,4 +343,47 @@ std::optional<Vector2> LineSegment::intersects(const Ray &ray) const {
 }
 bool LineSegment::doesIntersect(const Ray &ray) const {
   return intersects(ray) != std::nullopt;
+}
+std::optional<Vector2> LineSegment::nonSimpleIntersects(const Ray &ray) const {
+  // These copies will get optimized away but make it easier to read w.r.t the stackoverflow link
+  Vector2 p = m_start;
+  Vector2 r = direction();
+  Vector2 q = ray.start();
+  Vector2 s = ray.direction();
+
+  double uDenom = r.cross(s);
+  double uNumer = (q - p).cross(r);
+  if (uDenom == 0) {
+    if (uNumer == 0) {
+      // Ray and line are colinear
+      // if the interval between t0 and t1 intersects [0,1] they lines overlap on this interval
+      double t0 = (q - p).dot(r) / (r.dot(r));
+      double t1 = t0 +s.dot(r)/(r.dot(r));
+      if (t0 < 0) {
+        if (t1 > t0) {
+          // interval overlaps, we pick closest point which is from the start to the end of the line (p+0*r);
+          return p;
+        }
+      } else if (t0 >= 1) {
+        if (t1 < t0) {
+          return p;  // Similar
+        }
+      } else{
+        return p + r * t0;
+      }
+      return std::nullopt;  // there was no intersection with the interval [0,1] so the lineas are colinear but have no overlap
+    } else {
+      return std::nullopt;  // Lines are parallel and nonintersecting
+    }
+  } else {
+    // if we find t and u such that p+tr=q+us for t and u between 0 and 1, we have found a valid intersection.
+    double u = uNumer / uDenom;
+    if (u >= 0) {
+      double t = (q - p).cross(s) / uDenom;
+      if (t >= 0 && t < 1) {
+        return p + r * t;  // we found a intersection point!
+      }
+    }
+  }
+  return std::nullopt;
 }

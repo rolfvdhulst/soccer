@@ -18,7 +18,7 @@ class Shape {
     /**
      * Moves the shape by the vector given. Does not perform any rotations on the shape.
      */
-    virtual void move(const Vector2& by) const = 0;
+    virtual void move(const Vector2& by) = 0;
     /**
      * Checks if a given shape contains a point. If the point is on the boundary of the shape or inside of it, this should return true!
      */
@@ -30,8 +30,8 @@ class Shape {
     [[nodiscard]] virtual BoundingBox2D boundingBox() const = 0;
     [[nodiscard]] virtual bool doesIntersect(const LineSegment& segment) const = 0;
     [[nodiscard]] virtual bool doesIntersect(const Ray& ray) const = 0;
-    [[nodiscard]] virtual std::vector<Vector2> intersects(const LineSegment& segment) = 0;
-    [[nodiscard]] virtual std::vector<Vector2> intersects(const Ray& ray) = 0;
+    [[nodiscard]] virtual std::vector<Vector2> intersects(const LineSegment& segment) const = 0;
+    [[nodiscard]] virtual std::vector<Vector2> intersects(const Ray& ray) const = 0;
 };
 
 #endif  // SOCCER_SRC_COMMON_MATH_GEOMETRY_SHAPE_H_
