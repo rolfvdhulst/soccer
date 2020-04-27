@@ -45,6 +45,7 @@ class Polygon : public Shape {
   /**
    * @brief Checks whether a point is contained within this polygon. Points on the boundary are included into the polygon
    * TODO: On the boundary this function does not work!! see documentation if you are interested
+   * Note: If your polygon is not simple this function is ill-defined as there is no good definition of 'inside'
    * @param point Point to check
    * @return true True if contained
    * @return false False if not contained
@@ -62,7 +63,7 @@ class Polygon : public Shape {
       }
       return ((vertices[2]-vertices[1]).cross(point-vertices[1])>=0) == s_ab;
     }else if(N==4){
-      //Divide quadrilateral up into two triangles. This does assume that the quadrilateral is simple though..
+      //Divide quadrilateral up into two triangles. This does assume that the quadrilateral is simple
       Polygon<3> triangleOne(vertices[0],vertices[1],vertices[2]);
       Polygon<3> triangleTwo(vertices[0],vertices[3],vertices[2]);
       return triangleOne.contains(point) || triangleTwo.contains(point);

@@ -37,6 +37,8 @@ add_library(math STATIC
         filters/DEMAFilter.cpp
         include/math/filters/DEMAFilter.h
         include/math/filters/ConstantMAFilter.h
+        general/QuadraticEquation.cpp
+        include/math/general/QuadraticEquation.h
         )
 target_link_libraries(math
         PRIVATE containers
