@@ -330,7 +330,9 @@ TEST(LineTests, SegmentSegmentIntersection) {
   }
   //TODO: verify that segment segment on colinear line overlap returns the closest point to the start.
 
+  int i = 0;
   for (const auto& startTest : touchingCL) {
+    i++;
     for(const auto& test : swappedTests(startTest)){
       LineSegment first(test.first);
       LineSegment second(test.second);
@@ -416,10 +418,10 @@ TEST(LineTests, LineSegmentIntersection){
   }
 }
 TEST(LineTests, LineRayIntersection){
-  std::vector<LineTest> overlappingCL{CL_OL,CL_OL_H,CL_OL_V};
-  std::vector<LineTest> notOverlappingCL{CL_NOL,CL_NOL_H,CL_NOL_V,CL_T,CL_T_H,CL_T_V};
+  std::vector<LineTest> overlappingCL{CL_OL,CL_OL_H,CL_OL_V,CL_NOL,CL_NOL_H,CL_NOL_V,CL_T,CL_T_H,CL_T_V};
   std::vector<LineTest> notIntersectingParralel{P,P_H,P_V};
-  std::vector<LineTest> intersections{SS1,SS2,SS3,LS1,LS1_r,LS2};
+  std::vector<LineTest> symmetricIntersections{SS1,SS2,SS3};
+  std::vector<LineTest> intersections{LR1,LR1_r};
   for (const auto& startTest : overlappingCL) {
     for(const auto& test : swappedTests(startTest)){
       Line first(test.first);
@@ -431,21 +433,7 @@ TEST(LineTests, LineRayIntersection){
       EXPECT_TRUE(second.intersects(first)!= std::nullopt);
     }
   }
-  for (const auto& startTest : notOverlappingCL) {
-    for(const auto& test : swappedTests(startTest)){
-      Line first(test.first);
-      Ray second(test.second);
-      EXPECT_TRUE(first.doesIntersect(second));
-      EXPECT_TRUE(second.doesIntersect(first));
-      //intersection is closest to start
-      if ((first.start()-second.start()).length2()<((first.start()-second.end()).length2())){
-        EXPECT_EQ(*first.intersects(second),second.start());
-      }else{
-        EXPECT_EQ(*first.intersects(second),second.end());
-      }
-      EXPECT_EQ(*second.intersects(first),second.start());
-    }
-  }
+
   for (const auto& startTest : notIntersectingParralel) {
     for(const auto& test : swappedTests(startTest)){
       Line first(test.first);
@@ -456,7 +444,7 @@ TEST(LineTests, LineRayIntersection){
       EXPECT_EQ(second.intersects(first),std::nullopt);
     }
   }
-  for (const auto& startTest : intersections) {
+  for (const auto& startTest : symmetricIntersections) {
     for(const auto& test : swappedTests(startTest)){
       Line first(test.first);
       Ray second(test.second);
@@ -467,4 +455,14 @@ TEST(LineTests, LineRayIntersection){
       EXPECT_EQ(second.intersects(first),test.intersect);
     }
   }
+  for (const auto& test : intersections){
+    Line first(test.first);
+    Ray second(test.second);
+    bool intersects = test.intersect != std::nullopt;
+    EXPECT_TRUE(first.doesIntersect(second) == intersects);
+    EXPECT_TRUE(second.doesIntersect(first) == intersects);
+    EXPECT_EQ(first.intersects(second),test.intersect);
+    EXPECT_EQ(second.intersects(first),test.intersect);
+  }
+
 }

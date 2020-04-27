@@ -115,7 +115,7 @@ std::optional<Vector2> LineSegment::intersects(const LineSegment &line) const {
                 }
             } else {
                 // we return the point closest to the start of p
-                return p + r * fmin(t0,t1);
+                return p + r * fmax(fmin(t0,t1),0);
             }
             return std::nullopt;  // there was no intersection with the interval [0,1] so the lineas are colinear but have no overlap
         } else {
