@@ -80,7 +80,6 @@ TEST(PolygonTest, isConvex) {
     Polygon<5> P2First(nonConvexPointLast, leftCorner, rightBottom, rightTop, leftTop);
     Polygon<5> P3Last(leftCorner, rightBottom, rightTop, leftTop, nonConvexPointLast2);
     Polygon<5> P3First(nonConvexPointLast2, leftCorner, rightBottom, rightTop, leftTop);
-    Polygon<8> P4(leftCorner, Vector2(2.0, 1.0), rightBottom, Vector2(3.0, 2.0), rightTop, Vector2(2.0, 4.0), leftTop, Vector2(1.0, 2.0));
 
     std::vector<Polygon<5>> allExamples = {convexPentagon, convexPentagonCCW, nonConvexPentagon, nonConvexPentagonCCW, P1Last, P1First, P2First, P2Last, P3First, P3Last};
     // P1Last,P1First,;
@@ -88,7 +87,6 @@ TEST(PolygonTest, isConvex) {
     for (const Polygon<5> &example : allExamples) {
         ASSERT_TRUE(example.isSimple());
     }
-    ASSERT_TRUE(P4.isSimple());
     EXPECT_TRUE(convexPentagon.isConvex());
     EXPECT_TRUE(convexPentagonCCW.isConvex());
     EXPECT_FALSE(nonConvexPentagon.isConvex());
@@ -100,7 +98,6 @@ TEST(PolygonTest, isConvex) {
     EXPECT_FALSE(P2Last.isConvex());
     EXPECT_FALSE(P3First.isConvex());
     EXPECT_FALSE(P3Last.isConvex());
-    EXPECT_TRUE(P4.isConvex());
 }
 TEST(PolygonTest, boundaryTests) {
     Vector2 leftCorner(1.0, 1.0), rightBottom(3.0, 1.0), rightTop(3.0, 4.0), leftTop(1.0, 4.0);
