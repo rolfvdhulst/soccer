@@ -20,19 +20,19 @@ class Rectangle;
 
 class Circle : public Shape{
  private:
-  Vector2 center;
-  double radius;
+  Vector2 m_center;
+  double m_radius;
  public:
   /**
    * @brief Constructs a unit circle with center (0, 0) and radius 1.0
    */
-  constexpr Circle() : center{0, 0}, radius{1.0} {};
+  constexpr Circle() : m_center{0, 0}, m_radius{1.0} {};
   /**
    * @brief Constructs a circle from a center and a radius. Ensures a positive radius
    * @param center Center of the circle
    * @param radius Radius of the circle
    */
-  constexpr Circle(const Vector2& center, double radius) : center{center}, radius{std::abs(radius)} { };
+  constexpr Circle(const Vector2& center, double radius) : m_center{center}, m_radius{std::abs(radius)} { };
   /**
    * @brief Construct a circle from another circle by copying its center and radius
    * @param other The circle from which to copy the center and radius
@@ -103,7 +103,8 @@ class Circle : public Shape{
   bool operator==(const Circle& other) const;
   bool operator!=(const Circle& other) const;
 
-
+  const Vector2& center() const;
+  const double& radius() const;
 
   /** @brief Writes a textual representation of this circle to the given output stream */
   std::ostream& write(std::ostream& out) const;

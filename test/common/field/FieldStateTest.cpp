@@ -177,9 +177,9 @@ bool checkShapes(const FieldState &field) {
     consistent &= field.getGoalRectangle(true).minX() == field.getOurGoalRectangle().minX();
     consistent &= field.getGoalRectangle(false).minX() == field.getTheirGoalRectangle().minX();
 
-    consistent &= near(field.getCenterCircle().radius, 0.5 + field.getLineThickness());
-    consistent &= near(field.getCenterCircle().center.x(), 0);
-    consistent &= near(field.getCenterCircle().center.y(), 0);
+    consistent &= near(field.getCenterCircle().radius(), 0.5 + field.getLineThickness());
+    consistent &= near(field.getCenterCircle().center().x(), 0);
+    consistent &= near(field.getCenterCircle().center().y(), 0);
     return consistent;
 }
 TEST(FieldState, divisionATest) {

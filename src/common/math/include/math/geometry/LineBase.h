@@ -43,6 +43,11 @@ class LineBase {
      */
     [[nodiscard]] const Vector2& end() const;
     /**
+     * Moves both points on the line by the specified amount
+     * @param by vector to move points with
+     */
+    void move(const Vector2& by);
+    /**
      * @brief Checks whether this is a single point
      *
      * @return true True if  start == end

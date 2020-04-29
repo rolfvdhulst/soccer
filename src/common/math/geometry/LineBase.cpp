@@ -29,6 +29,10 @@ Vector2 &LineBase::start() { return m_start; }
 Vector2 &LineBase::end() { return m_end; }
 const Vector2 &LineBase::start() const { return m_start; }
 const Vector2 &LineBase::end() const { return m_end; }
+void LineBase::move(const Vector2 &by) {
+  m_start+=by;
+  m_end+=by;
+}
 bool LineBase::isColinear(const LineBase &other) const { return isColinear(other.m_start) && isColinear(other.m_end); }
 bool LineBase::isColinear(const Vector2 &point) const {
     // We check if the area of the triangle defined by 3 points is zero:

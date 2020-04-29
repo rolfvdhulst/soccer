@@ -16,4 +16,4 @@ Tube::Tube(const LineSegment& line, double radius) : lineSegment{line}, radius{r
 Tube::Tube(const Vector2& start, const Vector2& end, double radius) : lineSegment{LineSegment(start, end)}, radius{radius} {}
 Tube::Tube() : lineSegment{}, radius{1.0} {  // lines default construct to (0,0) to (0,0)
 }
-bool Tube::doesIntersectOrContain(const Circle& circle) const { return lineSegment.distanceTo(circle.center) <= (radius + circle.radius); }
+bool Tube::doesIntersectOrContain(const Circle& circle) const { return lineSegment.distanceTo(circle.center()) <= (radius + circle.radius()); }

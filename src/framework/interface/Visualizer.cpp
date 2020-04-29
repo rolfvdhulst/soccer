@@ -260,8 +260,8 @@ void Visualizer::drawField(QPainter* painter) {
         painter->drawLine(graphicLine);
     }
     for (const Circle& circle : {field.getCenterCircle()}) {
-        double radius = circle.radius - field.getLineThickness();  // Center circle has already larger radius to account for lineWidth
-        painter->drawEllipse(QPointF(circle.center.x(), -circle.center.y()), radius, radius);
+        double radius = circle.m_radius - field.getLineThickness();  // Center circle has already larger radius to account for lineWidth
+        painter->drawEllipse(QPointF(circle.m_center.x(), -circle.m_center.y()), radius, radius);
     }
     pen.setWidthF(field.getLineThickness() * 0.3);
     painter->setPen(pen);
