@@ -40,6 +40,7 @@ function(target_add_release_flags TARGET)
             -O3 #O2 vs O3: we should probably only use O3 on parts of the code where we use Eigen3 and linear algebra a lot.
             -flto
             -march=native
+            -DNDEBUG
             )
 endfunction()
 if (RELEASE)

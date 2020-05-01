@@ -6,6 +6,7 @@
 #include <math/geometry/Line.h>
 #include <math/geometry/LineSegment.h>
 #include <math/geometry/Ray.h>
+#include <math/geometry/BoundingBox2D.h>
 
 struct LineTest{
   LineTest(Line a, Line b,  std::optional<Vector2> intersect=std::nullopt) :
@@ -67,6 +68,10 @@ const static LineTest LS2{Line(Vector2(0,0),Vector2(1,1)),Line(Vector2(1,2),Vect
 
 const static LineTest LR1{Line(Vector2(0,0),Vector2(1,1)),Line(Vector2(0,4),Vector2(1,3)),Vector2(2,2)};
 const static LineTest LR1_r{Line(Vector2(0,0),Vector2(1,1)),Line(Vector2(1,3),Vector2(0,4)),std::nullopt};
+double invalidConstructor(){
+  Line line(Vector2(0,1),Vector2(0,1));
+  return line.start().x();
+}
 TEST(LineTests, constructor){
   Vector2 A(1,1), B(3,2);
   Line line(A,B);
@@ -85,6 +90,73 @@ TEST(LineTests, constructor){
   EXPECT_EQ(segment.end(),line.end());
 
   EXPECT_EQ(line.direction(),B-A);
+
+  //invalid constructor should throw
+  EXPECT_EXIT(invalidConstructor(),::testing::KilledBySignal(SIGABRT),"");
+}
+TEST(LineTests, move){
+  Line line(Vector2(0,1),Vector2(2,3));
+  line.move(Vector2(2,1));
+  EXPECT_EQ(line.start().x(),2);
+  EXPECT_EQ(line.start().y(),2);
+  EXPECT_EQ(line.end().x(),4);
+  EXPECT_EQ(line.end().x(),4);
+}
+TEST(LineTests, boundingBoxes){
+  LineSegment lineSegment(Vector2(0,1),Vector2(2,3));
+  for (const auto& segment : {lineSegment,lineSegment.reversed()}){
+    BoundingBox2D box = segment.boundingBox();
+    EXPECT_EQ(box.xMin(),0);
+    EXPECT_EQ(box.xMax(),2);
+    EXPECT_EQ(box.yMin(),1);
+    EXPECT_EQ(box.yMax(),3);
+  }
+  Line line(lineSegment);
+  BoundingBox2D infiniteBox = line.boundingBox();
+  EXPECT_EQ(infiniteBox.xMin(),-std::numeric_limits<double>::infinity());
+  EXPECT_EQ(infiniteBox.xMax(),std::numeric_limits<double>::infinity());
+  EXPECT_EQ(infiniteBox.yMin(),-std::numeric_limits<double>::infinity());
+  EXPECT_EQ(infiniteBox.yMax(),std::numeric_limits<double>::infinity());
+
+  Ray ray(lineSegment);
+  infiniteBox = ray.boundingBox();
+  EXPECT_EQ(infiniteBox.xMin(),0);
+  EXPECT_EQ(infiniteBox.xMax(),std::numeric_limits<double>::infinity());
+  EXPECT_EQ(infiniteBox.yMin(),1);
+  EXPECT_EQ(infiniteBox.yMax(),std::numeric_limits<double>::infinity());
+  infiniteBox = Ray(lineSegment.reversed()).boundingBox();
+  EXPECT_EQ(infiniteBox.xMin(),-std::numeric_limits<double>::infinity());
+  EXPECT_EQ(infiniteBox.xMax(),2);
+  EXPECT_EQ(infiniteBox.yMin(),-std::numeric_limits<double>::infinity());
+  EXPECT_EQ(infiniteBox.yMax(),3);
+
+  Line horizontal(Vector2(0,1),Vector2(1,1));
+  BoundingBox2D horizontalBox = horizontal.boundingBox();
+  EXPECT_EQ(horizontalBox.xMin(),-std::numeric_limits<double>::infinity());
+  EXPECT_EQ(horizontalBox.xMax(),std::numeric_limits<double>::infinity());
+  EXPECT_EQ(horizontalBox.yMin(),1);
+  EXPECT_EQ(horizontalBox.yMax(),1);
+
+  Ray horizontalRay(horizontal);
+  horizontalBox = horizontalRay.boundingBox();
+  EXPECT_EQ(horizontalBox.xMin(),0);
+  EXPECT_EQ(horizontalBox.xMax(),std::numeric_limits<double>::infinity());
+  EXPECT_EQ(horizontalBox.yMin(),1);
+  EXPECT_EQ(horizontalBox.yMax(),1);
+
+  Line vertical(Vector2(1,1),Vector2(1,8));
+  BoundingBox2D verticalBox = vertical.boundingBox();
+  EXPECT_EQ(verticalBox.xMin(),1);
+  EXPECT_EQ(verticalBox.xMax(),1);
+  EXPECT_EQ(verticalBox.yMin(),-std::numeric_limits<double>::infinity());
+  EXPECT_EQ(verticalBox.yMax(),std::numeric_limits<double>::infinity());
+
+  Ray verticalRay(vertical);
+  verticalBox = verticalRay.boundingBox();
+  EXPECT_EQ(verticalBox.xMin(),1);
+  EXPECT_EQ(verticalBox.xMax(),1);
+  EXPECT_EQ(verticalBox.yMin(),1);
+  EXPECT_EQ(verticalBox.yMax(),std::numeric_limits<double>::infinity());
 }
 TEST(LineTests, colinear){
   std::vector<LineTest> colinears = {CL_OL,CL_OL,CL_NOL,CL_T,CL_OL_H,CL_NOL_H,CL_T_H,CL_OL_V,CL_NOL_V,CL_T_V};
@@ -151,7 +223,7 @@ TEST(LineTests, parallel){
   }
 }
 TEST(LineTests, point){
-  Line pointLine{Vector2(),Vector2()};
+  Line pointLine; //should default construct without throwing an error.
   EXPECT_TRUE(pointLine.isPoint());
   EXPECT_FALSE(NP_HV.second.isPoint());
   EXPECT_FALSE(NP.first.isPoint());

@@ -23,9 +23,13 @@ class LineBase {
 
    public:
     constexpr LineBase() = default;
-    constexpr LineBase(const Vector2& start, const Vector2& end) : m_start{start}, m_end{end} {};
+    constexpr LineBase(const Vector2& start, const Vector2& end) : m_start{start}, m_end{end} {
+      assert(m_start!=m_end);
+    };
     constexpr LineBase(const LineBase& other) = default;
-    constexpr LineBase(double startX, double startY, double endX, double endY) : m_start{Vector2(startX, startY)}, m_end{Vector2(endX, endY)} {}
+    constexpr LineBase(double startX, double startY, double endX, double endY) : m_start{Vector2(startX, startY)}, m_end{Vector2(endX, endY)} {
+      assert(m_start!=m_end);
+    }
     /**
      * @return Start of the line-like object
      */
