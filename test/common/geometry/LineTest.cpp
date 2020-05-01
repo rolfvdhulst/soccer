@@ -223,7 +223,7 @@ TEST(LineTests, parallel){
   }
 }
 TEST(LineTests, point){
-  Line pointLine; //should default construct without throwing an error.
+  Line pointLine; //should default construct both start and end to (0,0) without throwing an error.
   EXPECT_TRUE(pointLine.isPoint());
   EXPECT_FALSE(NP_HV.second.isPoint());
   EXPECT_FALSE(NP.first.isPoint());
@@ -311,6 +311,14 @@ TEST(LineTests, distanceToPoint) {
     EXPECT_EQ(l2.project(point1), shouldProj1);
     EXPECT_EQ(l1.project(point2), shouldProj2);
     EXPECT_EQ(l2.project(point2), B);
+
+    Ray ray(Vector2(0,0),Vector2(1,1));
+    EXPECT_EQ(ray.project(Vector2(-1,-1)),ray.start());
+    EXPECT_DOUBLE_EQ(ray.distanceTo(Vector2(-1,-1)),sqrt(2));
+    EXPECT_EQ(ray.project(Vector2(2,2)),Vector2(2,2));
+    EXPECT_DOUBLE_EQ(ray.distanceTo(Vector2(2,2)),0);
+    EXPECT_EQ(ray.project(Vector2(2,0)),Vector2(1,1));
+    EXPECT_DOUBLE_EQ(ray.distanceTo(Vector2(2,0)),sqrt(2.0));
 }
 TEST(LineTests, pointOnLine) {
     Vector2 A(1.0, 1.0), B(3.0, 1.0), C(1.0, 3.0), D(3.0, 3.0);
@@ -353,6 +361,12 @@ TEST(LineTests, pointOnLine) {
     Vector2 point7(0.0, 1.0), point8(0.0, 2.0);
     EXPECT_FALSE(ls1.hits(point7));
     EXPECT_FALSE(ls1.hits(point8));
+  Ray ray(Vector2(0,0),Vector2(1,1));
+  EXPECT_FALSE(ray.hits(Vector2(-1,-1)));
+  EXPECT_TRUE(ray.hits(Vector2(2,2)));
+  EXPECT_FALSE(ray.hits(Vector2(2,0)));
+  EXPECT_TRUE(ray.hits(ray.start()));
+  EXPECT_TRUE(ray.hits(ray.end()));
 }
 
 TEST(LineTests, LineLineIntersection) {
