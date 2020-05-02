@@ -13,9 +13,7 @@ double Line::distanceTo(const Vector2 &point) const { return (this->project(poin
 /// Computes the projection of point onto the line. This is identical to picking the closest point on the line
 // if we project point P onto AB we can compute as A + dot(AP,AB) / dot(AB,AB) * AB
 Vector2 Line::project(const Vector2 &point) const {
-    if (isPoint()) {  // Direction() == 0 makes our computation give 0/0 so all values become NaN
-        return m_start;
-    }
+  //Note this function fails if the line is a point.
     Vector2 AB = direction();
     Vector2 AP = point - m_start;
     return m_start + AB * (AP.dot(AB) / (AB).length2());

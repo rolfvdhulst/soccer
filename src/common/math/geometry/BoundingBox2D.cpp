@@ -41,6 +41,7 @@ BoundingBox2D &BoundingBox2D::operator+=(const BoundingBox2D &other) {
     if (other.yMax() > yMax()) {
         max.y() = other.yMax();
     }
+    return *this;
 }
 BoundingBox2D BoundingBox2D::operator+(const Vector2 &point) const {
     BoundingBox2D box = *this;
@@ -54,16 +55,17 @@ BoundingBox2D &BoundingBox2D::operator+=(const Vector2 &point) {
     } else if (x > xMax()) {
         max.x() = x;
     }
-    double y = point.x();
+    double y = point.y();
     if (y < yMin()) {
         min.y() = y;
     } else if (y > yMax()) {
         max.y() = y;
     }
+    return *this;
 }
-bool BoundingBox2D::doOverlap(const BoundingBox2D &other) const { return (xMin() <= other.xMax() && xMax() >= other.xMin()) && (yMin() <= other.yMax() && yMax() >= other.yMin()); }
+bool BoundingBox2D::doesOverlap(const BoundingBox2D &other) const { return (xMin() <= other.xMax() && xMax() >= other.xMin()) && (yMin() <= other.yMax() && yMax() >= other.yMin()); }
 std::optional<BoundingBox2D> BoundingBox2D::overlap(const BoundingBox2D &other) const {
-    if (!doOverlap(other)) {
+    if (!doesOverlap(other)) {
         return std::nullopt;
     }
     // Use fmin and fmax here as they allow the compiler to abuse the min and max functions on modern cpu's
@@ -73,53 +75,35 @@ std::optional<BoundingBox2D> BoundingBox2D::overlap(const BoundingBox2D &other) 
 bool BoundingBox2D::contains(const Vector2 &point) {
     return point.x()>= xMin() && point.x() <= xMax() && point.y() >= yMin() && point.y() <= yMax();
 }
-bool BoundingBox2D::doesIntersect(const LineSegment &segment) {
-
-}
-bool BoundingBox2D::doesIntersect(const Line &line) {
-
-}
+//This function can be optimized a lot further, but for now this ain't really necessary.
+//see: https://tavianator.com/fast-branchless-raybounding-box-intersections/
 bool BoundingBox2D::doesIntersect(const Ray &ray) {
   Vector2 rayDir = ray.direction();
   Vector2 origin = ray.start();
-  double t1 = (xMin()-origin.x()) / rayDir.x();
-  double t2 = (xMax()-origin.x()) / rayDir.x();
+  double tmin = -std::numeric_limits<double>::infinity();
+  double tmax = std::numeric_limits<double>::infinity();
+  if(rayDir.x() != 0.0){
+    double t1 = (xMin()-origin.x()) / rayDir.x();
+    double t2 = (xMax()-origin.x()) / rayDir.x();
 
-  double tmin = fmin(t1,t2);
-  double tmax = fmax(t1,t2);
+    tmin = fmax(tmin,fmin(t1,t2));
+    tmax = fmin(tmax,fmax(t1,t2));
+  }else if(!(origin.x()<=xMax() && origin.x()>=xMin())){
+    return false;
+  }
+  if(rayDir.y() != 0.0){
+    double t1 = (yMin()-origin.y()) / rayDir.y();
+    double t2 = (yMax()-origin.y()) / rayDir.y();
 
-  t1 = (yMin() - origin.y()) / rayDir.y();
-  t2 = (yMax() - origin.y()) / rayDir.y();
-
-  tmin = fmax(tmin, fmin(fmin(t1,t2),tmax));
-  tmax = fmin(tmax, fmax(fmax(t1,t2),tmin));
-  return tmax >= fmax(tmin,0.0);
+    tmin = fmax(tmin,fmin(t1,t2));
+    tmax = fmin(tmax,fmax(t1,t2));
+  } else if(!(origin.y()<=yMax() && origin.y()>=yMin())){
+    return false;
+  }
+  return tmax >= tmin && tmax>=0;
 }
-bool BoundingBox2D::doesIntersectA(const Ray &ray) {
 
-  Vector2 rayDir = ray.direction();
-  Vector2 origin = ray.start();
-  Vector2 Vt1 = (min-origin)/rayDir;
-  Vector2 Vt2 = (max-origin)/rayDir;
-
-  auto minMax = std::minmax(Vt1.x(),Vt2.x());
-  auto minMax2 = std::minmax(Vt1.y(),Vt2.y());
-
-  double tMin = fmax(minMax.first,fmin(minMax2.first,minMax.second));
-  double tMax = fmin(minMax.second, fmax(minMax2.second,minMax.first));
-
-  return tMax >= fmax(tMin,0.0);
-}
-bool BoundingBox2D::doesIntersectB(const Ray &ray) {
-  Vector2 rayDir = ray.direction();
-  Vector2 origin = ray.start();
-  Vector2 t1 = (min-origin)/rayDir;
-  Vector2 t2 = (max-origin)/rayDir;
-
-  double tmin = fmin(t1.x(),t2.x());
-  double tmax = fmax(t1.x(),t2.x());
-  tmin = fmax(tmin, fmin(t1.y(),t2.y()));
-  tmax = fmin(tmax, fmax(t1.y(),t2.y()));
-  return tmax >= fmax(tmin,0.0) ;
+bool BoundingBox2D::operator==(const BoundingBox2D &other) const{
+  return xMin()==other.xMin() && yMin() == other.yMin() && xMax() == other.xMax() && yMax() == other.yMax();
 }
 

@@ -9,7 +9,7 @@ set(geometryTests
         common/geometry/CircleTest.cpp
         common/geometry/AngleTest.cpp
         common/geometry/RotationTest.cpp
-        )
+        common/geometry/BoundingBoxTest.cpp)
 set(coreTests
         common/core/TimeTest.cpp
         common/core/RandomTest.cpp)

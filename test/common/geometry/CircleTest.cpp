@@ -8,6 +8,8 @@
 #include <math/geometry/Rectangle.h>
 #include <gtest/gtest.h>
 #include <cmath>
+#include <math/geometry/BoundingBox2D.h>
+#include <math/geometry/Ray.h>
 
 TEST(CircleTests, instantiation) {
     // Test unit circle
@@ -191,4 +193,84 @@ TEST(CircleTests, equalities) {
     EXPECT_FALSE(circle2 == circle3);
     EXPECT_TRUE(circle3 != circle2);
     EXPECT_TRUE(circle2 != circle3);
+}
+TEST(CircleTests,move){
+  Circle x(Vector2(1,2),3);
+  EXPECT_EQ(x.center(),Vector2(1,2));
+  EXPECT_EQ(x.radius(),3);
+  x.move(Vector2(1,2));
+  EXPECT_EQ(x.center(),Vector2(2,4));
+  EXPECT_EQ(x.radius(),3);
+}
+TEST(CircleTests,boundingBox){
+  Circle x(Vector2(1,2),1);
+  BoundingBox2D box = x.boundingBox();
+  EXPECT_EQ(box.xMin(),0);
+  EXPECT_EQ(box.xMax(),2);
+  EXPECT_EQ(box.yMin(),1);
+  EXPECT_EQ(box.yMax(),3);
+}
+TEST(CircleTests,lineIntersection){
+  Circle x(Vector2(1,1),1);
+  LineSegment oneNonTangent(Vector2(0,0),Vector2(1,1));
+  double intersect=1-sqrt(2)*0.5;
+  EXPECT_TRUE(x.doesIntersect(oneNonTangent));
+  EXPECT_EQ(x.intersects(oneNonTangent).size(),1);
+  EXPECT_EQ(Vector2(intersect,intersect),x.intersects(oneNonTangent)[0]);
+
+  LineSegment twoNonTangent(Vector2(0,0),Vector2(2,2));
+  EXPECT_TRUE(x.doesIntersect(twoNonTangent));
+  EXPECT_EQ(x.intersects(twoNonTangent).size(),2);
+  EXPECT_EQ(Vector2(intersect,intersect),x.intersects(twoNonTangent)[0]);
+  EXPECT_EQ(Vector2(1+sqrt(2)*0.5,1+sqrt(2)*0.5),x.intersects(twoNonTangent)[1]);
+
+
+  LineSegment tangent(Vector2(0,0),Vector2(0,2));
+  LineSegment tangentTouch(Vector2(0,0),Vector2(0,1));
+  for(const auto &segment : {tangent,tangentTouch}){
+    EXPECT_TRUE(x.doesIntersect(segment));
+    EXPECT_EQ(x.intersects(segment).size(),1);
+    EXPECT_EQ(x.intersects(segment)[0],Vector2(0,1));
+  }
+
+  LineSegment inside(Vector2(0.5,0.5),Vector2(1.5,1.5));
+  EXPECT_FALSE(x.doesIntersect(inside));
+  EXPECT_TRUE(x.intersects(inside).empty());
+
+  LineSegment outSide(Vector2(-1.0,-1.0),Vector2(0,0));
+  EXPECT_FALSE(x.doesIntersect(outSide));
+  EXPECT_TRUE(x.intersects(outSide).empty());
+
+  LineSegment outsideNeverTouching(Vector2(-1.0,-10.0),Vector2(0,-9.0));
+  EXPECT_FALSE(x.doesIntersect(outsideNeverTouching));
+  EXPECT_TRUE(x.intersects(outsideNeverTouching).empty());
+}
+TEST(CircleTests,rayIntersection){
+  Circle x(Vector2(1,1),1);
+  Ray nonTangentNormal(Vector2(-1,-1),Vector2(0,0));
+  double intersect=1-sqrt(2)*0.5;
+  EXPECT_TRUE(x.doesIntersect(nonTangentNormal));
+  EXPECT_EQ(x.intersects(nonTangentNormal).size(),2);
+  EXPECT_DOUBLE_EQ(intersect,x.intersects(nonTangentNormal)[0].x());
+  EXPECT_DOUBLE_EQ(intersect,x.intersects(nonTangentNormal)[0].y());
+  EXPECT_EQ(Vector2(1+sqrt(2)*0.5,1+sqrt(2)*0.5),x.intersects(nonTangentNormal)[1]);
+
+  Ray nonTangentAway(Vector2(0,0),Vector2(-1,-1));
+  EXPECT_FALSE(x.doesIntersect(nonTangentAway));
+  EXPECT_TRUE(x.intersects(nonTangentAway).empty());
+
+  Ray tangent(Vector2(0,0),Vector2(0,2));
+  EXPECT_TRUE(x.doesIntersect(tangent));
+  EXPECT_EQ(x.intersects(tangent).size(),1);
+  EXPECT_EQ(x.intersects(tangent)[0],Vector2(0,1));
+
+  Ray inside(Vector2(1.5,1.5),Vector2(0.5,0.5));
+  EXPECT_TRUE(x.doesIntersect(inside));
+  EXPECT_EQ(x.intersects(inside).size(),1);
+  EXPECT_DOUBLE_EQ(intersect,x.intersects(inside)[0].x());
+  EXPECT_DOUBLE_EQ(intersect,x.intersects(inside)[0].y());
+
+  Ray outsideNeverTouching(Vector2(-1.0,-10.0),Vector2(0,-9.0));
+  EXPECT_FALSE(x.doesIntersect(outsideNeverTouching));
+  EXPECT_TRUE(x.intersects(outsideNeverTouching).empty());
 }

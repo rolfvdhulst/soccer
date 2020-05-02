@@ -39,17 +39,16 @@ class BoundingBox2D {
 
     bool contains(const Vector2& point);
 
-    bool doesIntersect(const LineSegment& segment);
-
+//    bool doesIntersect(const LineSegment& segment);
+//    bool doesIntersect(const Line& line);
     bool doesIntersect(const Ray& ray);
-    bool doesIntersectA(const Ray& ray);
-    bool doesIntersectB(const Ray& ray);
-    bool doesIntersect(const Line& line);
+
+
     /**
      * @param other
      * @return True if the two bounding boxes overlap somewhere
      */
-    [[nodiscard]] bool doOverlap(const BoundingBox2D &other) const;
+    [[nodiscard]] bool doesOverlap(const BoundingBox2D &other) const;
     /**
      * @param other
      * @return a bounding box 2d representing the overlap of the two bounding boxes
@@ -76,7 +75,11 @@ class BoundingBox2D {
      * @return The smallest bounding box 2d which contains this and the point
      */
     BoundingBox2D &operator+=(const Vector2 &point);
-
+    /**
+     * @param other bounding box
+     * @return true if all limits are the same
+     */
+    bool operator==(const BoundingBox2D &other) const;
    private:
     Vector2 min;
     Vector2 max;
