@@ -71,8 +71,20 @@ Vector2 Vector2::abs() const { return {std::abs(m_x), std::abs(m_y)}; }
 
 double Vector2::cross(const Vector2 &other) const { return this->m_x * other.m_y - this->m_y * other.m_x; }
 
-bool Vector2::operator==(const Vector2 &other) const { return this->m_x == other.m_x && this->m_y == other.m_y; }
-bool Vector2::approx(const Vector2 &other) const { return fabs(this->m_x - other.m_x) < VECTOR_PRECISION && fabs(this->m_y - other.m_y) < VECTOR_PRECISION; }
+bool Vector2::operator==(const Vector2 &other) const {
+  return approx(other);
+}
+
+
+bool approxFloat(double a, double b, double epsilon){
+  return std::abs(a-b)<= std::max({std::abs(a),std::abs(b),1.0})*epsilon;
+}
+bool Vector2::approx(const Vector2 &other, double precision) const {
+  return approxFloat(m_x,other.m_x,precision) && approxFloat(m_y,other.m_y,precision);
+}
+bool Vector2::exactly(const Vector2 &other){
+  return this->m_x == other.m_x && this->m_y == other.m_y;
+}
 
 bool Vector2::operator!=(const Vector2 &other) const { return !(*this == other); }
 

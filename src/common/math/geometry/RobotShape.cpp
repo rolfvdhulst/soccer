@@ -5,22 +5,23 @@
 #include "math/geometry/RobotShape.h"
 #include "geometry/BoundingBox2D.h"
 #include "geometry/LineSegment.h"
+#include "geometry/Ray.h"
 
 RobotShape::RobotShape(const Vector2 &pos, double centerToFront, double radius, Angle orientation)
-:circle{Circle(pos,radius)}, centerToFront{centerToFront}, angle(orientation){
+:circle{Circle(pos,radius)}, centerToFront{centerToFront}, orientation{orientation}{
   assert(centerToFront<=radius);
   //Slightly more complicated, but we do so to minimize the amount of times we need to call cos() and sin()
   Vector2 middleToCenter = Vector2(orientation).stretchToLength(centerToFront);
   Vector2 dribblerCenter = pos + middleToCenter;
   double halfFrontWidth = sqrt(radius*radius-centerToFront*centerToFront); //Pythagoras
   Vector2 diff = Vector2(-middleToCenter.y(),middleToCenter.x()).stretchToLength(halfFrontWidth);
-  kickerLine = Line(dribblerCenter+diff,dribblerCenter-diff); //Upper corner, lower corner (when robot is facing right (e.g. angle = 0))
+  kickerLine = Line(dribblerCenter-diff,dribblerCenter+diff); //Lower corner, upper corner (when robot is facing right (e.g. angle = 0))
 }
 bool RobotShape::inFrontOfDribbler(const Vector2 &point) const {
   //We use the cross product to determine which side of the plane the point is on.
   //KickerLine is always oriented such that this definition is consistent with the ball being ahead of the robot.
   //Note we don't do >=0 because we want to exclude the case where the point is exactly on the line.
-  return kickerLine.direction().cross(point)>0;
+  return kickerLine.direction().cross(kickerLine.start()-point)>0;
 }
 void RobotShape::move(const Vector2 &by) {
   circle.move(by);
@@ -29,6 +30,8 @@ void RobotShape::move(const Vector2 &by) {
 bool RobotShape::contains(const Vector2 &point) const {
   return circle.contains(point) && !inFrontOfDribbler(point);
 }
+//We return the circle's bounding box. Strictly speaking the bounding box can be smaller depending on the robots orientation
+//But frankly, this probably costs more time to compute than it saves in computation later. This is just easier to work with.
 BoundingBox2D RobotShape::boundingBox() const {
   return circle.boundingBox();
 }
@@ -87,7 +90,7 @@ std::vector<Vector2> RobotShape::intersects(const LineSegment &segment) const {
     //The segment is completely outside the circle.
     return {};
   } else if (intersects.size() == 1){
-    auto intersect = LineSegment(kickerLine).intersects(segment); // we need this info in all branches
+    auto intersect = segment.intersects(LineSegment(kickerLine)); // we need this info in all branches
     //Either the segment touches the circle, or (more likely) it starts or ends inside of it.
     if(inFrontOfDribbler(intersects[0])){
       //The segment might still intersect with the kicker
@@ -98,7 +101,11 @@ std::vector<Vector2> RobotShape::intersects(const LineSegment &segment) const {
     }
     //If the intersection point is on the hull there is no problem. However, there might be another intersection at the kicker.
     if(intersect){
-      intersects.push_back(*intersect); //TODO: probably double counts in case of exact corner, need to discard ends
+      //Check which point was the first collision
+      if((segment.start()-*intersect).length2()<(segment.start()-intersects[0]).length2()){
+        return {*intersect,intersects[0]};
+      }
+      intersects.push_back(*intersect);
     }
     return intersects;
   } else if (intersects.size() == 2){
@@ -118,7 +125,7 @@ std::vector<Vector2> RobotShape::intersects(const LineSegment &segment) const {
     Vector2 dribblerIntersect = *kickerLine.intersects(segment); //If this crashes there has to be a bug somewhere.
     //Check which of the intersections was invalid.
     if(firstInFront){
-      return {intersects[1],dribblerIntersect};
+      return {dribblerIntersect,intersects[1]};
     }
     return {intersects[0],dribblerIntersect};
   }
@@ -130,7 +137,7 @@ std::vector<Vector2> RobotShape::intersects(const Ray &ray) const {
     //The ray is completely outside the circle.
     return {};
   } else if (intersects.size() == 1){
-    auto intersect = LineSegment(kickerLine).intersects(ray); // we need this info in all branches
+    auto intersect = ray.intersects(LineSegment(kickerLine)); // we need this info in all branches
     //Either the ray touches the circle, or (more likely) it started  inside of it.
     if(inFrontOfDribbler(intersects[0])){
       //The ray might still have hit the kicker by starting inside of the robot
@@ -141,6 +148,9 @@ std::vector<Vector2> RobotShape::intersects(const Ray &ray) const {
     }
     //If the intersection point is on the hull there is no problem. However, there might be another intersection at the kicker.
     if(intersect){
+      if((ray.start()-*intersect).length2()<(ray.start()-intersects[0]).length2()){
+        return {*intersect,intersects[0]};
+      }
       intersects.push_back(*intersect); //TODO: this double counts now if the lines go through the exact corner. (need to write function that ignores end point intersections)
     }
     return intersects;
@@ -161,9 +171,21 @@ std::vector<Vector2> RobotShape::intersects(const Ray &ray) const {
     Vector2 dribblerIntersect = *kickerLine.intersects(ray); //If this
     //Check which of the intersections was invalid.
     if(firstInFront){
-      return {intersects[1],dribblerIntersect};
+      return {dribblerIntersect,intersects[1]};
     }
     return {intersects[0],dribblerIntersect};
   }
   return {};//This should never be hit as circle intersection always hits atleast two.
+}
+Angle RobotShape::angle() const {
+  return orientation;
+}
+const Vector2 &RobotShape::pos() const {
+  return circle.center();
+}
+Vector2 RobotShape::centerOfKickerPos() const {
+  return (kickerLine.start()+kickerLine.end())*0.5;
+}
+LineSegment RobotShape::kicker() const {
+  return LineSegment(kickerLine);
 }

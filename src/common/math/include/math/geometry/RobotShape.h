@@ -14,19 +14,28 @@ class RobotShape : public Shape {
   //The first three are necessary to determine the entire shape
   Circle circle;
   double centerToFront;
-  Angle angle;
+  Angle orientation;
   //The following is not necessary but prevents a lot of recomputation using sin() and cos() like functions which can be pretty expensive
-  Line kickerLine;//We use a Line as it gives more efficient computations (circle does most of the work for us, actually)
+  Line kickerLine;//We use a Line as it gives more efficient computations
 
  public:
   RobotShape(const Vector2 &pos, double centerToFront, double radius, Angle orientation);
 
   /**
    * Checks if a given point lies in front (not on) of the line which defines the dribbler.
+   * This only checks if the point is on the correct side of the halfplane defined by the line passing through the dribbler
    * @param point
    * @return
    */
   [[nodiscard]] bool inFrontOfDribbler(const Vector2& point) const;
+
+  [[nodiscard]] const Vector2& pos() const;
+
+  [[nodiscard]] Angle angle() const;
+
+  [[nodiscard]] Vector2 centerOfKickerPos() const;
+
+  [[nodiscard]] LineSegment kicker() const;
 
   void move(const Vector2 &by) override;
 

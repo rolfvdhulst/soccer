@@ -143,7 +143,9 @@ class Vector2 {
     /**
      * @brief Checks if the points are approximately equal
      */
-    [[nodiscard]] bool approx(const Vector2 &other) const;
+    [[nodiscard]] bool approx(const Vector2 &other, double precision = 1e-12) const;
+
+    [[nodiscard]] bool exactly(const Vector2 &other);
     /**
      * \brief Checks for inequality.
      */
