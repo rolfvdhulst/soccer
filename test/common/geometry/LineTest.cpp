@@ -68,6 +68,12 @@ const static LineTest LS2{Line(Vector2(0,0),Vector2(1,1)),Line(Vector2(1,2),Vect
 
 const static LineTest LR1{Line(Vector2(0,0),Vector2(1,1)),Line(Vector2(0,4),Vector2(1,3)),Vector2(2,2)};
 const static LineTest LR1_r{Line(Vector2(0,0),Vector2(1,1)),Line(Vector2(1,3),Vector2(0,4)),std::nullopt};
+
+const static LineTest RR1{Line(Vector2(0,0),Vector2(1,1)),Line(Vector2(0,4),Vector2(1,3)),Vector2(2,2)};
+const static LineTest RR2{Line(Vector2(1,1),Vector2(0,0)),Line(Vector2(0,4),Vector2(1,3)),std::nullopt};
+const static LineTest RR3{Line(Vector2(1,1),Vector2(0,0)),Line(Vector2(1,3),Vector2(0,4)),std::nullopt};
+const static LineTest RR4{Line(Vector2(0,0),Vector2(1,1)),Line(Vector2(1,3),Vector2(0,4)),std::nullopt};
+
 double invalidConstructor(){
   Line line(Vector2(0,1),Vector2(0,1));
   return line.start().x();
@@ -76,6 +82,9 @@ TEST(LineTests, constructor){
   Vector2 A(1,1), B(3,2);
   Line line(A,B);
   Ray ray(A,B);
+  Ray ray2;
+  EXPECT_EQ(ray2.start(),ray2.end());
+  EXPECT_EQ(ray2.start(),Vector2());
   LineSegment segment(A,B);
   EXPECT_DOUBLE_EQ(line.start().x(),1);
   EXPECT_DOUBLE_EQ(line.start().y(),1);
@@ -551,4 +560,111 @@ TEST(LineTests, LineRayIntersection){
     EXPECT_EQ(second.intersects(first),test.intersect);
   }
 
+}
+
+TEST(LineTests, SegmentRayIntersection){
+  std::vector<LineTest> overlappingCL{CL_OL,CL_T,CL_OL_H,CL_T_H,CL_OL_V,CL_T_V};
+  std::vector<LineTest> notIntersecting{P,P_H,P_V,CL_NOL,CL_NOL_H,CL_NOL_V,NP,NP_H,SS4,SS5};
+  std::vector<LineTest> intersections{SS1,SS2,SS3};
+  for (const auto& startTest : overlappingCL) {
+      LineSegment first(startTest.first);
+      Ray second(startTest.second);
+      EXPECT_TRUE(first.doesIntersect(second));
+      EXPECT_TRUE(second.doesIntersect(first));
+      //TODO: intersection is closest to start as it is on the segment, test this
+      EXPECT_TRUE(first.intersects(second)!= std::nullopt);
+      EXPECT_TRUE(second.intersects(first)!= std::nullopt);
+  }
+  //Overlapping last tests
+  LineSegment segment(CL_T.second);
+  Ray ray(CL_T.first);
+  EXPECT_TRUE(segment.doesIntersect(ray));
+  EXPECT_TRUE(ray.doesIntersect(segment));
+  EXPECT_EQ(*ray.intersects(segment),*CL_T.intersect);
+  EXPECT_EQ(*segment.intersects(ray),*CL_T.intersect);
+
+  LineSegment segment2(CL_T.first);
+  Ray ray2(LineSegment(CL_T.second).reversed());
+  EXPECT_TRUE(segment2.doesIntersect(ray2));
+  EXPECT_TRUE(ray2.doesIntersect(segment2));
+  EXPECT_EQ(*ray2.intersects(segment2),*CL_T.intersect);
+  EXPECT_EQ(*segment2.intersects(ray2),*CL_T.intersect);
+
+  for (const auto& startTest : notIntersecting) {
+    LineSegment first(startTest.first);
+    Ray second(startTest.second);
+    EXPECT_FALSE(first.doesIntersect(second));
+    EXPECT_FALSE(second.doesIntersect(first));
+    EXPECT_EQ(first.intersects(second),std::nullopt);
+    EXPECT_EQ(second.intersects(first),std::nullopt);
+  }
+
+  for (const auto& startTest : intersections) {
+    LineSegment first(startTest.first);
+    Ray second(startTest.second);
+    EXPECT_TRUE(first.doesIntersect(second));
+    EXPECT_TRUE(second.doesIntersect(first));
+    EXPECT_EQ(*first.intersects(second),*startTest.intersect);
+    EXPECT_EQ(*second.intersects(first),*startTest.intersect);
+  }
+
+  LineSegment first(SS4.first);
+  Ray second(LineSegment(SS4.second).reversed());
+  EXPECT_TRUE(first.doesIntersect(second));
+  EXPECT_TRUE(second.doesIntersect(first));
+  EXPECT_EQ(*first.intersects(second),Vector2(0.5,0.5));
+  EXPECT_EQ(*second.intersects(first),Vector2(0.5,0.5));
+
+  LineSegment a(SS6.first);
+  Ray b(SS6.second);
+  EXPECT_TRUE(a.doesIntersect(b));
+  EXPECT_TRUE(b.doesIntersect(a));
+  EXPECT_EQ(*a.intersects(b),Vector2(1,1));
+  EXPECT_EQ(*b.intersects(a),Vector2(1,1));
+}
+TEST(LineTests, RayRayIntersection){
+  //colinear and intersecting/not intersecting depending on direction of ray
+  Ray ray1(CL_NOL.first);
+  Ray ray2(CL_NOL.second);
+  EXPECT_TRUE(ray1.doesIntersect(ray2));
+  EXPECT_TRUE(ray2.doesIntersect(ray1));
+  EXPECT_EQ(*ray1.intersects(ray2),ray2.start());
+  EXPECT_EQ(*ray2.intersects(ray1),ray2.start());
+
+  ray1=Ray(LineSegment(CL_NOL.first).reversed());
+  EXPECT_FALSE(ray1.doesIntersect(ray2));
+  EXPECT_FALSE(ray2.doesIntersect(ray1));
+  EXPECT_EQ(ray1.intersects(ray2),std::nullopt);
+  EXPECT_EQ(ray2.intersects(ray1),std::nullopt);
+
+  ray2= Ray(LineSegment(CL_NOL.second).reversed());
+  EXPECT_TRUE(ray1.doesIntersect(ray2));
+  EXPECT_TRUE(ray2.doesIntersect(ray1));
+  EXPECT_EQ(*ray1.intersects(ray2),ray1.start());
+  EXPECT_EQ(*ray2.intersects(ray1),ray1.start());
+
+  ray1 = Ray(CL_NOL.first);
+  EXPECT_TRUE(ray1.doesIntersect(ray2));
+  EXPECT_TRUE(ray2.doesIntersect(ray1));
+  EXPECT_EQ(ray1.intersects(ray2),ray1.start());
+  EXPECT_EQ(ray2.intersects(ray1),ray2.start());
+
+ //parrallel, not intersecting
+  for (const auto& test :{ P,P_H,P_V}){
+    Ray first(test.first);
+    Ray second(test.second);
+    EXPECT_FALSE(first.doesIntersect(second));
+    EXPECT_FALSE(second.doesIntersect(first));
+    EXPECT_EQ(first.intersects(second),std::nullopt);
+    EXPECT_EQ(second.intersects(first),std::nullopt);
+  }
+  //Some normal intersections
+  for (const auto& test :{RR1,RR2,RR3,RR4}){
+    Ray first(test.first);
+    Ray second(test.second);
+    EXPECT_EQ(first.doesIntersect(second),test.intersect!=std::nullopt);
+    EXPECT_EQ(second.doesIntersect(first),test.intersect!=std::nullopt);
+    EXPECT_EQ(first.intersects(second),test.intersect);
+    EXPECT_EQ(second.intersects(first),test.intersect);
+  }
 }
