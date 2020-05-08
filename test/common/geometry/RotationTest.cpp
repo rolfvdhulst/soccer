@@ -2,7 +2,7 @@
 // Created by rolf on 07-03-20.
 //
 
-#include <geometry/Rotation.h>
+#include <math/geometry/Rotation.h>
 #include <gtest/gtest.h>
 TEST(RotationTests, basics) {
     Rotation a;

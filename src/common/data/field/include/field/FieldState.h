@@ -5,9 +5,9 @@
 #ifndef SOCCER_FIELDSTATE_H
 #define SOCCER_FIELDSTATE_H
 
-#include <geometry/Circle.h>
-#include <geometry/LineSegment.h>
-#include <geometry/Rectangle.h>
+#include <math/geometry/Circle.h>
+#include <math/geometry/LineSegment.h>
+#include <math/geometry/Rectangle.h>
 #include <protobuf/messages_robocup_ssl_geometry.pb.h>
 
 // All things with 'our' are named for convenience.

@@ -7,7 +7,7 @@
 #include <variant>
 #include <protobuf/ssl_game_event.pb.h>
 #include <world/RobotID.h>
-#include <geometry/Vector2.h>
+#include <math/geometry/Vector2.h>
 #include <core/Time.h>
 #include "Team.h"
 

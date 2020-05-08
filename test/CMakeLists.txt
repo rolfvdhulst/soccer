@@ -1,3 +1,4 @@
+add_subdirectory(benchmarks)
 set(geometryTests
         common/geometry/LineTest.cpp
         common/geometry/RectangleTest.cpp
@@ -8,19 +9,27 @@ set(geometryTests
         common/geometry/CircleTest.cpp
         common/geometry/AngleTest.cpp
         common/geometry/RotationTest.cpp
+        common/geometry/BoundingBoxTest.cpp
+        common/geometry/RobotShapeTest.cpp
         )
 set(coreTests
         common/core/TimeTest.cpp
-        )
+        common/core/RandomTest.cpp)
 set(worldTests
         common/world/RobotIDTest.cpp
         )
 set(mathTests
-        common/math/KalmanFilterTest.cpp
-        )
+        common/math/filters/KalmanFilterTest.cpp
+        common/math/filters/PosVelFilter2DTest.cpp
+        common/math/filters/DEMAFilterTest.cpp
+        common/math/filters/ConstantMATest.cpp)
 set(fieldTests
         common/field/CameraTest.cpp
-        common/field/CameraMapTest.cpp common/field/FieldStateTest.cpp)
+        common/field/CameraMapTest.cpp
+        common/field/FieldStateTest.cpp)
+set(containerTests
+        containers/
+        common/containers/CircularBufferTest.cpp)
 set(helperClasses
         helpers/ProtoExamples.h
         helpers/RandomWorldGeneration.cpp
@@ -34,15 +43,17 @@ add_executable(allTests
         ${mathTests}
         ${worldTests}
         ${fieldTests}
+        ${containerTests}
         )
 
 target_link_libraries(allTests
         PRIVATE proto
-        PRIVATE geometry
+        PRIVATE math
         PRIVATE core
         PRIVATE world
         PRIVATE field
         PRIVATE math
+        PRIVATE containers
         PRIVATE gtest
         )
 target_include_directories(allTests

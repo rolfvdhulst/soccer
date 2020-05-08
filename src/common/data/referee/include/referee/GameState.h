@@ -10,7 +10,7 @@
 #include "TeamInfo.h"
 
 #include <core/Time.h>
-#include <geometry/Vector2.h>
+#include <math/geometry/Vector2.h>
 #include <protobuf/GameState.pb.h>
 class RefereeState{
     public:

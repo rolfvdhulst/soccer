@@ -5,18 +5,24 @@
 #ifndef SOCCER_ROBOTSTATE_H
 #define SOCCER_ROBOTSTATE_H
 
-#include <geometry/Angle.h>
-#include <geometry/Rotation.h>
-#include <geometry/Vector2.h>
+#include <math/geometry/Angle.h>
+#include <math/geometry/Rotation.h>
+#include <math/geometry/Vector2.h>
 #include "RobotID.h"
 
 class RobotState {
-   private:
-    RobotID id;
-    Vector2 position;
-    Angle angle;
-    Vector2 velocity;
-    Rotation angularVelocity;
+    public:
+        [[nodiscard]] const RobotID& id() const;
+        [[nodiscard]] const Vector2& pos() const;
+        [[nodiscard]] const Angle& angle() const;
+        [[nodiscard]] const Vector2& vel() const;
+        [[nodiscard]] const Rotation& angularVel() const;
+    private:
+        RobotID _id;
+        Vector2 _position;
+        Angle _angle;
+        Vector2 _velocity;
+        Rotation _angularVelocity;
 };
 
 #endif  // SOCCER_ROBOTSTATE_H

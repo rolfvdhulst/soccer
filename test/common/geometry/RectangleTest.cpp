@@ -2,11 +2,11 @@
 // Created by rolf on 22-01-20.
 //
 
-#include <geometry/Line.h>
-#include <geometry/LineSegment.h>
-#include <geometry/Polygon.h>
-#include <geometry/Rectangle.h>
 #include <gtest/gtest.h>
+#include <math/geometry/Line.h>
+#include <math/geometry/LineSegment.h>
+#include <math/geometry/Polygon.h>
+#include <math/geometry/Rectangle.h>
 static Rectangle rect(Vector2(-1, 1), Vector2(1, 2));
 static Rectangle nullExample(Vector2(0, 0), Vector2(0, 0));
 TEST(Rectangle, cohenCodes) {
@@ -80,32 +80,28 @@ TEST(Rectangle, simpleFunctions) {
     // We check if corners are properly defined to be clockwise ordered
     auto corners = rectangle.corners();
     auto lines = rectangle.lines();
-    EXPECT_DOUBLE_EQ(corners[0].x, -1.0);
-    EXPECT_DOUBLE_EQ(corners[0].y, -1.0);
-    EXPECT_DOUBLE_EQ(corners[1].x, -1.0);
-    EXPECT_DOUBLE_EQ(corners[1].y, 0.0);
-    EXPECT_DOUBLE_EQ(corners[2].x, 1.0);
-    EXPECT_DOUBLE_EQ(corners[2].y, 0.0);
-    EXPECT_DOUBLE_EQ(corners[3].x, 1.0);
-    EXPECT_DOUBLE_EQ(corners[3].y, -1.0);
+    EXPECT_DOUBLE_EQ(corners[0].x(), -1.0);
+    EXPECT_DOUBLE_EQ(corners[0].y(), -1.0);
+    EXPECT_DOUBLE_EQ(corners[1].x(), -1.0);
+    EXPECT_DOUBLE_EQ(corners[1].y(), 0.0);
+    EXPECT_DOUBLE_EQ(corners[2].x(), 1.0);
+    EXPECT_DOUBLE_EQ(corners[2].y(), 0.0);
+    EXPECT_DOUBLE_EQ(corners[3].x(), 1.0);
+    EXPECT_DOUBLE_EQ(corners[3].y(), -1.0);
 
     for (int i = 0; i < 4; ++i) {
-        EXPECT_EQ(lines[i].start, corners[i]);
+        EXPECT_EQ(lines[i].start(), corners[i]);
         if (i < 3) {
-            EXPECT_EQ(lines[i].end, corners[i + 1]);
+            EXPECT_EQ(lines[i].end(), corners[i + 1]);
         } else {
-            EXPECT_EQ(lines[i].end, corners[0]);
+            EXPECT_EQ(lines[i].end(), corners[0]);
         }
     }
 
     Vector2 centre = rectangle.center();
-    EXPECT_DOUBLE_EQ(centre.x, 0.0);
-    EXPECT_DOUBLE_EQ(centre.y, -0.5);
+    EXPECT_DOUBLE_EQ(centre.x(), 0.0);
+    EXPECT_DOUBLE_EQ(centre.y(), -0.5);
 
-    Polygon polygon = rectangle.asPolygon();
-    for (int i = 0; i < 4; ++i) {
-        EXPECT_EQ(polygon.vertices.at(i), corners[i]);
-    }
 
     std::cout << rectangle << std::endl;
 }

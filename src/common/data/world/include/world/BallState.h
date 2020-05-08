@@ -6,32 +6,18 @@
 #define SOCCER_BALLSTATE_H
 
 #include <core/Time.h>
-#include <geometry/Vector2.h>
-#include <geometry/Vector3.h>
+#include <math/geometry/Vector2.h>
+#include <math/geometry/Vector3.h>
 class BallState {
-   private:
-    Vector2 position;
-    Vector2 velocity;
-    bool isVisible;
+    public:
+        [[nodiscard]] const Vector2& pos() const;
+        [[nodiscard]] const Vector2& vel() const;
+        [[nodiscard]] bool isVisible() const;
+    private:
+        Vector2 _position;
+        Vector2 _velocity;
+        bool _isVisible;
 };
-class GroundBallState {
-   private:
-    Vector2 position;
-    Vector2 velocity;
-    bool isVisible;
-};
-class GroundKickData {
-   private:
-    Time kickTime;
-    Vector2 kickPos;
-    Vector2 kickVel;
-};
-class AirBallState {
-   private:
-    Vector3 position;
-    Vector3 velocity;
-    Vector2 predictedBouncePosition;
-    Time predictedBounceTime;
-};
+
 
 #endif  // SOCCER_BALLSTATE_H

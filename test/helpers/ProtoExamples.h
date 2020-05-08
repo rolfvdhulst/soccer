@@ -16,5 +16,8 @@ proto::SSL_GeometryCameraCalibration RoboCup2019Cam0();
 proto::SSL_DetectionRobot cam0Detection();
 proto::SSL_GeometryCameraCalibration RoboCup2019Cam1();
 proto::SSL_DetectionRobot cam1Detection();
+proto::SSL_GeometryCameraCalibration RoboCup2018Cam7();
+proto::SSL_DetectionRobot cam7Detection();
+
 
 #endif  // SOCCER_PROTOEXAMPLES_H

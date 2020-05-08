@@ -1,0 +1,103 @@
+// Created by rolf on 19-04-20.
+//
+
+#ifndef SOCCER_SRC_COMMON_MATH_FILTERS_POSVELFILTER2D_H_
+#define SOCCER_SRC_COMMON_MATH_FILTERS_POSVELFILTER2D_H_
+
+#include "KalmanFilter.h"
+#include <core/Time.h>
+/**
+ * @brief Class that filters 2d positions. This is essentially a constant velocity kalman filter in 2 dimensions.
+ * bjects are assumed to keep moving as they do.
+ * the first two state index represent the x and y coordinates,
+ * the 3rd and fourth represent the x and y velocity respectively
+ */
+class PosVelFilter2D {
+ public:
+  PosVelFilter2D(const Eigen::Vector4d &initialState, const Eigen::Matrix4d& initialCovariance,
+      double modelError, double measurementError, const Time& timeStamp);
+  /**
+   * @brief Predict the filter estimate to a new timestamp when there is no new measurement.
+   * Note this permanently alters the state of the filter, so there is no way to go back if you receive vision frames still.
+   * @param timeStamp
+   */
+  void predict(const Time& timeStamp);
+  /**
+   * @brief Update the position estimate with a new measurement at the current time of the filter.
+   * @param position to update the filter with
+   */
+  void update(const Eigen::Vector2d &position);
+
+  /**
+   * @brief Returns the state of the filter. First two indices are position, last two are velocity
+   * @return state.
+   */
+  [[nodiscard]] const Eigen::Vector4d& getState() const;
+  /**
+   * Returns the position of the filter. Prefer using getState() for performance
+   * @return
+   */
+  [[nodiscard]] Eigen::Vector2d getPosition() const;
+  /**
+   * Returns the velocity of the current state of the filter. Prefer using getState() for performance
+   * @return
+   */
+  [[nodiscard]] Eigen::Vector2d getVelocity() const;
+  /**
+   * Returns a linear extrapolation of the filter state to obtain position at a future time.
+   * @return pos + vel*dt (essentially)
+   */
+  [[nodiscard]] Eigen::Vector2d getPositionEstimate(const Time &time) const;
+
+  /**
+   * @brief Gets the uncertainty in position of the current filter state
+   * @return
+   */
+  [[nodiscard]] Eigen::Vector2d getPositionUncertainty() const;
+  /**
+   * @brief Gets the uncertainty in velocity of the current filter state
+   * @return
+   */
+  [[nodiscard]] Eigen::Vector2d getVelocityUncertainty() const;
+  /**
+   * Sets the measurement error (R matrix)
+   * @param error
+   */
+  void setMeasurementError(double error);
+
+  //The following functions alter the state of the filter. Use with care!
+  /**
+   * Resets the state of the filter to the given state
+   * @param state
+   */
+  void setState(const Eigen::Vector4d &state);
+  /**
+   * Resets the position of the filter to the given position
+   * @param position
+   */
+  void setPosition(const Eigen::Vector2d &position);
+  /**
+   * Resets the velocity of the filter to the given position
+   * @param velocity
+   */
+  void setVelocity(const Eigen::Vector2d &velocity);
+
+  /**
+   * Resets the covariance of the filter to the given matrix.
+   * @param covariance
+   */
+  void setCovariance(const Eigen::Matrix4d &covariance);
+
+
+ private:
+  //Before every tick we need to set the matrices we use using the dt of the tick
+  void setTransitionMatrix(double dt);
+  void setProcessNoiseFromRandomAcceleration(double dt);
+  KalmanFilter<4,2> filter;
+  Time lastUpdateTime;
+  double modelError;
+
+
+};
+
+#endif //SOCCER_SRC_COMMON_MATH_FILTERS_POSVELFILTER2D_H_

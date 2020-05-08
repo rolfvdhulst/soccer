@@ -1,36 +1,35 @@
 //
 // Created by rolf on 23-2-20.
 //
-
 #ifndef SOCCER_ROBOTID_H
 #define SOCCER_ROBOTID_H
-#include <tiff.h>
+#include <cstdint>
 
-const uint8 INVALID_ID = 255;
-const uint8 ID_MAX = 15;
+const uint8_t INVALID_ID = 255;
+const uint8_t ID_MAX = 15;
 //TODO: move to different library than world?
 class RobotID {
    public:
     RobotID();
-    RobotID(uint8 id);
+    RobotID(uint8_t id);
 
-    void setID(uint8 id);
+    void setID(uint8_t id);
     bool operator==(RobotID id) const;
-    bool operator==(uint8 id) const;
+    bool operator==(uint8_t id) const;
     bool operator!=(RobotID id) const;
-    bool operator!=(uint8 id) const;
+    bool operator!=(uint8_t id) const;
     // We implement the following so sorting algorithms etc.can be used
     bool operator<(RobotID id) const;
-    bool operator<(uint8 id) const;
+    bool operator<(uint8_t id) const;
     bool operator>(RobotID id) const;
-    bool operator>(uint8 id) const;
+    bool operator>(uint8_t id) const;
     [[nodiscard]] bool isValid() const;
     explicit operator unsigned int() const;
-    explicit operator uint8() const;
+    explicit operator uint8_t() const;
     [[nodiscard]] std::string toString() const;
 
    private:
-    void bound(uint8 id);
+    void bound(uint8_t id);
     unsigned int _id;
 };
 

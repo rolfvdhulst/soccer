@@ -2,37 +2,37 @@
 // Created by rolf on 24-02-20.
 //
 
-#include <geometry/Circle.h>
-#include <geometry/Tube.h>
 #include <gtest/gtest.h>
+#include <math/geometry/Circle.h>
+#include <math/geometry/Tube.h>
 
 TEST(Tube, basic) {
     Tube unitCircle;
     EXPECT_DOUBLE_EQ(unitCircle.radius, 1.0);
     EXPECT_DOUBLE_EQ(unitCircle.lineSegment.length(), 0.0);
-    EXPECT_DOUBLE_EQ(unitCircle.lineSegment.start.x, 0.0);
-    EXPECT_DOUBLE_EQ(unitCircle.lineSegment.start.y, 0.0);
-    EXPECT_DOUBLE_EQ(unitCircle.lineSegment.end.x, 0.0);
-    EXPECT_DOUBLE_EQ(unitCircle.lineSegment.end.y, 0.0);
+    EXPECT_DOUBLE_EQ(unitCircle.lineSegment.start().x(), 0.0);
+    EXPECT_DOUBLE_EQ(unitCircle.lineSegment.start().y(), 0.0);
+    EXPECT_DOUBLE_EQ(unitCircle.lineSegment.end().x(), 0.0);
+    EXPECT_DOUBLE_EQ(unitCircle.lineSegment.end().y(), 0.0);
     EXPECT_TRUE(unitCircle.isCircle());
     Vector2 start(0, 0);
     Vector2 end(2, 2);
     double radius = 0.5;
     Tube case1(start, end, radius);
-    EXPECT_DOUBLE_EQ(case1.lineSegment.start.x, start.x);
-    EXPECT_DOUBLE_EQ(case1.lineSegment.start.y, start.y);
-    EXPECT_DOUBLE_EQ(case1.lineSegment.end.x, end.x);
-    EXPECT_DOUBLE_EQ(case1.lineSegment.end.y, end.y);
+    EXPECT_DOUBLE_EQ(case1.lineSegment.start().x(), start.x());
+    EXPECT_DOUBLE_EQ(case1.lineSegment.start().y(), start.y());
+    EXPECT_DOUBLE_EQ(case1.lineSegment.end().x(), end.x());
+    EXPECT_DOUBLE_EQ(case1.lineSegment.end().y(), end.y());
     EXPECT_DOUBLE_EQ(case1.radius, radius);
 
     LineSegment line(Vector2(0, 1), Vector2(3, 4));
     double secondRadius = 5;
     Tube case2(line, secondRadius);
 
-    EXPECT_DOUBLE_EQ(case2.lineSegment.start.x, line.start.x);
-    EXPECT_DOUBLE_EQ(case2.lineSegment.start.y, line.start.y);
-    EXPECT_DOUBLE_EQ(case2.lineSegment.end.x, line.end.x);
-    EXPECT_DOUBLE_EQ(case2.lineSegment.end.y, line.end.y);
+    EXPECT_DOUBLE_EQ(case2.lineSegment.start().x(), line.start().x());
+    EXPECT_DOUBLE_EQ(case2.lineSegment.start().y(), line.start().y());
+    EXPECT_DOUBLE_EQ(case2.lineSegment.end().x(), line.end().x());
+    EXPECT_DOUBLE_EQ(case2.lineSegment.end().y(), line.end().y());
     EXPECT_DOUBLE_EQ(case2.radius, secondRadius);
 }
 TEST(Tube, contains) {

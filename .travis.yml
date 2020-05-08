@@ -15,6 +15,7 @@ addons:
     packages:
       - cmake
       - libprotobuf-dev
+      - libbenchmark-dev
       - libeigen3-dev
       - protobuf-compiler
       - lcov

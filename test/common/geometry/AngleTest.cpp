@@ -2,8 +2,8 @@
 // Created by rolf on 04-03-20.
 //
 
-#include <geometry/Angle.h>
-#include <geometry/Vector2.h>
+#include <math/geometry/Angle.h>
+#include <math/geometry/Vector2.h>
 #include <gtest/gtest.h>
 
 TEST(AngleTests, constructors) {
@@ -41,12 +41,12 @@ TEST(AngleTests, setAngle) {
 TEST(AngleTests, toVector2) {
     Vector2 start(1.0, 0);
     Angle angle(start);
-    EXPECT_DOUBLE_EQ(angle.toVector2(1.0).x, start.x);
-    EXPECT_DOUBLE_EQ(angle.toVector2(1.0).y, start.y);
+    EXPECT_DOUBLE_EQ(angle.toVector2(1.0).x(), start.x());
+    EXPECT_DOUBLE_EQ(angle.toVector2(1.0).y(), start.y());
     Angle angle2(Vector2(1, 1));
     Vector2 test = angle2.toVector2(1.0);
-    EXPECT_DOUBLE_EQ(test.x, sqrt(2) * 0.5);
-    EXPECT_DOUBLE_EQ(test.y, sqrt(2) * 0.5);
+    EXPECT_DOUBLE_EQ(test.x(), sqrt(2) * 0.5);
+    EXPECT_DOUBLE_EQ(test.y(), sqrt(2) * 0.5);
 }
 TEST(AngleTests, copyAssignment) {
     Angle angle(1.0);
@@ -112,4 +112,18 @@ TEST(AngleTests, angleDifference) {
     EXPECT_DOUBLE_EQ(a.angleDiff(c), -(M_PI - 0.1));
     EXPECT_DOUBLE_EQ(a.angleDiff(-2 + M_PI + 0.1), M_PI - 0.1);
     EXPECT_DOUBLE_EQ(a.angleDiff(-2 + M_PI - 0.1), -(M_PI - 0.1));
+}
+
+TEST(AngleTests, conversions){
+  Angle x(0.0),y(M_PI),z(-M_PI),d(M_PI_2),e(-M_PI_2);
+  EXPECT_DOUBLE_EQ(x.degrees(),0.0);
+  EXPECT_DOUBLE_EQ(y.degrees(),-180.0); //Flips to other side so is -180!
+  EXPECT_DOUBLE_EQ(z.degrees(),-180.0);
+  EXPECT_DOUBLE_EQ(d.degrees(),90.0);
+  EXPECT_DOUBLE_EQ(e.degrees(),-90.0);
+  EXPECT_DOUBLE_EQ(x.getAngle(),toRadians(0.0));
+  EXPECT_DOUBLE_EQ(y.getAngle(),toRadians(-180.0)); //Flips to other side so is -180!
+  EXPECT_DOUBLE_EQ(z.getAngle(),toRadians(-180.0));
+  EXPECT_DOUBLE_EQ(d.getAngle(),toRadians(90.0));
+  EXPECT_DOUBLE_EQ(e.getAngle(),toRadians(-90.0));
 }

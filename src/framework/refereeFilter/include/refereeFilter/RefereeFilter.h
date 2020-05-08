@@ -8,7 +8,7 @@
 #include <protobuf/ssl_referee.pb.h>
 #include <protobuf/RobotInfo.h>
 #include <protobuf/Settings.pb.h>
-#include <geometry/Vector2.h>
+#include <math/geometry/Vector2.h>
 class RefereeFilter {
     public:
         RefereeFilter();
