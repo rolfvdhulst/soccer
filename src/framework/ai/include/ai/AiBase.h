@@ -14,7 +14,7 @@
 #include <protobuf/DebugInfo.pb.h>
 #include <protobuf/AISettings.pb.h>
 
-/**'
+/**
  * An interface for an AI implementation to communicate with the rest of the system.
  * Any AI implementation should comply to the format.
  */
@@ -24,12 +24,8 @@ struct AITickInfo{
 };
 class AIBase {
  public:
-  virtual AITickInfo tick(proto::World world,
-      proto::GameState gameState,
-      proto::TeamRobotInfo teamRobotInfo,
-      std::optional<proto::SSL_GeometryData> geometry,
-      proto::AISettings settings
-      );
+  virtual AITickInfo tick(proto::World world, proto::GameState gameState, proto::TeamRobotInfo teamRobotInfo,
+      std::optional<proto::SSL_GeometryData> geometry, proto::AISettings settings);
 };
 
 #endif //SOCCER_SRC_FRAMEWORK_AI_AIBASE_H_
