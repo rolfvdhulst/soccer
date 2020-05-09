@@ -1,0 +1,6 @@
+syntax = "proto2";
+package proto;
+
+message AISettings{
+    required int64 filler =1; //TODO: remove again
+}
