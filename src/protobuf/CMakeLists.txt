@@ -21,6 +21,9 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
         proto/GameState.proto
         proto/FrameLog.proto
         proto/Settings.proto
+        proto/RobotCommand.proto
+        proto/AISettings.proto
+        proto/DebugInfo.proto
         )
 
 add_library(proto SHARED

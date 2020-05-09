@@ -1,0 +1,24 @@
+syntax = "proto2";
+import "Vector2f.proto";
+package proto;
+
+message RobotCommand {
+    required uint32 id = 1;
+    required Vector2f vel = 2;
+    oneof angularControl{
+        float angVel = 3;
+        float angle = 4;
+    }
+    optional uint32 dribbler = 5;
+
+    optional bool kicker = 6;
+    optional bool chipper = 7;
+
+    optional bool chip_kick_forced = 8;
+    optional float chip_kick_vel = 9;
+    optional uint32 geneva_state = 10;
+}
+
+message RobotCommands {
+    repeated RobotCommand commands = 1;
+}

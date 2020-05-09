@@ -13,6 +13,7 @@
 
 #include <logger/LogCreator.h>
 #include <logger/BackLogger.h>
+#include <ai/AiBase.h>
 
 class RoboCupSSLClient;
 
@@ -27,6 +28,7 @@ class ApplicationManager {
     std::unique_ptr<RoboCupSSLClient> refereeReceiver = nullptr;
     VisionFilter visionFilter;
     RefereeFilter gameStateFilter;
+    AIBase ai;
     std::vector<proto::SSL_WrapperPacket> visionPackets;
     std::vector<proto::Referee> refereePackets;
     void receiveVision();

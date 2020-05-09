@@ -54,8 +54,9 @@ void ApplicationManager::run(bool &exit) {
                 if (geometryData) {
                     flip(*geometryData);
                 }
-
             }
+            //run one cycle of the AI logic
+            AITickInfo tickInfo = ai.tick(worldState,gameState,teamRobotInfo,geometryData,proto::AISettings());//TODO: fix AISettings
             //For now we also flip the detection packets like this. Later if we really want to re-run using logging we might want to NOT do this for saving logs
             // This makes logging in the interface a bit easier
             std::vector<proto::SSL_WrapperPacket> copy = visionPackets;

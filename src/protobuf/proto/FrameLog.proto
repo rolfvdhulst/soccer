@@ -10,6 +10,7 @@ import "World.proto";
 import "GameState.proto";
 import "Settings.proto";
 import "RobotInfo.proto";
+import "RobotCommand.proto";
 
 message FrameLog {
     required Settings replaySettings = 1;
@@ -19,6 +20,6 @@ message FrameLog {
     required GameState gameState = 5;
     optional SSL_GeometryData interpretedGeometry = 6;
     required TeamRobotInfo robotInfo = 7;
-    //repeated RobotCommands sentCommands = 6;
+    repeated RobotCommands sentCommands = 8;
     //repeated RobotFeedback receivedFeedback = 7;
 }

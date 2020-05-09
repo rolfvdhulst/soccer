@@ -17,6 +17,7 @@ target_link_libraries(application
         PUBLIC refereeFilter
         PUBLIC protoUtils
         PUBLIC logger
+        PUBLIC ai
         )
 
 
