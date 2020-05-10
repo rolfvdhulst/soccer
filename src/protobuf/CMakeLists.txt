@@ -12,6 +12,7 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
         proto/messages_robocup_ssl_wrapper_legacy.proto
         proto/ssl_game_controller_common.proto
         proto/ssl_game_controller_team.proto
+        proto/ssl_game_controller_autoref.proto
         proto/ssl_game_event.proto
         proto/ssl_referee.proto
         proto/World.proto
