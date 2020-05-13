@@ -62,11 +62,15 @@ bool WorldState::hasRobots() const {
 WorldState::WorldState(const proto::World &world) : time(world.time())
 {
   for(const auto& robot : world.blue()){
-    us.push_back(RobotState(robot));
+    us.emplace_back(RobotState(robot));
   }
   for(const auto& robot : world.yellow()){
-    them.push_back(RobotState(robot));
+    them.emplace_back(RobotState(robot));
   }
-  ball = world.has_ball() ? BallState(world.ball()) : std::nullopt;
+  if(world.has_ball()){
+    ball = BallState(world.ball());
+  }else{
+    ball = std::nullopt;
+  }
 }
 
