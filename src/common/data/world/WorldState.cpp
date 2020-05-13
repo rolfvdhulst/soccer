@@ -2,6 +2,7 @@
 // Created by rolf on 23-2-20.
 //
 
+#include <protobuf/World.pb.h>
 #include "WorldState.h"
 const std::vector<RobotState> &WorldState::getUs() const {
     return us;
@@ -57,5 +58,15 @@ std::optional<RobotState> WorldState::getTheirRobot(const RobotID &id) const{
 }
 bool WorldState::hasRobots() const {
     return weHaveRobots() || theyHaveRobots();
+}
+WorldState::WorldState(const proto::World &world) : time(world.time())
+{
+  for(const auto& robot : world.blue()){
+    us.push_back(RobotState(robot));
+  }
+  for(const auto& robot : world.yellow()){
+    them.push_back(RobotState(robot));
+  }
+  ball = world.has_ball() ? BallState(world.ball()) : std::nullopt;
 }
 

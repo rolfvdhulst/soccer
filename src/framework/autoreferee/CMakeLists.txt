@@ -6,7 +6,7 @@ add_library(autoref
         include/autoreferee/AutoReferee.h
         network/GameControllerTcp.cpp
         network/GameControllerTcp.h
-        )
+        eventDetection/SingleEventDetector.cpp eventDetection/SingleEventDetector.h eventDetection/Context.h)
 target_compile_options(autoref PUBLIC
         -std=c++17
         )
@@ -21,6 +21,8 @@ target_link_libraries(autoref
         PUBLIC net
         PUBLIC visionFilter
         PUBLIC refereeFilter
+        PUBLIC field
+        PUBLIC world
         )
 
 add_executable(roboteam_autoref

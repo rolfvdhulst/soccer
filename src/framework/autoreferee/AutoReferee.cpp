@@ -15,18 +15,24 @@ void AutoReferee::init() {
 
 }
 void AutoReferee::run() {
-  int i = 0;
-  while(true){
-    i++;
-    if(i==500){
-      proto::GameEvent event;
-      event.set_type(proto::GameEventType::PREPARED);
-      proto::GameEvent_Prepared prepared;
-      prepared.set_time_taken(2.0);
-      event.mutable_prepared()->CopyFrom(prepared);
-      socket->sendEvent(event);
-    }
+  bool val = true;
+  while(val){
     auto before = Time::now();
+    receiveReferee();
+    receiveVision();
+    proto::TeamRobotInfo defaultInfo;
+    defaultInfo.mutable_blue()->CopyFrom(DEFAULT_ROBOT());
+    defaultInfo.mutable_yellow()->CopyFrom(DEFAULT_ROBOT());
+    visionFilter.process(visionPackets,defaultInfo);
+
+    std::optional<proto::SSL_GeometryData> geometry;
+
+    if(visionFilter.hasNewGeometry()){
+      geometry = visionFilter.getGeometry();
+    }
+    if(visionFilter.receivedFirstGeometry()){
+
+    }
     socket->runCycle();
     auto after = Time::now();
     //std::cout<<(after-before).asMilliSeconds()<<" ms"<<std::endl;
@@ -46,4 +52,20 @@ void AutoReferee::setupNetworking() {
   // TODO: perhaps add loop checking if everything succeeded?
   visionReceiver->open(false);  // boolean for blocking
   refereeReceiver->open(false);
+}
+void AutoReferee::receiveReferee(){
+
+  proto::Referee refereePacket;
+  while (refereeReceiver->receive(refereePacket)) {
+    refereePackets.push_back(refereePacket);
+  }
+  sort(refereePackets.begin(), refereePackets.end(),
+       [](const proto::Referee& a,const proto::Referee& b)
+       {return a.command_timestamp()<b.command_timestamp();});
+}
+void AutoReferee::receiveVision() {
+  proto::SSL_WrapperPacket visionPacket;
+  while (visionReceiver->receive(visionPacket)) {
+    visionPackets.push_back(visionPacket);
+  }
 }
