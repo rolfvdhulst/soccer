@@ -9,6 +9,7 @@
 #include <memory>
 #include <protobuf/World.pb.h>
 #include <protobuf/messages_robocup_ssl_geometry.pb.h>
+#include <referee/GameState.h>
 #include "SingleEventDetector.h"
 #include "Context.h"
 /**
@@ -17,7 +18,7 @@
 class EventDetector {
  public:
   EventDetector();
-  std::vector<proto::GameEvent> update(const proto::World& world, const std::optional<proto::SSL_GeometryData>& geometry);
+  std::vector<proto::GameEvent> update(const proto::World& world, const proto::GameState &gameState, const std::optional<proto::SSL_GeometryData>& geometry);
  private:
   Context context;
 

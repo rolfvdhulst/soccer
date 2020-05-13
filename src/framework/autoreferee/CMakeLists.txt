@@ -23,6 +23,7 @@ target_link_libraries(autoref
         PUBLIC refereeFilter
         PUBLIC field
         PUBLIC world
+        PUBLIC referee
         )
 
 add_executable(roboteam_autoref

@@ -12,25 +12,38 @@ void AutoReferee::init() {
   while(!socket->isConnected()){
     socket->runCycle();
   }
+  gameStateFilter.setOurTeamName("undefinedName12345");//We do not use the empty name as it is defaulted by the gamecontroller
+  //This can create problems with the assumption we are always blue
 
 }
 void AutoReferee::run() {
   bool val = true;
+
+  proto::TeamRobotInfo defaultInfo;
+  defaultInfo.mutable_blue()->CopyFrom(DEFAULT_ROBOT());
+  defaultInfo.mutable_yellow()->CopyFrom(DEFAULT_ROBOT());
+  proto::Settings settings;
+  settings.set_listentoreferee(false);
+  proto::TeamSettings team;
+  team.set_weareblue(true);
+  team.set_weplayonpositivehalf(false);
+  team.set_keeperid(0);
+  settings.mutable_firstteam()->CopyFrom(team);
+
   while(val){
     auto before = Time::now();
     receiveReferee();
     receiveVision();
-    proto::TeamRobotInfo defaultInfo;
-    defaultInfo.mutable_blue()->CopyFrom(DEFAULT_ROBOT());
-    defaultInfo.mutable_yellow()->CopyFrom(DEFAULT_ROBOT());
-    visionFilter.process(visionPackets,defaultInfo);
+
+    proto::World world = visionFilter.process(visionPackets,defaultInfo);
+    proto::GameState gameState = gameStateFilter.update(settings, refereePackets, world);
 
     std::optional<proto::SSL_GeometryData> geometry;
 
     if(visionFilter.hasNewGeometry()){
       geometry = visionFilter.getGeometry();
     }
-    if(visionFilter.receivedFirstGeometry()){
+    if(visionFilter.receivedFirstGeometry() && gameStateFilter.receivedFirstMessage()){
 
     }
     socket->runCycle();

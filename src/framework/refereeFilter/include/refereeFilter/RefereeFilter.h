@@ -16,14 +16,17 @@ class RefereeFilter {
 
         proto::GameState update(const proto::Settings& settings,const std::vector<proto::Referee>& refereeMessages, const proto::World& world);
         bool flipHasChanged() const;
+        void setOurTeamName(std::string name);
+        bool receivedFirstMessage() const;
     private:
         void updateNoMessages(proto::GameState &newGameState, const proto::Settings& settings, const proto::World &world);
         void updateWithMessage(proto::GameState &newGameState, const proto::Settings& settings, const proto::Referee& lastRefMessage, const proto::World &world);
         proto::GameState lastGameState;
         int lastGameEventCount = 0;
         bool flipChanged = false;
-
-        static bool inferOurColor(const proto::Settings& settings, const proto::Referee& refereeMessage);
+        std::string ourName = "RoboTeam Twente";
+        bool receivedMessage = false;
+        bool inferOurColor(const proto::Settings& settings, const proto::Referee& refereeMessage);
 
         bool isInCommandSwitch;
         bool ballMovedInSwitch;
