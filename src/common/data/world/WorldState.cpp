@@ -59,7 +59,7 @@ std::optional<RobotState> WorldState::getTheirRobot(const RobotID &id) const{
 bool WorldState::hasRobots() const {
     return weHaveRobots() || theyHaveRobots();
 }
-WorldState::WorldState(const proto::World &world) : time(world.time())
+WorldState::WorldState(const proto::World &world, bool weAreBlue) : time(world.time())
 {
   for(const auto& robot : world.blue()){
     us.emplace_back(RobotState(robot));
@@ -67,10 +67,15 @@ WorldState::WorldState(const proto::World &world) : time(world.time())
   for(const auto& robot : world.yellow()){
     them.emplace_back(RobotState(robot));
   }
+  if(!weAreBlue){
+    std::swap(us,them);
+  }
   if(world.has_ball()){
     ball = BallState(world.ball());
   }else{
     ball = std::nullopt;
   }
+  robots.insert(robots.begin(),us.begin(),us.end());
+  robots.insert(robots.end(),them.begin(),them.end());
 }
 
