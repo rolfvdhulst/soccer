@@ -2,6 +2,7 @@
 // Created by rolf on 23-2-20.
 //
 
+#include <protobuf/WorldRobot.pb.h>
 #include "RobotState.h"
 
 const RobotID &RobotState::id() const {
@@ -18,4 +19,12 @@ const Vector2 &RobotState::vel() const {
 }
 const Rotation &RobotState::angularVel() const {
     return _angularVelocity;
+}
+RobotState::RobotState(const proto::WorldRobot &robot) :
+_id(robot.id()),
+_position{robot.pos()},
+_angle{robot.angle()},
+_velocity{robot.vel()},
+_angularVelocity{robot.w()}
+{
 }

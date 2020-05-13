@@ -12,6 +12,7 @@
 
 class RobotState {
     public:
+        explicit RobotState(const proto::WorldRobot &protoRobot);
         [[nodiscard]] const RobotID& id() const;
         [[nodiscard]] const Vector2& pos() const;
         [[nodiscard]] const Angle& angle() const;

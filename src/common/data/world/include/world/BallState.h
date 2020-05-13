@@ -10,6 +10,7 @@
 #include <math/geometry/Vector3.h>
 class BallState {
     public:
+        explicit BallState(const proto::WorldBall& ball);
         [[nodiscard]] const Vector2& pos() const;
         [[nodiscard]] const Vector2& vel() const;
         [[nodiscard]] bool isVisible() const;
