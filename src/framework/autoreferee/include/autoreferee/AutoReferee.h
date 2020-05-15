@@ -7,6 +7,7 @@
 #include <memory>
 #include <future>
 #include <refereeFilter/RefereeFilter.h>
+#include "eventDetection/EventDetector.h"
 
 class RoboCupSSLClient;
 class GameControllerTCP;
@@ -21,6 +22,7 @@ class AutoReferee {
   std::unique_ptr<RoboCupSSLClient> refereeReceiver = nullptr;
   VisionFilter visionFilter;
   RefereeFilter gameStateFilter;
+  EventDetector eventDetector;
   std::vector<proto::SSL_WrapperPacket> visionPackets;
   std::vector<proto::Referee> refereePackets;
   void receiveVision();

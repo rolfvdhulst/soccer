@@ -464,3 +464,4 @@ double FieldState::getLineThickness(const DefaultField &field) {
             return 0.01;
     }
 }
+FieldState::FieldState() : FieldState(DefaultField::DivisionA){}

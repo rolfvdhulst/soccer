@@ -8,6 +8,7 @@
 #include <math/geometry/Angle.h>
 #include <math/geometry/Rotation.h>
 #include <math/geometry/Vector2.h>
+#include <protobuf/WorldRobot.pb.h>
 #include "RobotID.h"
 
 class RobotState {

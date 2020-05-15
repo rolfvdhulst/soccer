@@ -2,7 +2,6 @@
 // Created by rolf on 23-2-20.
 //
 
-#include <protobuf/WorldRobot.pb.h>
 #include "RobotState.h"
 
 const RobotID &RobotState::id() const {

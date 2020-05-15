@@ -15,6 +15,7 @@
 class RefereeState{
     public:
         explicit RefereeState(const proto::RefereeState& gameState);
+        RefereeState() = default;
         Time timeStamp;
 
         GameStage stage;
@@ -36,6 +37,7 @@ class RefereeState{
 class GameState {
     public:
         explicit GameState(const proto::GameState& gameState);
+        GameState() = default;
         //If true, we play on the positive half, else we play on the negative half (default).
         bool wePlayOnPositiveHalf = false;
         Team ourColor;

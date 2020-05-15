@@ -2,7 +2,6 @@
 // Created by rolf on 23-2-20.
 //
 
-#include <protobuf/World.pb.h>
 #include "WorldState.h"
 const std::vector<RobotState> &WorldState::getUs() const {
     return us;

@@ -2,7 +2,6 @@
 // Created by rolf on 23-2-20.
 //
 
-#include <protobuf/WorldBall.pb.h>
 #include "BallState.h"
 
 const Vector2& BallState::pos() const {

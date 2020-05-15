@@ -8,6 +8,8 @@
 #include <core/Time.h>
 #include <math/geometry/Vector2.h>
 #include <math/geometry/Vector3.h>
+#include <protobuf/WorldBall.pb.h>
+
 class BallState {
     public:
         explicit BallState(const proto::WorldBall& ball);

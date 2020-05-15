@@ -1,12 +1,12 @@
 find_package(Qt5 COMPONENTS Network REQUIRED)
 add_library(autoref
         eventDetection/EventDetector.cpp
-        eventDetection/EventDetector.h
+        include/autoreferee/eventDetection/EventDetector.h
         AutoReferee.cpp
         include/autoreferee/AutoReferee.h
         network/GameControllerTcp.cpp
         network/GameControllerTcp.h
-        eventDetection/SingleEventDetector.cpp eventDetection/SingleEventDetector.h eventDetection/Context.h)
+        eventDetection/SingleEventDetector.cpp include/autoreferee/eventDetection/SingleEventDetector.h include/autoreferee/eventDetection/Context.h)
 target_compile_options(autoref PUBLIC
         -std=c++17
         )
@@ -24,6 +24,7 @@ target_link_libraries(autoref
         PUBLIC field
         PUBLIC world
         PUBLIC referee
+        PUBLIC protoUtils
         )
 
 add_executable(roboteam_autoref

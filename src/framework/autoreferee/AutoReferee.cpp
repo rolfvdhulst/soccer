@@ -6,6 +6,8 @@
 #include "network/GameControllerTcp.h"
 #include <core/Time.h>
 #include <thread>
+#include <protoUtils/Flip.h>
+
 void AutoReferee::init() {
   setupNetworking();
   socket = new GameControllerTCP();
@@ -43,9 +45,22 @@ void AutoReferee::run() {
     if(visionFilter.hasNewGeometry()){
       geometry = visionFilter.getGeometry();
     }
-    if(visionFilter.receivedFirstGeometry() && gameStateFilter.receivedFirstMessage()){
-
+    if (gameState.settings().weplayonpositivehalf()) {
+      //Flip world and geometry. GameState is always already flipped the right way because it computes this value
+      flip(world);
+      if (geometry) {
+        flip(*geometry);
+      }
     }
+    std::vector<proto::GameEvent> events;
+    //TODO: check connection status and use it before we send events
+    if(visionFilter.receivedFirstGeometry() && gameStateFilter.receivedFirstMessage()){
+      events = eventDetector.update(world,gameState,geometry);
+    }
+    for (const auto& event : events){
+      socket->sendEvent(event);
+    }
+
     socket->runCycle();
     auto after = Time::now();
     //std::cout<<(after-before).asMilliSeconds()<<" ms"<<std::endl;

@@ -5,6 +5,7 @@
 #ifndef SOCCER_WORLDSTATE_H
 #define SOCCER_WORLDSTATE_H
 
+#include <protobuf/World.pb.h>
 #include <core/Time.h>
 #include <optional>
 #include "BallState.h"
