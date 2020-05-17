@@ -18,7 +18,7 @@
 class EventDetector {
  public:
   EventDetector();
-  std::vector<proto::GameEvent> update(const proto::World& world, const proto::GameState &gameState, const std::optional<proto::SSL_GeometryData>& geometry);
+  std::vector<proto::GameEvent> update(const proto::World& world, const proto::GameState &gameState, const std::optional<proto::SSL_GeometryData>& geometry, const proto::TeamRobotInfo &robotInfo);
  private:
   Context context;
 

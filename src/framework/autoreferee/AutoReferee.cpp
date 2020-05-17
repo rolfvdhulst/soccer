@@ -55,7 +55,7 @@ void AutoReferee::run() {
     std::vector<proto::GameEvent> events;
     //TODO: check connection status and use it before we send events
     if(visionFilter.receivedFirstGeometry() && gameStateFilter.receivedFirstMessage()){
-      events = eventDetector.update(world,gameState,geometry);
+      events = eventDetector.update(world,gameState,geometry,defaultInfo);
     }
     for (const auto& event : events){
         event.PrintDebugString();

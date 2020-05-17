@@ -6,14 +6,16 @@
 #include <referee/GameState.h>
 #include "eventDetection/BallPlacementDetector.h"
 
-std::vector<proto::GameEvent> EventDetector::update(const proto::World& world,const proto::GameState &gameState,
-                                                    const std::optional<proto::SSL_GeometryData>& geometry) {
+std::vector<proto::GameEvent> EventDetector::update(
+        const proto::World& world,const proto::GameState &gameState,
+        const std::optional<proto::SSL_GeometryData>& geometry,
+        const proto::TeamRobotInfo &robotInfo) {
   //update context info
 
   if(geometry){
     context.geometry = FieldState(geometry->field(),DefaultField::DivisionA);
   }
-  WorldState newWorld(world,true);
+  WorldState newWorld(world,true,robotInfo);
   context.worldHistory.emplace_front(newWorld);
   if((newWorld.getTime()-context.worldHistory.back().getTime()>Time(2.0))){
     context.worldHistory.pop_back();

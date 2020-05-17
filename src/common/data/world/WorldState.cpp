@@ -58,13 +58,13 @@ std::optional<RobotState> WorldState::getTheirRobot(const RobotID &id) const{
 bool WorldState::hasRobots() const {
     return weHaveRobots() || theyHaveRobots();
 }
-WorldState::WorldState(const proto::World &world, bool weAreBlue) : time(world.time())
+WorldState::WorldState(const proto::World &world, bool weAreBlue, const proto::TeamRobotInfo& teamRobotInfo) : time(world.time())
 {
   for(const auto& robot : world.blue()){
-    us.emplace_back(RobotState(robot));
+    us.emplace_back(RobotState(robot,teamRobotInfo.blue()));
   }
   for(const auto& robot : world.yellow()){
-    them.emplace_back(RobotState(robot));
+    them.emplace_back(RobotState(robot,teamRobotInfo.yellow()));
   }
   if(!weAreBlue){
     std::swap(us,them);
