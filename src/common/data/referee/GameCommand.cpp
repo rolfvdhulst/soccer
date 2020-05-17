@@ -3,10 +3,10 @@
 //
 
 #include "GameCommand.h"
-constexpr bool GameCommand::operator==(GameCommand other) const {
+constexpr bool GameCommand::operator==(const GameCommand& other) const {
     return value == other.value;
 }
-constexpr bool GameCommand::operator!=(GameCommand other) const {
+constexpr bool GameCommand::operator!=(const GameCommand& other) const {
     return value != other.value;
 }
 GameCommand::operator Command() const {
@@ -59,4 +59,8 @@ std::string GameCommand::toString() const {
     case PENALTY_US:return "PENALTY_US";
     case PENALTY_THEM:return "PENALTY_THEM";
     }
+}
+
+bool GameCommand::isBallPlacement() const {
+    return value == BALL_PLACEMENT_THEM || value == BALL_PLACEMENT_US;
 }

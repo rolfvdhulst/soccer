@@ -4,6 +4,8 @@
 
 #include "eventDetection/EventDetector.h"
 #include <referee/GameState.h>
+#include "eventDetection/BallPlacementDetector.h"
+
 std::vector<proto::GameEvent> EventDetector::update(const proto::World& world,const proto::GameState &gameState,
                                                     const std::optional<proto::SSL_GeometryData>& geometry) {
   //update context info
@@ -18,6 +20,7 @@ std::vector<proto::GameEvent> EventDetector::update(const proto::World& world,co
   }
   GameState game_state(gameState);
   context.referee=*(game_state.refState);
+
   //run all event detectors (if applicable)
   std::vector<proto::GameEvent> detectedEvents;
   for(const auto &detector : detectors){
@@ -31,4 +34,7 @@ std::vector<proto::GameEvent> EventDetector::update(const proto::World& world,co
   return detectedEvents;
 }
 EventDetector::EventDetector() {
+    detectors.clear();
+    std::unique_ptr<SingleEventDetector> ballPlacementDetector= std::make_unique<BallPlacementDetector>();
+    detectors.push_back(std::move(ballPlacementDetector));
 }

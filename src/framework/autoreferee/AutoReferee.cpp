@@ -11,9 +11,9 @@
 void AutoReferee::init() {
   setupNetworking();
   socket = new GameControllerTCP();
-  while(!socket->isConnected()){
-    socket->runCycle();
-  }
+//  while(!socket->isConnected()){
+//    socket->runCycle();
+//  }
   gameStateFilter.setOurTeamName("undefinedName12345");//We do not use the empty name as it is defaulted by the gamecontroller
   //This can create problems with the assumption we are always blue
 
@@ -58,11 +58,15 @@ void AutoReferee::run() {
       events = eventDetector.update(world,gameState,geometry);
     }
     for (const auto& event : events){
+        event.PrintDebugString();
       socket->sendEvent(event);
     }
 
-    socket->runCycle();
+    //socket->runCycle();
+      visionPackets.clear();
+      refereePackets.clear();
     auto after = Time::now();
+
     //std::cout<<(after-before).asMilliSeconds()<<" ms"<<std::endl;
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }

@@ -55,8 +55,9 @@ class GameCommand {
         // Putting constexpr here causes clang to  stop warning on incomplete case handling
         explicit operator bool() = delete; //Prevent if(GameStage) incorrect usage
         [[nodiscard]] std::string toString() const;
-        constexpr bool operator ==(GameCommand other) const;
-        constexpr bool operator !=(GameCommand other) const;
+        constexpr bool operator ==(const GameCommand& other) const;
+        constexpr bool operator !=(const GameCommand& other) const;
+        bool isBallPlacement() const;
 
     private:
         Command value;

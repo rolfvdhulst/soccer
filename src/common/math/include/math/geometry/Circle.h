@@ -97,7 +97,7 @@ class Circle : public Shape{
    * @param other The point which to project onto this circle
    * @return The location where the point is projected onto the circle
    */
-  Vector2 project(const Vector2& point);
+  Vector2 project(const Vector2& point) const;
 
   /** @brief Check if two circles are equal by comparing the centers and radii */
   bool operator==(const Circle& other) const;

@@ -13,5 +13,11 @@ struct Context{
   FieldState geometry;
   std::deque<WorldState> worldHistory;
   RefereeState referee;
+  const WorldState& currentWorld() const{
+      return worldHistory.front();
+  }
+  const WorldState& previousWorld() const{
+      return worldHistory[1];
+  }
 };
 #endif //SOCCER_SRC_FRAMEWORK_AUTOREFEREE_EVENTDETECTION_CONTEXT_H_
