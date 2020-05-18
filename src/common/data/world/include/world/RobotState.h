@@ -22,7 +22,7 @@ class RobotState {
         [[nodiscard]] const Angle& angle() const;
         [[nodiscard]] const Vector2& vel() const;
         [[nodiscard]] const Rotation& angularVel() const;
-        [[nodiscard]] const RobotShape shape() const;
+        [[nodiscard]] const RobotShape& shape() const;
         [[nodiscard]] double radius() const;
         [[nodiscard]] double centerToFront() const;
         [[nodiscard]] const RobotParameters& parameters() const;
@@ -33,6 +33,7 @@ class RobotState {
         Vector2 _velocity;
         Rotation _angularVelocity;
         RobotParameters _parameters;
+        RobotShape _shape;
 };
 
 #endif  // SOCCER_ROBOTSTATE_H

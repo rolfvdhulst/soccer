@@ -13,6 +13,7 @@ struct Context{
   FieldState geometry;
   std::deque<WorldState> worldHistory;
   RefereeState referee;
+  bool commandChanged = false;
   const WorldState& currentWorld() const{
       return worldHistory.front();
   }

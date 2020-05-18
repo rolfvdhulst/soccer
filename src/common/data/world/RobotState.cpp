@@ -25,11 +25,12 @@ _position{robot.pos()},
 _angle{robot.angle()},
 _velocity{robot.vel()},
 _angularVelocity{robot.w()},
-_parameters{RobotParameters(info)}
+_parameters{RobotParameters(info)},
+_shape(RobotShape(_position,centerToFront(),radius(),_angle))
 {
 }
-const RobotShape RobotState::shape() const {
-    return RobotShape(_position,centerToFront(),radius(),_angle);
+const RobotShape& RobotState::shape() const {
+    return _shape;
 }
 double RobotState::radius() const {
     return _parameters.radius;
@@ -46,5 +47,6 @@ RobotState::RobotState(const proto::WorldRobot &robot, RobotParameters parameter
         _angle{robot.angle()},
         _velocity{robot.vel()},
         _angularVelocity{robot.w()},
-        _parameters{parameters}{
+        _parameters{parameters},
+        _shape{RobotShape(_position,centerToFront(),radius(),_angle)}{
 }

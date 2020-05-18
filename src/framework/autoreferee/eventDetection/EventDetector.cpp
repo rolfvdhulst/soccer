@@ -21,6 +21,8 @@ std::vector<proto::GameEvent> EventDetector::update(
     context.worldHistory.pop_back();
   }
   GameState game_state(gameState);
+  // check if commandChanged
+  context.commandChanged = game_state.refState->command != context.referee.command;
   context.referee=*(game_state.refState);
 
   //run all event detectors (if applicable)
@@ -37,6 +39,9 @@ std::vector<proto::GameEvent> EventDetector::update(
 }
 EventDetector::EventDetector() {
     detectors.clear();
+    //ball placement detector detects ball placement success and failure
     std::unique_ptr<SingleEventDetector> ballPlacementDetector= std::make_unique<BallPlacementDetector>();
     detectors.push_back(std::move(ballPlacementDetector));
+    //ball placement interference detects if the team not placing the ball is interfering ball placement in any way
+
 }

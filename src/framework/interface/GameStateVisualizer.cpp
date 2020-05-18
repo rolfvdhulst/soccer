@@ -148,7 +148,7 @@ void GameStateVisualizer::updateGamestate(const RefereeState &state, Team ourCol
     }
     command->setText("Command: "+QString::fromStdString(state.command.toString()));
     if(state.nextCommand){
-        nextCommand->setText("Next command: " +QString::fromStdString(state.command.toString()));
+        nextCommand->setText("Next command: " +QString::fromStdString(state.nextCommand->toString()));
     }else{
         nextCommand->setText("Next command: -");
     }

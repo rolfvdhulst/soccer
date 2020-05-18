@@ -3,10 +3,10 @@
 //
 
 #include "GameCommand.h"
-constexpr bool GameCommand::operator==(const GameCommand& other) const {
+bool GameCommand::operator==(const GameCommand& other) const {
     return value == other.value;
 }
-constexpr bool GameCommand::operator!=(const GameCommand& other) const {
+bool GameCommand::operator!=(const GameCommand& other) const {
     return value != other.value;
 }
 GameCommand::operator Command() const {

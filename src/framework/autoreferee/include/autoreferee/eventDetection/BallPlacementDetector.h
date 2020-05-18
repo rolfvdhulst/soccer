@@ -21,8 +21,9 @@ class BallPlacementDetector : public SingleEventDetector{
         double minimumRobotDistance(const Context &context);
         const double TOLERANCE_RADIUS = 0.15; //as defined by the rules
         const double STATIONARY_BALL_SPEED = 0.1; //a tolerance treshhold to ensure stationarity
-        Vector2 startingPos;
-        double startingDistance;
+        std::optional<Vector2> startingPos;
+        std::optional<double> startingDistance;
+        Time startingTime;
 
 };
 

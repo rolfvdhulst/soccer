@@ -18,7 +18,7 @@ const std::vector<RobotState> &WorldState::getTeam(WorldTeam team) const {
 const std::vector<RobotState> &WorldState::getAllRobots() const {
     return robots;
 }
-const Time &WorldState::getTime() {
+const Time &WorldState::getTime() const {
     return time;
 }
 unsigned int WorldState::ourRobotCount() const {
