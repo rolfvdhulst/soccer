@@ -3,3 +3,9 @@
 //
 
 #include "eventDetection/SingleEventDetector.h"
+bool SingleEventDetector::canRetrigger(const Time &time) const {
+  return (time-lastTriggerTime) >= reTriggerTime;
+}
+void SingleEventDetector::trigger(const Time &time) {
+  lastTriggerTime = time;
+}

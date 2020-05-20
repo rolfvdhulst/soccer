@@ -16,7 +16,8 @@ std::vector<proto::GameEvent> BallPlacementDetector::update(const Context &conte
         startingTime = world.getTime();
     }
     auto actionTime = context.referee.currentActionTimeRemaining;
-    if(actionTime != std::nullopt && *actionTime<Time(0.0)){
+    ;
+    if(actionTime != std::nullopt && *actionTime<Time(0.0) && canRetrigger(world.getTime())){
         proto::GameEvent event;
         proto::GameEvent_PlacementFailed * failure = event.mutable_placement_failed();
         if(GameCommand::BALL_PLACEMENT_US == context.referee.command){
@@ -30,6 +31,7 @@ std::vector<proto::GameEvent> BallPlacementDetector::update(const Context &conte
         if(ball && context.referee.designatedPosition){
             failure->set_remaining_distance((ball->pos()-*context.referee.designatedPosition).length());
         }
+        trigger(world.getTime());
         return {event};
     }
     //If there is no recent world information we don't send anything
@@ -72,7 +74,7 @@ std::vector<proto::GameEvent> BallPlacementDetector::update(const Context &conte
         }
     }
 
-    if(ballAtPosition && ballStationary && robotsFarAway){
+    if(ballAtPosition && ballStationary && robotsFarAway && canRetrigger(world.getTime())){
         proto::GameEvent event;
         proto::GameEvent_PlacementSucceeded * success = event.mutable_placement_succeeded();
         if(GameCommand::BALL_PLACEMENT_US == context.referee.command){
@@ -87,7 +89,7 @@ std::vector<proto::GameEvent> BallPlacementDetector::update(const Context &conte
             success->set_distance(*startingDistance);
         }
         success->set_time_taken((world.getTime()-startingTime).asSeconds());
-
+        trigger(world.getTime());
         return {event};
     }
     return {};

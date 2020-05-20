@@ -11,7 +11,7 @@
 void AutoReferee::init() {
   setupNetworking();
   socket = new GameControllerTCP();
-//  while(!socket->isConnected()){
+//  while(!socket->isConnected()){ TODO: run again
 //    socket->runCycle();
 //  }
   gameStateFilter.setOurTeamName("undefinedName12345");//We do not use the empty name as it is defaulted by the gamecontroller

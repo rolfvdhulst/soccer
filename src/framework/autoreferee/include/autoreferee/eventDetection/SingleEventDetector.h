@@ -12,6 +12,11 @@ class SingleEventDetector {
  public:
   virtual std::vector<proto::GameEvent> update(const Context& context) = 0;
   [[nodiscard]] virtual bool isApplicable(const GameCommand& command) const = 0;
+  [[nodiscard]] bool canRetrigger(const Time& time) const;
+  void trigger(const Time& time);
+ protected:
+  Time lastTriggerTime = Time(0.0);
+  Time reTriggerTime = Time(2.0);
 };
 
 #endif //SOCCER_SRC_FRAMEWORK_AUTOREFEREE_EVENTDETECTION_SINGLEEVENTDETECTOR_H_
