@@ -16,6 +16,7 @@ class BallState {
         [[nodiscard]] const Vector2& pos() const;
         [[nodiscard]] const Vector2& vel() const;
         [[nodiscard]] bool isVisible() const;
+        [[nodiscard]] double radius() const;
     private:
         Vector2 _position;
         Vector2 _velocity;

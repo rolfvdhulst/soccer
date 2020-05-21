@@ -4,6 +4,7 @@
 
 #include "eventDetection/EventDetector.h"
 #include <referee/GameState.h>
+#include "eventDetection/BallPlacementInterferenceDetector.h"
 #include "eventDetection/BallPlacementDetector.h"
 
 std::vector<proto::GameEvent> EventDetector::update(
@@ -43,5 +44,6 @@ EventDetector::EventDetector() {
     std::unique_ptr<SingleEventDetector> ballPlacementDetector= std::make_unique<BallPlacementDetector>();
     detectors.push_back(std::move(ballPlacementDetector));
     //ball placement interference detects if the team not placing the ball is interfering ball placement in any way
-
+    std::unique_ptr<SingleEventDetector> interferenceDetector= std::make_unique<BallPlacementInterferenceDetector>();
+    detectors.push_back(std::move(interferenceDetector));
 }

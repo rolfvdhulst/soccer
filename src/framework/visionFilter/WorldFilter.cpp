@@ -65,7 +65,7 @@ proto::World WorldFilter::getWorld(Time time) {
     // First we update to the time we want packets at. Expensive, but ensures we have the latest information
     update(time, true);
     proto::World world;
-    world.set_time(time.asSeconds());
+    world.set_time(time.asNanoSeconds());
     for (const auto &yellowBotsOneId : yellowBots) {
         if (! yellowBotsOneId.second.empty()) {
             world.add_yellow()->CopyFrom(bestFilter(yellowBotsOneId.second)->asWorldRobot());

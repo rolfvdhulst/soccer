@@ -19,3 +19,6 @@ _velocity{ball.vel()},
 _isVisible{ball.visible()}{
 
 }
+double BallState::radius() const {
+  return 0.02133;
+}
