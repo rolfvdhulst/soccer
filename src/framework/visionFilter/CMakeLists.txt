@@ -12,7 +12,7 @@ add_library(visionFilter
         include/visionFilter/Scaling.h
         WorldFilter.cpp
         include/visionFilter/WorldFilter.h
-        )
+        ObjectFilter.cpp include/visionFilter/ObjectFilter.h)
 target_link_libraries(visionFilter
         PRIVATE math
         PUBLIC vision
