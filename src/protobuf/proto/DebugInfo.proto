@@ -1,0 +1,47 @@
+syntax = "proto2";
+package proto;
+import "Vector2f.proto";
+import "WorldBall.proto";
+import "WorldRobot.proto";
+
+message DebugWorld{
+    required uint64 time = 1;
+    repeated WorldBall debugBalls = 2;
+    repeated WorldRobot blue = 3;
+    repeated WorldRobot yellow = 4;
+}
+message Color{
+    required uint32 r = 1;
+    required uint32 g = 2;
+    required uint32 b = 3;
+}
+message DebugDrawing{
+    enum DrawingMethod{
+        CROSSES = 0;
+        CIRCLES = 1;
+        DOTS = 2;
+        LINES_CONNECTED = 3;
+        LINES = 4;
+        PLUSSES = 5;
+        ARROWS = 6;
+    }
+    enum DrawingType{
+        DEBUG = 0;
+        PATHFINDING = 1;
+        PATHFINDING_DEBUG = 2;
+        PATHFINDING_OBSTACLES = 3;
+        KEEPER = 4;
+        DEFENSE = 5;
+        OFFENSE = 6;
+        SKILLS = 7;
+    }
+    required DrawingMethod method = 1;
+    required DrawingType type = 2;
+    required int32 associatedRobotID = 3;
+    required bool teamIsBlue = 4;
+    required Color color = 5;
+    repeated Vector2f points = 6;
+}
+message DebugAI{
+    repeated DebugDrawing debugDrawings = 1;
+}
