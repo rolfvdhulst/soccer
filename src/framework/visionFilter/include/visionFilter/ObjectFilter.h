@@ -8,9 +8,11 @@
 class ObjectFilter{
  public:
   ObjectFilter(int increment, int decrement, int maximum);
+  ObjectFilter(int increment, int decrement, int maximum, int healthyLimit);
   [[nodiscard]] int ticksNotSeenFor() const;
   [[nodiscard]] int observations() const;
   [[nodiscard]] int getHealth() const;
+  [[nodiscard]] bool isHealthy() const;
 
  protected:
   void objectSeen();
@@ -21,6 +23,7 @@ class ObjectFilter{
   const int INCREMENT;
   const int DECREMENT;
   const int MAXIMUM;
+  const int HEALTHYLIMIT;
   int ticksIncreased = 0;
   int ticksNotSeen = 0;
 };
