@@ -5,6 +5,7 @@
 #ifndef SOCCER_WORLDSTATE_H
 #define SOCCER_WORLDSTATE_H
 
+#include <protobuf/World.pb.h>
 #include <core/Time.h>
 #include <optional>
 #include "BallState.h"
@@ -19,7 +20,8 @@
  */
 class WorldState {
     public:
-        const Time& getTime();
+        explicit WorldState(const proto::World& world, bool weAreBlue, const proto::TeamRobotInfo &teamRobotInfo);
+        const Time& getTime() const;
         //TODO: Copies for now... we might want to look later if we can make these references using views or so, and what the performance difference actually is
         //TODO: we can avoid copies also with e.g. const BallState * (using pointers)
         [[nodiscard]] std::optional<BallState> getBall() const;

@@ -13,6 +13,7 @@ class TeamInfo {
 
     public:
         TeamInfo(const proto::Referee::TeamInfo& teamInfo);
+        TeamInfo() = default;
         [[nodiscard]] unsigned int activeYellowCards() const;
         std::string name;
         unsigned int score;

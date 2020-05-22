@@ -19,3 +19,34 @@ const Vector2 &RobotState::vel() const {
 const Rotation &RobotState::angularVel() const {
     return _angularVelocity;
 }
+RobotState::RobotState(const proto::WorldRobot &robot, const proto::RobotInfo &info) :
+_id(robot.id()),
+_position{robot.pos()},
+_angle{robot.angle()},
+_velocity{robot.vel()},
+_angularVelocity{robot.w()},
+_parameters{RobotParameters(info)},
+_shape(RobotShape(_position,centerToFront(),radius(),_angle))
+{
+}
+const RobotShape& RobotState::shape() const {
+    return _shape;
+}
+double RobotState::radius() const {
+    return _parameters.radius;
+}
+double RobotState::centerToFront() const {
+    return _parameters.centerToFront;
+}
+const RobotParameters &RobotState::parameters() const {
+    return _parameters;
+}
+RobotState::RobotState(const proto::WorldRobot &robot, RobotParameters parameters) :
+        _id(robot.id()),
+        _position{robot.pos()},
+        _angle{robot.angle()},
+        _velocity{robot.vel()},
+        _angularVelocity{robot.w()},
+        _parameters{parameters},
+        _shape{RobotShape(_position,centerToFront(),radius(),_angle)}{
+}

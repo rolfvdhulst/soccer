@@ -18,7 +18,7 @@ const std::vector<RobotState> &WorldState::getTeam(WorldTeam team) const {
 const std::vector<RobotState> &WorldState::getAllRobots() const {
     return robots;
 }
-const Time &WorldState::getTime() {
+const Time &WorldState::getTime() const {
     return time;
 }
 unsigned int WorldState::ourRobotCount() const {
@@ -57,5 +57,24 @@ std::optional<RobotState> WorldState::getTheirRobot(const RobotID &id) const{
 }
 bool WorldState::hasRobots() const {
     return weHaveRobots() || theyHaveRobots();
+}
+WorldState::WorldState(const proto::World &world, bool weAreBlue, const proto::TeamRobotInfo& teamRobotInfo) : time(world.time())
+{
+  for(const auto& robot : world.blue()){
+    us.emplace_back(RobotState(robot,teamRobotInfo.blue()));
+  }
+  for(const auto& robot : world.yellow()){
+    them.emplace_back(RobotState(robot,teamRobotInfo.yellow()));
+  }
+  if(!weAreBlue){
+    std::swap(us,them);
+  }
+  if(world.has_ball()){
+    ball = BallState(world.ball());
+  }else{
+    ball = std::nullopt;
+  }
+  robots.insert(robots.begin(),us.begin(),us.end());
+  robots.insert(robots.end(),them.begin(),them.end());
 }
 

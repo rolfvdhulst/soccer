@@ -189,3 +189,19 @@ Vector2 RobotShape::centerOfKickerPos() const {
 LineSegment RobotShape::kicker() const {
   return LineSegment(kickerLine);
 }
+
+//TODO: test below 3 properly
+Vector2 RobotShape::project(const Vector2 &point) const{
+    Vector2 circleProjection = circle.project(point);
+    Vector2 lineProjection = LineSegment(kickerLine).project(point);
+    if (inFrontOfDribbler(circleProjection)){
+        return lineProjection;
+    }
+    return (circleProjection-point).length2()<=(lineProjection-point).length2() ? circleProjection : lineProjection;
+}
+double RobotShape::distanceTo(const Vector2& point) const {
+    return (project(point)-point).length();
+}
+double RobotShape::squaredDistanceTo(const Vector2 &point) const {
+    return (project(point)-point).length2();
+}

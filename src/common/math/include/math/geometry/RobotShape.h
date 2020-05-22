@@ -37,6 +37,12 @@ class RobotShape : public Shape {
 
   [[nodiscard]] LineSegment kicker() const;
 
+  [[nodiscard]] Vector2 project(const Vector2& point) const;
+
+  [[nodiscard]] double distanceTo(const Vector2& point) const;
+
+  [[nodiscard]] double squaredDistanceTo(const Vector2& point) const;
+
   void move(const Vector2 &by) override;
 
   [[nodiscard]] bool contains(const Vector2 &point) const override;
@@ -50,6 +56,7 @@ class RobotShape : public Shape {
   [[nodiscard]] std::vector<Vector2> intersects(const LineSegment &segment) const override;
 
   [[nodiscard]] std::vector<Vector2> intersects(const Ray &ray) const override;
+
 };
 
 #endif //SOCCER_SRC_COMMON_MATH_GEOMETRY_ROBOTSHAPE_H_

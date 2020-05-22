@@ -135,6 +135,7 @@ class FieldState {
    public:
     explicit FieldState(const proto::SSL_GeometryFieldSize& sslGeometry, DefaultField fieldBackup = DefaultField::DivisionA);
     explicit FieldState(DefaultField fieldType);
+    FieldState();
 
    private:
         // The following are all used in the constructor...

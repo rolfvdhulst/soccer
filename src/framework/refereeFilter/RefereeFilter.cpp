@@ -6,6 +6,8 @@
 #include "RefereeFilter.h"
 #include <protoUtils/CommandSwitch.h>//TODO: find nice place that avoids circular dependencies
 
+#include <utility>
+
 proto::GameState RefereeFilter::update(const proto::Settings &settings,
         const std::vector<proto::Referee> &refereeMessages, const proto::World &world) {
     flipChanged = false;
@@ -15,6 +17,7 @@ proto::GameState RefereeFilter::update(const proto::Settings &settings,
     }
     else {
         //Note the below line assumes that the referee messages are sorted ascending by time!
+        receivedMessage = true;
         const proto::Referee &lastRefMessage = refereeMessages.back();
         updateWithMessage(newGameState, settings, lastRefMessage, world);
     }
@@ -30,11 +33,12 @@ proto::GameState RefereeFilter::update(const proto::Settings &settings,
 bool RefereeFilter::inferOurColor(const proto::Settings &settings, const proto::Referee &refereeMessage) {
     //this name should be the same as our name in  https://github.com/RoboCup-SSL/ssl-game-controller/blob/master/src/components/settings/team/TeamName.vue
     //or whatever the game client is at that point
-    const std::string RTT_NAME = "RoboTeam Twente";
-    if (refereeMessage.blue().name() == RTT_NAME) {
+    //Changed for using autoreferee reasons
+
+    if (refereeMessage.blue().name() == ourName) {
         return true; // we are blue
     }
-    else if (refereeMessage.yellow().name() == RTT_NAME) {
+    else if (refereeMessage.yellow().name() == ourName) {
         return false; // We are yellow
     }
     return settings.firstteam().weareblue();    // We default to the interface value if we don't find our name
@@ -238,5 +242,11 @@ void RefereeFilter::updateCommandInfo(proto::GameState &newGameState, const prot
     if (isInCommandSwitch && ballMovedInSwitch && newGameState.has_referee()) {
         newGameState.mutable_referee()->set_command(proto::RefereeState_Command_RUNNING);
     }
+}
+void RefereeFilter::setOurTeamName(std::string name) {
+  ourName=std::move(name);
+}
+bool RefereeFilter::receivedFirstMessage() const {
+  return receivedMessage;
 }
 

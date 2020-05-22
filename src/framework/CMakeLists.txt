@@ -5,6 +5,7 @@ add_subdirectory(refereeFilter)
 add_subdirectory(visionFilter)
 add_subdirectory(ai)
 add_subdirectory(logging)
+add_subdirectory(autoreferee)
 
 add_library(application STATIC
         ApplicationManager.cpp

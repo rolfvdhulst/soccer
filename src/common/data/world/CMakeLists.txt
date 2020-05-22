@@ -7,7 +7,7 @@ add_library(world STATIC
         include/world/WorldState.h
         RobotID.cpp
         include/world/RobotID.h
-        include/world/WorldTeam.h)
+        include/world/WorldTeam.h RobotParameters.cpp include/world/RobotParameters.h)
 
 
 target_link_libraries(world

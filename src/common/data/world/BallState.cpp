@@ -13,3 +13,12 @@ const Vector2& BallState::vel() const {
 bool BallState::isVisible() const {
     return _isVisible;
 }
+BallState::BallState(const proto::WorldBall &ball) :
+_position{ball.pos()},
+_velocity{ball.vel()},
+_isVisible{ball.visible()}{
+
+}
+double BallState::radius() const {
+  return 0.02133;
+}
