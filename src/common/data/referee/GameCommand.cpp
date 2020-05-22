@@ -64,3 +64,9 @@ std::string GameCommand::toString() const {
 bool GameCommand::isBallPlacement() const {
     return value == BALL_PLACEMENT_THEM || value == BALL_PLACEMENT_US;
 }
+bool GameCommand::isFreeKick() const {
+  return value == DIRECT_FREE_US || value == DIRECT_FREE_THEM || value == INDIRECT_FREE_US || value == INDIRECT_FREE_THEM;
+}
+bool GameCommand::isKickOff() const{
+  return value == KICKOFF_US || value == KICKOFF_THEM;
+}

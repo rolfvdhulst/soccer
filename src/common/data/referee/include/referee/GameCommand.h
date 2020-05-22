@@ -57,8 +57,9 @@ class GameCommand {
         [[nodiscard]] std::string toString() const;
         bool operator ==(const GameCommand& other) const;
         bool operator !=(const GameCommand& other) const;
-        bool isBallPlacement() const;
-
+        [[nodiscard]] bool isBallPlacement() const;
+        [[nodiscard]] bool isFreeKick() const;
+        [[nodiscard]] bool isKickOff() const;
     private:
         Command value;
 };

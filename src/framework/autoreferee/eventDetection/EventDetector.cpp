@@ -5,6 +5,7 @@
 #include "eventDetection/EventDetector.h"
 #include <referee/GameState.h>
 #include <eventDetection/StopSpeedDetector.h>
+#include <eventDetection/DefenderFreeKickDistanceDetector.h>
 #include "eventDetection/BallPlacementInterferenceDetector.h"
 #include "eventDetection/BallPlacementDetector.h"
 
@@ -41,13 +42,20 @@ std::vector<proto::GameEvent> EventDetector::update(
 }
 EventDetector::EventDetector() {
   detectors.clear();
+
   //ball placement detector detects ball placement success and failure
   std::unique_ptr<SingleEventDetector> ballPlacementDetector = std::make_unique<BallPlacementDetector>();
   detectors.push_back(std::move(ballPlacementDetector));
+
   //ball placement interference detects if the team not placing the ball is interfering ball placement in any way
   std::unique_ptr<SingleEventDetector> interferenceDetector = std::make_unique<BallPlacementInterferenceDetector>();
   detectors.push_back(std::move(interferenceDetector));
+
   //Stop speed detection checks if the robot speed during stop is sufficiently small
   std::unique_ptr<SingleEventDetector> stopSpeedDetector = std::make_unique<StopSpeedDetector>();
   detectors.push_back(std::move(stopSpeedDetector));
+
+  //Detects if defenders are too close during free kicks
+  std::unique_ptr<SingleEventDetector>  defenderFreeKickDetector = std::make_unique<DefenderFreeKickDistanceDetector>();
+  detectors.push_back(std::move(defenderFreeKickDetector));
 }

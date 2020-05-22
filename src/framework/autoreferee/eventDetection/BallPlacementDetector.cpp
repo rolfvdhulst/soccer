@@ -37,6 +37,7 @@ std::vector<proto::GameEvent> BallPlacementDetector::update(const Context &conte
 }
 proto::GameEvent BallPlacementDetector::makeFailure(const Context &context, const WorldState &world) {
   proto::GameEvent event;
+  event.set_type(proto::PLACEMENT_FAILED);
   proto::GameEvent_PlacementFailed *failure = event.mutable_placement_failed();
   if (GameCommand::BALL_PLACEMENT_US == context.referee.command) {
     failure->set_by_team(proto::Team::BLUE);
@@ -97,6 +98,7 @@ proto::GameEvent BallPlacementDetector::makeSuccess(const Context &context,
                                                     const WorldState &world,
                                                     double remainingDistance) {
   proto::GameEvent event;
+  event.set_type(proto::PLACEMENT_SUCCEEDED);
   proto::GameEvent_PlacementSucceeded *success = event.mutable_placement_succeeded();
   if (GameCommand::BALL_PLACEMENT_US == context.referee.command) {
     success->set_by_team(proto::Team::BLUE);

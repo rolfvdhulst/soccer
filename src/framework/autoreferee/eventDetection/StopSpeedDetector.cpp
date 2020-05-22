@@ -33,6 +33,7 @@ std::vector<proto::GameEvent> StopSpeedDetector::update(const Context &context) 
       lastBlueSendTime = currentTime;
       blueOffenders.insert(robot.id());
       proto::GameEvent event;
+      event.set_type(proto::BOT_TOO_FAST_IN_STOP);
       proto::GameEvent_BotTooFastInStop * violation = event.mutable_bot_too_fast_in_stop();
       violation->set_by_bot(robot.id().getID());
       violation->set_by_team(proto::Team::BLUE);

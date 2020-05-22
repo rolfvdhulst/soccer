@@ -78,6 +78,7 @@ std::vector<proto::GameEvent> BallPlacementInterferenceDetector::getEvents(bool 
   for (auto& offender : offenders){
     if(offender.second.shouldSend(currentTime)){
       proto::GameEvent event;
+      event.set_type(proto::BOT_INTERFERED_PLACEMENT);
       proto::GameEvent_BotInterferedPlacement * interference = event.mutable_bot_interfered_placement();
       interference->set_by_bot(offender.second.id.getID());
       interference->set_by_team(blueIsOffender ? proto::Team::BLUE : proto::Team::YELLOW);
