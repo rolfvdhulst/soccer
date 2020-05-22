@@ -6,7 +6,7 @@ add_library(autoref
         include/autoreferee/AutoReferee.h
         network/GameControllerTcp.cpp
         network/GameControllerTcp.h
-        eventDetection/SingleEventDetector.cpp include/autoreferee/eventDetection/SingleEventDetector.h include/autoreferee/eventDetection/Context.h eventDetection/BallPlacementDetector.cpp include/autoreferee/eventDetection/BallPlacementDetector.h eventDetection/BallPlacementInterferenceDetector.cpp include/autoreferee/eventDetection/BallPlacementInterferenceDetector.h)
+        eventDetection/SingleEventDetector.cpp include/autoreferee/eventDetection/SingleEventDetector.h include/autoreferee/eventDetection/Context.h eventDetection/BallPlacementDetector.cpp include/autoreferee/eventDetection/BallPlacementDetector.h eventDetection/BallPlacementInterferenceDetector.cpp include/autoreferee/eventDetection/BallPlacementInterferenceDetector.h eventDetection/StopSpeedDetector.cpp include/autoreferee/eventDetection/StopSpeedDetector.h)
 target_compile_options(autoref PUBLIC
         -std=c++17
         )

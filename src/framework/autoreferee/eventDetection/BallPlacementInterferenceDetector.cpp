@@ -8,7 +8,7 @@ bool BallPlacementInterferenceDetector::isApplicable(const GameCommand &command)
   return command.isBallPlacement();
 }
 BallPlacementInterferenceDetector::BallPlacementInterferenceDetector() : SingleEventDetector() {
-
+  reTriggerTime = Time(2.0);
 }
 std::vector<proto::GameEvent> BallPlacementInterferenceDetector::update(const Context &context) {
   const WorldState &world = context.currentWorld();
