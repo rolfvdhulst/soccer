@@ -8,7 +8,7 @@
 #include <core/Time.h>
 /**
  * @brief Class that filters 2d positions. This is essentially a constant velocity kalman filter in 2 dimensions.
- * bjects are assumed to keep moving as they do.
+ * objects are assumed to keep moving as they do.
  * the first two state index represent the x and y coordinates,
  * the 3rd and fourth represent the x and y velocity respectively
  */

@@ -10,7 +10,7 @@
 #include <math/filters/KalmanFilter.h>
 #include <vision/RobotObservation.h>
 
-#include "CameraFilter.h"
+#include "ObjectFilter.h"
 
 
 /**
@@ -18,7 +18,7 @@
  * @author Rolf
  * @date 5 November 2019
  */
-class RobotFilter : public CameraFilter {
+class RobotFilter : public ObjectFilter {
     typedef KalmanFilter<6, 3> Kalman;
 
    public:

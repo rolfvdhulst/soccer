@@ -10,9 +10,9 @@
 #include <math/filters/KalmanFilter.h>
 #include <vision/BallObservation.h>
 
-#include "CameraFilter.h"
+#include "ObjectFilter.h"
 
-class BallFilter : public CameraFilter {
+class BallFilter : public ObjectFilter {
     typedef KalmanFilter<4, 2> Kalman;
 
    public:

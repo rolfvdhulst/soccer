@@ -5,7 +5,7 @@
 #include "BallFilter.h"
 #include "Scaling.h"
 
-BallFilter::BallFilter(const BallObservation& observation) : CameraFilter(observation.timeCaptured,observation.cameraID),
+BallFilter::BallFilter(const BallObservation& observation)  :
 lastPredictTime{observation.timeCaptured} {
     KalmanInit(observation.ball);
 }
