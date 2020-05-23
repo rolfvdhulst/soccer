@@ -20,15 +20,17 @@ To be consistent in the code style, we use clang-format. You can use clang-forma
 This will make sure that the code is formatted during every commit from then on. 
 
 ### Dependencies
-Eigen3,
+CMake,
 
-google protobuf,
+Eigen3, (sudo apt-get install libeigen3-dev ) (optional for documentation: sudo apt-get install libeigen3-doc)
 
-Google Test,
+google protobuf (libprotoc-dev, protobuf-compiler)
+
+Google Test (libgtest-dev)
 
 Google Benchmark (libbenchmark-dev)
 
-Qt5
+Qt5 (https://stackoverflow.com/questions/48147356/install-qt-on-ubuntu)
 
 ### CLion Formatting
 1. Open CLion and go to File->Settings->Tools->External Tools
