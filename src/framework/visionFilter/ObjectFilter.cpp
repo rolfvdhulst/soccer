@@ -10,10 +10,11 @@ INCREMENT(increment),
 DECREMENT(decrement),
 MAXIMUM(maximum),
 HEALTHYLIMIT(healthyLimit){}
-void ObjectFilter::objectSeen() {
+void ObjectFilter::objectSeen(const Time &time) {
   health = std::min(health+INCREMENT,MAXIMUM);
   ticksNotSeen = 0;
   ticksIncreased ++;
+  lastSeenTime = time;
 }
 void ObjectFilter::objectInvisible() {
   health = std::max(health-DECREMENT,0);

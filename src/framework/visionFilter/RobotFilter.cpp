@@ -5,7 +5,8 @@
 #include "RobotFilter.h"
 #include "Scaling.h"
 
-RobotFilter::RobotFilter(const RobotObservation& observation) : botId{static_cast<int>(observation.bot.robot_id())} {
+RobotFilter::RobotFilter(const RobotObservation& observation) : ObjectFilter(10,5,100,30),
+botId{static_cast<int>(observation.bot.robot_id())} {
     KalmanInit(observation.bot);
 }
 

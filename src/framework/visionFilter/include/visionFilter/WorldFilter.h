@@ -5,7 +5,7 @@
 #include <protobuf/WorldRobot.pb.h>
 #include <protobuf/messages_robocup_ssl_geometry.pb.h>
 #include <field/CameraMap.h>
-#include "BallFilter.h"
+#include "ball/BallFilter.h"
 #include "RobotFilter.h"
 
 

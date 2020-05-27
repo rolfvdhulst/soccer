@@ -2,10 +2,10 @@
 // Created by rolf on 17-11-19.
 //
 
-#include "BallFilter.h"
+#include "ball/BallFilter.h"
 #include "Scaling.h"
 
-BallFilter::BallFilter(const BallObservation& observation)  :
+BallFilter::BallFilter(const BallObservation& observation)  : ObjectFilter(10,5,100,30),
 lastPredictTime{observation.timeCaptured} {
     KalmanInit(observation.ball);
 }
