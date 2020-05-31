@@ -1,6 +1,8 @@
 add_library(vision STATIC
         BallObservation.cpp
-        RobotObservation.cpp)
+        RobotObservation.cpp
+        DetectionFrame.cpp
+        )
 
 target_link_libraries(vision
         PUBLIC proto
