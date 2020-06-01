@@ -34,6 +34,8 @@ public:
     void processBalls(const DetectionFrame &frame);
     std::optional<FilteredBall> getBestBall(const Time& time) const;
     std::optional<FilteredRobot> getBestRobot(const Time& time, int id, bool blueBots) const;
+    std::vector<FilteredBall> getHealthyBalls(const Time& time) const;
+    std::vector<FilteredRobot> getHealthyRobots(const Time& time, int id, bool blueBots) const;
 };
 
 #endif  // RTT_CAMERAFILTER_H

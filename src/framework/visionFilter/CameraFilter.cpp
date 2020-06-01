@@ -143,3 +143,29 @@ std::optional<FilteredRobot> CameraFilter::getBestRobot(const Time &time, int id
     }
     return robot;
 }
+
+std::vector<FilteredBall> CameraFilter::getHealthyBalls(const Time &time) const {
+    std::vector<FilteredBall> healthyBalls;
+    for (const auto& ballFilter : balls){
+        FilteredBall filterBall = ballFilter.getEstimate(time,true);
+        if(ballFilter.isHealthy()){
+            healthyBalls.emplace_back(filterBall);
+        }
+    }
+    return healthyBalls;
+}
+
+std::vector<FilteredRobot> CameraFilter::getHealthyRobots(const Time &time,int id, bool blueBots) const {
+    std::vector<FilteredRobot> healthyRobots;
+    const robotMap& robots = blueBots ? blue : yellow;
+    const auto& iterator = robots.find(id);
+    if(iterator!=robots.end() && !iterator->second.empty()){
+        for (const auto& robotFilter : iterator->second){
+            FilteredRobot filteredRobot = robotFilter.getEstimate(time,true);
+            if(robotFilter.isHealthy()){
+                healthyRobots.emplace_back(filteredRobot);
+            }
+        }
+    }
+    return healthyRobots;
+}
