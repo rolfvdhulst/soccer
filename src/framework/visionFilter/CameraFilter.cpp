@@ -20,6 +20,19 @@ void CameraFilter::processRobots(const DetectionFrame &frame, bool blueBots) {
     robotMap& robots = blueBots ? blue : yellow;
 
     const std::vector<RobotObservation>& detectionRobots = blueBots ? frame.blue: frame.yellow;
+    //remove outdate robots
+    for(auto& oneIDFilters : robots){
+        std::vector<RobotFilter>& filters = oneIDFilters.second;
+        auto it = filters.begin();
+        for (;it!=filters.end();) {
+            if(frame.timeCaptured-it->lastSeen()>Time(0.5)){
+                it = filters.erase(it);
+            }else{
+                ++it;
+            }
+        }
+    }
+
     //Predict until the frame capture time
     for(auto& oneIDFilters : robots){
         for(auto& filter: oneIDFilters.second){
@@ -52,6 +65,15 @@ void CameraFilter::processRobots(const DetectionFrame &frame, bool blueBots) {
 }
 
 void CameraFilter::processBalls(const DetectionFrame &frame) {
+    //remove filters which have not been seen in a while or that have
+    auto it = balls.begin();
+    for (;it!=balls.end();) {
+        if(frame.timeCaptured-it->lastSeen()>Time(0.5)){
+            it = balls.erase(it);
+        }else{
+            ++it;
+        }
+    }
     //Predict all existing filters to the frame capture time
     for(auto& ballFilter : balls){
         ballFilter.predict(frame.timeCaptured);
@@ -65,8 +87,13 @@ void CameraFilter::processBalls(const DetectionFrame &frame) {
             accepted |= ballFilter.update(ball);
         }
         //If no filters accepted the detected ball we create a new one with this detection
-        if(!accepted){
+        if(!accepted && balls.size()<MAX_BALLFILTERS){
             balls.emplace_back(BallFilter(ball));
+        }
+    }
+    for(auto& ballFilter : balls){
+        if(!ballFilter.justUpdated()){
+            ballFilter.updateBallNotSeen(frame.timeCaptured);
         }
     }
 }
@@ -77,4 +104,42 @@ void CameraFilter::updateCalibration(const Camera &calibration) {
 
 void CameraFilter::updateRobotInfo(const proto::TeamRobotInfo& robotInfo) {
     teamInfo = robotInfo;
+}
+
+CameraFilter::CameraFilter(const DetectionFrame &frame) {
+    process(frame);
+}
+CameraFilter::CameraFilter(const DetectionFrame &frame, const Camera& calibration) :
+camera{calibration}{
+    process(frame);
+}
+
+std::optional<FilteredBall> CameraFilter::getBestBall(const Time& time) const {
+    std::optional<FilteredBall> ball = std::nullopt;
+    double currentHealth = -1;
+    for (const auto& ballFilter : balls){
+        FilteredBall filterBall = ballFilter.getEstimate(time,true);
+        if(ballFilter.isHealthy() && filterBall.health > currentHealth){
+            ball = filterBall;
+            currentHealth = filterBall.health;
+        }
+    }
+    return ball;
+}
+
+std::optional<FilteredRobot> CameraFilter::getBestRobot(const Time &time, int id, bool blueBots) const {
+    std::optional<FilteredRobot> robot = std::nullopt;
+    double currentHealth = -1;
+    const robotMap& robots = blueBots ? blue : yellow;
+    const auto& iterator = robots.find(id);
+    if(iterator!=robots.end() && !iterator->second.empty()){
+        for (const auto& robotFilter : iterator->second){
+            FilteredRobot filteredRobot = robotFilter.getEstimate(time,true);
+            if(robotFilter.isHealthy() && filteredRobot.health > currentHealth){
+                robot = filteredRobot;
+                currentHealth = filteredRobot.health;
+            }
+        }
+    }
+    return robot;
 }

@@ -9,7 +9,8 @@
 
 class ObjectFilter{
  public:
-  ObjectFilter(double fullHealthToUnhealthyTime, double camFrameInterval, int successiveTicksMaxHealth, int healthyAfter);
+    //we need to define move assignment operator
+  ObjectFilter(double fullHealthToUnhealthyTime, double camFrameInterval, int successiveTicksMaxHealth, int healthyAfter,const Time& time);
   [[nodiscard]] const Time& lastSeen() const;
   [[nodiscard]] int observations() const;
   [[nodiscard]] double getHealth() const;
@@ -21,10 +22,12 @@ class ObjectFilter{
 
  private:
   double health;
-  const double INCREMENT;
-  const double DECREMENT_SLOPE;
-  const double MAXIMUM;
-  const double HEALTHYLIMIT;
+  //We made these 4 non-const because this makes it possible to use some STL algorithms making things a LOT easier to program.
+  //Note they should be constant
+  double INCREMENT;
+  double DECREMENT_SLOPE;
+  double MAXIMUM;
+  double HEALTHYLIMIT;
   int framesTotal = 0;
   Time lastSeenTime;
   Time lastUpdateTime;

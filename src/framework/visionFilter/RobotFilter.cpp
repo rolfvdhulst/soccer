@@ -7,7 +7,7 @@
 #include "FilterConstants.h"
 
 RobotFilter::RobotFilter(const RobotObservation& observation) :
-ObjectFilter(0.2,1/60.0,10,3),
+ObjectFilter(0.2,1/60.0,10,3,observation.timeCaptured),
 botId{static_cast<int>(observation.bot.robot_id())}{
     //Initialize position filter
     //TODO: initialize from other camera
@@ -38,7 +38,7 @@ bool RobotFilter::update(const RobotObservation &observation) {
     assert(observation.bot.robot_id() == botId); //sanity check
     Eigen::Vector2d detectedPos = {mmToM(observation.bot.x()),mmToM(observation.bot.y())};
     double angleDif = abs(RobotOrientationFilter::limitAngle(angleFilter.getPosition()-observation.bot.orientation()));
-    if((detectedPos-positionFilter.getPosition()).norm()>=0.4 || angleDif > M_PI_2){
+    if((detectedPos-positionFilter.getPosition()).squaredNorm()>=0.4*0.4 || angleDif > M_PI_2){
         return false;
     }
     //Update position kalman filter
@@ -55,24 +55,25 @@ void RobotFilter::updateRobotNotSeen(const Time &time) {
     objectInvisible(time);
 }
 
-proto::WorldRobot RobotFilter::asWorldRobot(const Time &time) const {
-    proto::WorldRobot msg;
-    //Note we do linear extrapolation in the future for robots we don't know yet!
-    const Eigen::Vector2d pos = positionFilter.getPositionEstimate(time);
-    const Eigen::Vector2d vel = positionFilter.getVelocity();
-    const double angle = angleFilter.getPositionEstimate(time);
-    const double angularVel = angleFilter.getVelocity();
-    msg.set_id(botId);
-    msg.mutable_pos()->set_x(pos.x());
-    msg.mutable_pos()->set_y(pos.y());
-    msg.set_angle(angle);  // Need to limit here again (see applyObservation)
-    msg.mutable_vel()->set_x(vel.x());
-    msg.mutable_vel()->set_y(vel.y());
-    msg.set_w(angularVel);
-    return msg;
-}
 
 bool RobotFilter::justUpdated() const {
     return lastCycleWasUpdate;
+}
+
+FilteredRobot RobotFilter::getEstimate(const Time &time, bool writeUncertainties) const {
+    FilteredRobot robot;
+    robot.id = botId;
+    robot.pos = positionFilter.getPositionEstimate(time);
+    robot.vel = positionFilter.getVelocity();
+    robot.angle = angleFilter.getPositionEstimate(time);
+    robot.angularVel = angleFilter.getVelocity();
+    if(writeUncertainties){
+        robot.health = getHealth();
+        robot.posUncertainty = positionFilter.getPositionUncertainty().norm();
+        robot.velocityUncertainty = positionFilter.getVelocityUncertainty().norm();
+        robot.angleUncertainty = angleFilter.getPositionUncertainty();
+        robot.angularVelUncertainty = angleFilter.getVelocityUncertainty();
+    }
+    return robot;
 }
 

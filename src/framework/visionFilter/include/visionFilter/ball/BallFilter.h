@@ -5,55 +5,44 @@
 #ifndef RTT_BALLFILTER_H
 #define RTT_BALLFILTER_H
 
-#include <protobuf/WorldBall.pb.h>
 #include <protobuf/messages_robocup_ssl_detection.pb.h>
-#include <math/filters/KalmanFilter.h>
+#include <math/filters/PosVelFilter2D.h>
 #include <vision/BallObservation.h>
-
+#include <vision/FilteredBall.h>
 #include "ObjectFilter.h"
 
 class BallFilter : public ObjectFilter {
-    typedef KalmanFilter<4, 2> Kalman;
-
    public:
     // TODO: add documentation
     explicit BallFilter(const BallObservation& observation);
-    void predict(Time time, bool permanentUpdate, bool cameraSwitched);
-    void update(Time time, bool doLastPredict);
-    void addObservation(const BallObservation& observation);
-    /**
-     * Distance of the state of the filter to a point.
-     * @param x xCoordinate (in millimeters!)
-     * @param y yCoordinate (in millimeters!)
-     * @return Distance from the state to the point (x,y)
-     * */
-    [[nodiscard]] double distanceTo(double x, double y) const;
     /**
      * Outputs the current filter state in proto format.
      * @return The Proto message associated with the state of the filter
      */
-    [[nodiscard]] proto::WorldBall asWorldBall() const;
+    [[nodiscard]] FilteredBall getEstimate(const Time& time, bool writeUncertainties = false) const;
+    [[nodiscard]] bool justUpdated() const;
     /**
-     * @return Returns true if the ball has been the last 0.05 seconds.
+ * Predicts the state of the robot based on past observations.
+ * Note this is a permanent update so there is no going back after this is called.
+ * @param time The time until we wish to have a prediction of where the robot will be
+ */
+    void predict(Time time);
+    /**
+     * Updates the Filter until the specified time, applying observations
+     * @param time Time until which we want to update.
+     * @param doLastPredict In the very last step after applying all the observations, we can choose to not do the last
+     * prediction if we do not immediately want to read the filter's data.
      */
-    [[nodiscard]] bool ballIsVisible() const;
+    bool update(const BallObservation& observation);
+    /**
+     * Updates the filter with the information that we did NOT see the robot on the frame at time t, when it was there at some previous point in time
+     */
+    void updateBallNotSeen(const Time& time);
 
    private:
-    /**
-     * Applies the observation to the kalman Filter at the current time the filter is at.
-     * This changes the z and r matrices.
-     * Make sure you have predicted until the correct time before calling this!
-     * @param detectionBall Ball to be applied to the filter
-     */
-    void applyObservation(const BallObservation &observation);
-    /**
-     * Initializes the kalman Filter structures
-     * @param detectionBall Contains the initial state of the Filter.
-     */
-    void KalmanInit(const proto::SSL_DetectionBall &detectionBall);
-    std::unique_ptr<Kalman> kalman = nullptr;
-    Time lastPredictTime;
-    std::vector<BallObservation> observations;
+    PosVelFilter2D positionFilter;
+    bool lastCycleWasUpdate = true; //The first message (initialization) counts as an update
+
 };
 
 #endif  // RTT_BALLFILTER_H

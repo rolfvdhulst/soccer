@@ -39,11 +39,12 @@ const Time &ObjectFilter::lastSeen() const {
 }
 
 ObjectFilter::ObjectFilter(double fullHealthToUnhealthyTime, double camFrameInterval, int successiveTicksMaxHealth,
-                           int healthyAfter) :
+                           int healthyAfter, const Time& time) :
         MAXIMUM{100.0},
-        HEALTHYLIMIT{double(healthyAfter) / double(successiveTicksMaxHealth)},
-        DECREMENT_SLOPE{(100.0 - double(healthyAfter) / double(successiveTicksMaxHealth)) / fullHealthToUnhealthyTime},
-        INCREMENT{(100.0 + camFrameInterval * 100.0 - double(healthyAfter) / double(successiveTicksMaxHealth)) /
-                  fullHealthToUnhealthyTime} {
+        HEALTHYLIMIT{100.0*double(healthyAfter) / double(successiveTicksMaxHealth)},
+        DECREMENT_SLOPE{(100.0*(1- double(healthyAfter) / double(successiveTicksMaxHealth)))/ fullHealthToUnhealthyTime},
+        INCREMENT{100.0/successiveTicksMaxHealth+ camFrameInterval*(100.0*(1- double(healthyAfter) / double(successiveTicksMaxHealth)))/ fullHealthToUnhealthyTime},
+        lastSeenTime{time},
+        lastUpdateTime{time}{
     health = INCREMENT;
 }

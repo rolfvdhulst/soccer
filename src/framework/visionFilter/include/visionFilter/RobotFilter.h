@@ -5,10 +5,10 @@
 #ifndef RTT_ROBOTFILTER_H
 #define RTT_ROBOTFILTER_H
 
-#include <protobuf/WorldRobot.pb.h>
 #include <protobuf/messages_robocup_ssl_detection.pb.h>
 #include <math/filters/PosVelFilter2D.h>
 #include <vision/RobotObservation.h>
+#include <vision/FilteredRobot.h>
 #include "ObjectFilter.h"
 #include "RobotOrientationFilter.h"
 
@@ -50,7 +50,7 @@ class RobotFilter : public ObjectFilter {
      * Outputs the current filter state in proto format.
      * @return The Proto message associated with the state of the filter
      */
-    [[nodiscard]] proto::WorldRobot asWorldRobot(const Time& time) const;
+    [[nodiscard]] FilteredRobot getEstimate(const Time& time, bool writeUncertainties = false) const;
 
    private:
     PosVelFilter2D positionFilter;

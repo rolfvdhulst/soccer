@@ -5,9 +5,9 @@
 #include "DetectionFrame.h"
 
 DetectionFrame::DetectionFrame(const proto::SSL_DetectionFrame &protoFrame) :
-cameraID{},
-timeCaptured{},
-timeSent{}
+cameraID(protoFrame.camera_id()),
+timeCaptured{protoFrame.t_capture()},
+timeSent{protoFrame.t_sent()}
 {
     for(const auto& ball : protoFrame.balls()){
         balls.emplace_back(BallObservation(cameraID,timeCaptured,timeSent,ball));
