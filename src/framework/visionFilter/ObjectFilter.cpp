@@ -2,35 +2,48 @@
 // Created by rolf on 22-05-20.
 //
 
+#include <cmath>
+#include <cassert>
 #include <algorithm>
 #include "ObjectFilter.h"
 
-ObjectFilter::ObjectFilter(int increment, int decrement, int maximum, int healthyLimit) :
-INCREMENT(increment),
-DECREMENT(decrement),
-MAXIMUM(maximum),
-HEALTHYLIMIT(healthyLimit){}
 void ObjectFilter::objectSeen(const Time &time) {
-  health = std::min(health+INCREMENT,MAXIMUM);
-  ticksNotSeen = 0;
-  ticksIncreased ++;
-  lastSeenTime = time;
+    assert(time >= lastUpdateTime);
+    double newHealth = health + INCREMENT - (time - lastUpdateTime).asSeconds() * DECREMENT_SLOPE;
+    health = std::clamp(newHealth, 0.0, MAXIMUM);
+    framesTotal++;
+    lastSeenTime = time;
+    lastUpdateTime = time;
 }
-void ObjectFilter::objectInvisible() {
-  health = std::max(health-DECREMENT,0);
-  ticksNotSeen ++;
+
+void ObjectFilter::objectInvisible(const Time &time) {
+    assert(time > lastSeenTime);
+    health = fmax(health - (time - lastSeenTime).asSeconds() * DECREMENT_SLOPE, 0);
+    lastUpdateTime = time;
 }
-int ObjectFilter::getHealth() const{
-  return health;
+
+double ObjectFilter::getHealth() const {
+    return health;
 }
-int ObjectFilter::ticksNotSeenFor() const {
-  return ticksNotSeen;
-}
+
 int ObjectFilter::observations() const {
-  return ticksIncreased;
+    return framesTotal;
 }
+
 bool ObjectFilter::isHealthy() const {
-  return health >= HEALTHYLIMIT;
+    return health >= HEALTHYLIMIT;
 }
-ObjectFilter::ObjectFilter(int increment, int decrement, int maximum) :
-ObjectFilter(increment,decrement,maximum,maximum){ }
+
+const Time &ObjectFilter::lastSeen() const {
+    return lastSeenTime;
+}
+
+ObjectFilter::ObjectFilter(double fullHealthToUnhealthyTime, double camFrameInterval, int successiveTicksMaxHealth,
+                           int healthyAfter) :
+        MAXIMUM{100.0},
+        HEALTHYLIMIT{double(healthyAfter) / double(successiveTicksMaxHealth)},
+        DECREMENT_SLOPE{(100.0 - double(healthyAfter) / double(successiveTicksMaxHealth)) / fullHealthToUnhealthyTime},
+        INCREMENT{(100.0 + camFrameInterval * 100.0 - double(healthyAfter) / double(successiveTicksMaxHealth)) /
+                  fullHealthToUnhealthyTime} {
+    health = INCREMENT;
+}

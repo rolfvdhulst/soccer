@@ -26,6 +26,7 @@ void CameraFilter::processRobots(const DetectionFrame &frame, bool blueBots) {
             filter.predict(frame.timeCaptured);
         }
     }
+
     //Pass observations to the filters.
     //Note multiple observations of the same object can be made in this frame if they are close enough to the prediction
     for(const RobotObservation& robot : detectionRobots){
@@ -38,6 +39,14 @@ void CameraFilter::processRobots(const DetectionFrame &frame, bool blueBots) {
         //No existing filters accepted the robot detection so we create a new one with this detection
         if(!accepted){
             oneIDFilters.emplace_back(RobotFilter(robot));
+        }
+    }
+    //If a robot is not seen we forward that information to the existing filters with that ID
+    for(auto& oneIDFilters : robots){
+        for(auto& filter : oneIDFilters.second){
+            if(!filter.justUpdated()){
+                filter.updateRobotNotSeen(frame.timeCaptured);
+            }
         }
     }
 }

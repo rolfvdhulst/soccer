@@ -33,6 +33,15 @@ class KalmanFilter {
     // These are only really used in extended Kalman Filters or when we add control input.
     Matrix B;  // State transition jacobian
 
+    //implicit constructor
+    KalmanFilter(){
+        F = Matrix::Identity();
+        H = MatrixO::Identity();
+        Q = Matrix::Zero();
+        R = MatrixOO::Zero();
+
+        B = Matrix::Identity();
+    }
     /**
      * Constructs a Kalman Filter which starts with initial values and noise estimates
      * By default we simply have every column/row independent and no noises/perfect measurements

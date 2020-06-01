@@ -11,6 +11,7 @@
 
 class PosVelFilter1D {
 public:
+    PosVelFilter1D() = default;
     PosVelFilter1D(const Eigen::Vector2d &initialState, const Eigen::Matrix2d& initialCovariance,
                    double modelError, double measurementError, const Time& timeStamp);
     /**
@@ -23,18 +24,18 @@ public:
      * @brief Update the position estimate with a new measurement at the current time of the filter.
      * @param position to update the filter with
      */
-    void update(const double &position);
+    virtual void update(const double &position);
 
     /**
      * @brief Returns the state of the filter. First two indices are position, last two are velocity
      * @return state.
      */
-    [[nodiscard]] const Eigen::Vector2d& getState() const;
+    [[nodiscard]] virtual const Eigen::Vector2d& getState() const;
     /**
      * Returns the position of the filter. Prefer using getState() for performance
      * @return
      */
-    [[nodiscard]] double getPosition() const;
+    [[nodiscard]] virtual double getPosition() const;
     /**
      * Returns the velocity of the current state of the filter. Prefer using getState() for performance
      * @return
@@ -44,7 +45,7 @@ public:
      * Returns a linear extrapolation of the filter state to obtain position at a future time.
      * @return pos + vel*dt (essentially)
      */
-    [[nodiscard]] double getPositionEstimate(const Time &time) const;
+    [[nodiscard]] virtual double getPositionEstimate(const Time &time) const;
 
     /**
      * @brief Gets the uncertainty in position of the current filter state
@@ -85,12 +86,13 @@ public:
      */
     void setCovariance(const Eigen::Matrix2d &covariance);
 
-
+protected:
+    KalmanFilter<2,1> filter;
 private:
     //Before every tick we need to set the matrices we use using the dt of the tick
     void setTransitionMatrix(double dt);
     void setProcessNoiseFromRandomAcceleration(double dt);
-    KalmanFilter<2,1> filter;
+
     Time lastUpdateTime;
     double modelError;
 

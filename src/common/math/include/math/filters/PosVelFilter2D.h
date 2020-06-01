@@ -14,6 +14,7 @@
  */
 class PosVelFilter2D {
  public:
+    PosVelFilter2D() = default;
   PosVelFilter2D(const Eigen::Vector4d &initialState, const Eigen::Matrix4d& initialCovariance,
       double modelError, double measurementError, const Time& timeStamp);
   /**

@@ -26,7 +26,6 @@ PosVelFilter1D::PosVelFilter1D(const Eigen::Vector2d &initialState,
         filter{initialState,initialCovariance},
         lastUpdateTime{timeStamp},
         modelError{modelError}{
-
     filter.R(0,0) = measurementError;
 }
 void PosVelFilter1D::update(const double &position) {
