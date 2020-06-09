@@ -102,3 +102,12 @@ Eigen::Vector2d PosVelFilter2D::getPositionEstimate(const Time &time) const{
 void PosVelFilter2D::setCovariance(const Eigen::Matrix4d &covariance) {
   filter.setCovariance(covariance);
 }
+Time PosVelFilter2D::lastUpdated() const {
+    return lastUpdateTime;
+}
+Eigen::Matrix4d PosVelFilter2D::getCovariance() const {
+    return filter.covariance();
+}
+Eigen::Vector2d PosVelFilter2D::getInnovation() const {
+    return filter.y;
+}

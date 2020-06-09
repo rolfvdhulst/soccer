@@ -5,6 +5,7 @@
 #include "RobotFilter.h"
 #include "Scaling.h"
 #include "FilterConstants.h"
+#include <visionMatlab/VisionMatlabLogger.h>
 
 RobotFilter::RobotFilter(const RobotObservation& observation) :
 ObjectFilter(0.2,1/60.0,10,3,observation.timeCaptured),
@@ -17,7 +18,10 @@ botId{static_cast<int>(observation.bot.robot_id())}{
     initialPosCov(2,2) = ROBOT_VELOCITY_INITIAL_COV;
     initialPosCov(3,3) = ROBOT_VELOCITY_INITIAL_COV;
 
-    Eigen::Vector4d initialPos ={mmToM(observation.bot.x()),mmToM(observation.bot.y()),0,0};
+    double x = mmToM(observation.bot.x());
+    double y = mmToM(observation.bot.y());
+
+    Eigen::Vector4d initialPos ={x,y,0,0};
     positionFilter = PosVelFilter2D(initialPos,initialPosCov,ROBOT_POSITION_MODEL_ERROR,ROBOT_POSITION_MEASUREMENT_ERROR,observation.timeCaptured);
 
     Eigen::Vector2d initialAngle = {observation.bot.orientation(),0};
@@ -26,6 +30,7 @@ botId{static_cast<int>(observation.bot.robot_id())}{
     initialAngleCov(1,1) = ROBOT_ANGULAR_VEL_INITIAL_COV;
     angleFilter = RobotOrientationFilter(initialAngle,initialAngleCov,ROBOT_ANGLE_MODEL_ERROR,ROBOT_ANGLE_MEASUREMENT_ERROR,observation.timeCaptured);
 
+    registerLogFile({x,y},observation.bot.orientation());
 }
 
 void RobotFilter::predict(Time time) {
@@ -77,3 +82,40 @@ FilteredRobot RobotFilter::getEstimate(const Time &time, bool writeUncertainties
     return robot;
 }
 
+void RobotFilter::registerLogFile(const Eigen::Vector2d &observation, double angleObserved) {
+    if(!matlab_logger::logger.isCurrentlyLogging()){
+        return;
+    }
+    int positionFilterID = matlab_logger::logger.writeNewFilter(4,2,VisionMatlabLogger::ROBOT_FILTER_POSITION_BLUE);
+    setID(positionFilterID);
+    orientationFilterUniqueId = matlab_logger::logger.writeNewFilter(2,1,VisionMatlabLogger::ROBOT_FILTER_ANGLE_BLUE);
+    writeLogFile(observation,angleObserved);
+}
+void RobotFilter::writeLogFile(const Eigen::Vector2d &observation, double observedAngle) {
+    if(!matlab_logger::logger.isCurrentlyLogging()){
+        return;
+    }
+    int id = getID();
+    if(id>0){
+        matlab_logger::logger.writeData(
+                id,
+                positionFilter.lastUpdated().asSeconds(),
+                observation,
+                positionFilter.getState(),
+                positionFilter.getCovariance(),
+                positionFilter.getInnovation()
+        );
+        Eigen::Matrix<double,1,1> angleSeen = {Eigen::Matrix<double,1,1>(observedAngle)};
+        Eigen::Matrix<double,1,1> innovation = {Eigen::Matrix<double,1,1>(angleFilter.getInnovation())};
+        matlab_logger::logger.writeData(
+                orientationFilterUniqueId,
+                angleFilter.lastUpdated().asSeconds(),
+                angleSeen,
+                angleFilter.getState(),
+                angleFilter.getCovariance(),
+                innovation
+                );
+    } else{
+        registerLogFile(observation,observedAngle);
+    }
+}

@@ -52,11 +52,14 @@ class RobotFilter : public ObjectFilter {
      */
     [[nodiscard]] FilteredRobot getEstimate(const Time& time, bool writeUncertainties = false) const;
 
+    void registerLogFile(const Eigen::Vector2d& observation, double observedAngle);
+    void writeLogFile(const Eigen::Vector2d& observation, double observedAngle);
    private:
     PosVelFilter2D positionFilter;
     RobotOrientationFilter angleFilter;
     bool lastCycleWasUpdate = true; //The first message (initialization) counts as an update
     int botId;
+    int orientationFilterUniqueId = 0;
 };
 
 #endif  // RTT_ROBOTFILTER_H

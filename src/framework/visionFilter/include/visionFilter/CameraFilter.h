@@ -12,6 +12,7 @@
 #include <field/Camera.h>
 #include <vision/DetectionFrame.h>
 #include <protobuf/RobotInfo.h>
+#include <visionMatlab/VisionMatlabLogger.h>
 
 class CameraFilter {
 private:

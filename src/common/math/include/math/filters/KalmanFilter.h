@@ -33,6 +33,7 @@ class KalmanFilter {
     // These are only really used in extended Kalman Filters or when we add control input.
     Matrix B;  // State transition jacobian
 
+    VectorO y; //Innovation. Not strictly necessary to store but often used to measure performance
     //implicit constructor
     KalmanFilter(){
         F = Matrix::Identity();
@@ -41,6 +42,7 @@ class KalmanFilter {
         R = MatrixOO::Zero();
 
         B = Matrix::Identity();
+        y = VectorO::Zero();
     }
     /**
      * Constructs a Kalman Filter which starts with initial values and noise estimates
@@ -55,6 +57,7 @@ class KalmanFilter {
         R = MatrixOO::Zero();
 
         B = Matrix::Identity();
+        y = VectorO::Zero();
     };
     /**
      * Predict the next state using forward model, updating the state and covariance estimates
@@ -82,7 +85,7 @@ class KalmanFilter {
      */
     void update(const VectorO& z) {
         // Compute innovation (error between measurement and state)
-        VectorO y = z - (H * X);
+        y = z - (H * X);
         // Variance of innovation
         MatrixOO S = H * P * H.transpose() + R;
         // compute kalman gain. For small matrices, Eigen's inverse function is efficient for small matrices but be careful with larger matrices

@@ -89,7 +89,11 @@ class PosVelFilter2D {
    */
   void setCovariance(const Eigen::Matrix4d &covariance);
 
+  [[nodiscard]] Time lastUpdated() const;
 
+  [[nodiscard]] Eigen::Matrix4d getCovariance() const;
+
+  [[nodiscard]] Eigen::Vector2d getInnovation() const;
  private:
   //Before every tick we need to set the matrices we use using the dt of the tick
   void setTransitionMatrix(double dt);

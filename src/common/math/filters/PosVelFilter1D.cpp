@@ -90,3 +90,12 @@ double PosVelFilter1D::getPositionEstimate(const Time &time) const{
 void PosVelFilter1D::setCovariance(const Eigen::Matrix2d &covariance) {
     filter.setCovariance(covariance);
 }
+Time PosVelFilter1D::lastUpdated() const {
+    return lastUpdateTime;
+}
+Eigen::Matrix2d PosVelFilter1D::getCovariance() const {
+    return filter.covariance();
+}
+double PosVelFilter1D::getInnovation() const {
+    return filter.y(0,0);
+}

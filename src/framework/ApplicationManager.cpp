@@ -7,7 +7,6 @@
 #include <protoUtils/Flip.h>
 #include <protobuf/FrameLog.pb.h>
 #include <interfaceAPI/SettingsAPI.h>
-
 void ApplicationManager::init() {
     setupNetworking();
     //we wait for the first time we receive information from the interface (it has some startup time)
@@ -26,6 +25,12 @@ void ApplicationManager::run(bool &exit) {
             newReplay = true;
         } else if(!settings.loggingon() && logger.isLogging()){
             logger.endLogging();
+        }
+        if(settings.logvisionmatlab() && !matlab_logger::logger.isCurrentlyLogging()){
+            matlab_logger::logger.startLogging();
+        }
+        else if(!settings.logvisionmatlab() && matlab_logger::logger.isCurrentlyLogging()){
+            matlab_logger::logger.endLogging();
         }
         if(!settings.playingreplay()) {
             proto::FrameLog log;
@@ -120,6 +125,13 @@ void ApplicationManager::receiveVision() {
     proto::SSL_WrapperPacket visionPacket;
     while (visionReceiver->receive(visionPacket)) {
         visionPackets.push_back(visionPacket);
+    }
+    if(!visionPackets.empty()){
+        std::cout<< visionPackets.size()<<" vision messages"<<std::endl;
+    }
+    proto::RoboCup2014Legacy::Wrapper::SSL_WrapperPacket packet;
+    while(visionReceiver->receive(packet)){
+        std::cout<<" received outdated packet"<<std::endl;
     }
 }
 void ApplicationManager::setupNetworking() {

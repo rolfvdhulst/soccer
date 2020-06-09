@@ -48,3 +48,10 @@ ObjectFilter::ObjectFilter(double fullHealthToUnhealthyTime, double camFrameInte
         lastUpdateTime{time}{
     health = INCREMENT;
 }
+
+void ObjectFilter::setID(int newId) {
+    uniqueID = newId;
+}
+int ObjectFilter::getID() const {
+    return uniqueID;
+}

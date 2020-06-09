@@ -86,6 +86,12 @@ public:
      */
     void setCovariance(const Eigen::Matrix2d &covariance);
 
+    [[nodiscard]] Time lastUpdated() const;
+
+    Eigen::Matrix2d getCovariance() const;
+
+    double getInnovation() const;
+
 protected:
     KalmanFilter<2,1> filter;
 private:

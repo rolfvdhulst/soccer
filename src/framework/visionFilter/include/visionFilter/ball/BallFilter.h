@@ -39,6 +39,8 @@ class BallFilter : public ObjectFilter {
      */
     void updateBallNotSeen(const Time& time);
 
+    void registerLogFile(const Eigen::Vector2d& observation);
+    void writeLogFile(const Eigen::Vector2d& observation);
    private:
     PosVelFilter2D positionFilter;
     bool lastCycleWasUpdate = true; //The first message (initialization) counts as an update

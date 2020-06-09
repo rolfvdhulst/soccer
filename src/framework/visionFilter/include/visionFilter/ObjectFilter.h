@@ -15,7 +15,8 @@ class ObjectFilter{
   [[nodiscard]] int observations() const;
   [[nodiscard]] double getHealth() const;
   [[nodiscard]] bool isHealthy() const;
-
+  void setID(int newId);
+  [[nodiscard]] int getID() const;
  protected:
   void objectSeen(const Time& time);
   void objectInvisible(const Time& time);
@@ -31,6 +32,7 @@ class ObjectFilter{
   int framesTotal = 0;
   Time lastSeenTime;
   Time lastUpdateTime;
+  int uniqueID = 0; //A unique ID for seperating objects in the logs. should be assigned by the logger
 };
 
 #endif //SOCCER_SRC_FRAMEWORK_VISIONFILTER_OBJECTFILTER_H_

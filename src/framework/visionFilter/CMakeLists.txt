@@ -32,6 +32,7 @@ target_link_libraries(visionFilter
         PRIVATE math
         PRIVATE core
         PRIVATE containers
+        PUBLIC visionMatlab
         PUBLIC vision
         PUBLIC field
         PUBLIC proto
