@@ -48,11 +48,14 @@ class MainSettingsWidget : public QWidget {
         bool listenToReferee = true;
         void setListenToReferee(bool listen);
 
+        QCheckBox * matlabLoggingCheckbox;
+        bool matlabLoggingOn = false;
+        void setMatlabLoggingOn(bool logging);
+
         QCheckBox * loggingCheckBox;
         bool loggingOn = false;
         void setLoggingOn(bool listen);
 
-        QCheckBox * replayCheckBox;
         bool playReplay = false;
         void setPlayReplay(bool play);
 

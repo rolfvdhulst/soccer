@@ -101,7 +101,7 @@ void ReplayWidget::openFile() {
         bool success = directory.cdUp();
         if(!success){
             std::cerr<<"Could not find application root folder, did you rename or are you not running from root?"<<std::endl;
-            std::cerr<<"Could not open log file"<<std::endl;
+            break;
         }
     }
     if(!directory.cd("logfiles")){

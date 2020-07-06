@@ -32,4 +32,5 @@ message Settings {
     required TeamSettings firstTeam = 8;
     optional TeamSettings secondTeam = 9;
     optional bool saveBackLog = 10;
+    optional bool logVisionMatlab = 11;
 }

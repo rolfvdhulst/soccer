@@ -8,12 +8,13 @@
 #include <core/Time.h>
 /**
  * @brief Class that filters 2d positions. This is essentially a constant velocity kalman filter in 2 dimensions.
- * bjects are assumed to keep moving as they do.
+ * objects are assumed to keep moving as they do.
  * the first two state index represent the x and y coordinates,
  * the 3rd and fourth represent the x and y velocity respectively
  */
 class PosVelFilter2D {
  public:
+    PosVelFilter2D() = default;
   PosVelFilter2D(const Eigen::Vector4d &initialState, const Eigen::Matrix4d& initialCovariance,
       double modelError, double measurementError, const Time& timeStamp);
   /**
@@ -88,7 +89,11 @@ class PosVelFilter2D {
    */
   void setCovariance(const Eigen::Matrix4d &covariance);
 
+  [[nodiscard]] Time lastUpdated() const;
 
+  [[nodiscard]] Eigen::Matrix4d getCovariance() const;
+
+  [[nodiscard]] Eigen::Vector2d getInnovation() const;
  private:
   //Before every tick we need to set the matrices we use using the dt of the tick
   void setTransitionMatrix(double dt);

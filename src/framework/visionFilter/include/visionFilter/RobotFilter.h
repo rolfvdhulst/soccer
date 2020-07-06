@@ -5,12 +5,12 @@
 #ifndef RTT_ROBOTFILTER_H
 #define RTT_ROBOTFILTER_H
 
-#include <protobuf/WorldRobot.pb.h>
 #include <protobuf/messages_robocup_ssl_detection.pb.h>
-#include <math/filters/KalmanFilter.h>
+#include <math/filters/PosVelFilter2D.h>
 #include <vision/RobotObservation.h>
-
-#include "CameraFilter.h"
+#include <vision/FilteredRobot.h>
+#include "ObjectFilter.h"
+#include "RobotOrientationFilter.h"
 
 
 /**
@@ -18,74 +18,49 @@
  * @author Rolf
  * @date 5 November 2019
  */
-class RobotFilter : public CameraFilter {
-    typedef KalmanFilter<6, 3> Kalman;
-
+class RobotFilter : public ObjectFilter {
    public:
     /**
      * Construct a RobotFilter.
      * @param detectionRobot Initial observation of the robot we start our filter with.
      * @param detectTime Point in time we start the filter at.
      */
-    explicit RobotFilter(const RobotObservation& observation);
+    explicit RobotFilter(const RobotObservation& observation, bool botIsBlue);
     /**
-     * Predicts the state of the robot based on past observations
-     * @param time The time at which we wish to have a prediction of where the robot will be
-     * @param permanentUpdate If set to true, the update is applied permanently to the filter.
-     * @param cameraSwitched Set to true if we just switched our main camera, gives a bit more leeway for offsets in position
-     * If not, we may still add new observations from after the last time the Filter was between the variable time
-     * and the last time the filter was permanently updated.
+     * Predicts the state of the robot based on past observations.
+     * Note this is a permanent update so there is no going back after this is called.
+     * @param time The time until we wish to have a prediction of where the robot will be
      */
-    void predict(Time time, bool permanentUpdate, bool cameraSwitched);
+    void predict(Time time);
     /**
      * Updates the Filter until the specified time, applying observations of the robot and predicting the state along the way.
      * @param time Time until which we want to update.
      * @param doLastPredict In the very last step after applying all the observations, we can choose to not do the last
      * prediction if we do not immediately want to read the filter's data.
      */
-    void update(Time time, bool doLastPredict);
+    bool update(const RobotObservation& observation);
+
+    [[nodiscard]] bool justUpdated() const;
     /**
-     * Adds an observation of the robot to the filter.
-     * @param detectionRobot State of the robot that was observed
-     * @param time Time the robot was observed
-     * @param cameraID ID of the camera that saw the robot
+     * Updates the filter with the information that we did NOT see the robot on the frame at time t, when it was there at some previous point in time
      */
-    void addObservation(const RobotObservation& observation);
-    /**
-     * Distance of the state of the filter to a point.
-     * @param x xCoordinate (in millimeters!)
-     * @param y yCoordinate (in millimeters!)
-     * @return Distance from the state to the point (x,y)
-     */
-    [[nodiscard]] double distanceTo(double x, double y) const;
+    void updateRobotNotSeen(const Time& time);
+
     /**
      * Outputs the current filter state in proto format.
      * @return The Proto message associated with the state of the filter
      */
-    [[nodiscard]] proto::WorldRobot asWorldRobot() const;
+    [[nodiscard]] FilteredRobot getEstimate(const Time& time, bool writeUncertainties = false) const;
 
+    void registerLogFile(const Eigen::Vector2d& observation, double observedAngle);
+    void writeLogFile(const Eigen::Vector2d& observation, double observedAngle);
    private:
-    /**
-     * Applies the observation to the kalman Filter at the current time the filter is at.
-     * This changes the z and r matrices.
-     * Make sure you have predicted until the correct time before calling this!
-     * @param detectionRobot Robot to be applied
-     */
-    void applyObservation(const RobotObservation &observation);
-    /**
-     * A function that casts any angle to the range [-PI,PI)
-     * @param angle angle to be limited
-     * @return Limited angle in range [-PI,PI)
-     */
-    [[nodiscard]] double limitAngle(double angle) const;
-    /**
-     * Initializes the kalman Filter structures
-     * @param detectionRobot Contains the initial state of the Filter.
-     */
-    void KalmanInit(const proto::SSL_DetectionRobot &detectionRobot);
-    std::unique_ptr<Kalman> kalman = nullptr;
+    PosVelFilter2D positionFilter;
+    RobotOrientationFilter angleFilter;
+    bool lastCycleWasUpdate = true; //The first message (initialization) counts as an update
     int botId;
-    std::vector<RobotObservation> observations;
+    bool botIsBlue;
+    int orientationFilterUniqueId = 0;
 };
 
 #endif  // RTT_ROBOTFILTER_H
