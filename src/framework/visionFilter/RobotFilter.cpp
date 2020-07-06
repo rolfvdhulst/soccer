@@ -4,173 +4,122 @@
 
 #include "RobotFilter.h"
 #include "Scaling.h"
+#include "FilterConstants.h"
+#include <visionMatlab/VisionMatlabLogger.h>
 
-RobotFilter::RobotFilter(const RobotObservation& observation)
-    : CameraFilter(observation.timeCaptured, observation.cameraID), botId{static_cast<int>(observation.bot.robot_id())} {
-    KalmanInit(observation.bot);
+RobotFilter::RobotFilter(const RobotObservation& observation, bool botIsBlue) :
+ObjectFilter(0.2,1/60.0,10,3,observation.timeCaptured),
+botId{static_cast<int>(observation.bot.robot_id())},
+botIsBlue{botIsBlue}{
+    //Initialize position filter
+    //TODO: initialize from other camera
+    Eigen::Matrix4d initialPosCov = Eigen::Matrix4d::Zero();
+    initialPosCov(0,0) = ROBOT_POSITION_INITIAL_COV;
+    initialPosCov(1,1) = ROBOT_POSITION_INITIAL_COV;
+    initialPosCov(2,2) = ROBOT_VELOCITY_INITIAL_COV;
+    initialPosCov(3,3) = ROBOT_VELOCITY_INITIAL_COV;
+
+    double x = mmToM(observation.bot.x());
+    double y = mmToM(observation.bot.y());
+
+    Eigen::Vector4d initialPos ={x,y,0,0};
+    positionFilter = PosVelFilter2D(initialPos,initialPosCov,ROBOT_POSITION_MODEL_ERROR,ROBOT_POSITION_MEASUREMENT_ERROR,observation.timeCaptured);
+
+    Eigen::Vector2d initialAngle = {observation.bot.orientation(),0};
+    Eigen::Matrix2d initialAngleCov = Eigen::Matrix2d::Zero();
+    initialAngleCov(0,0) = ROBOT_ANGLE_INITIAL_COV;
+    initialAngleCov(1,1) = ROBOT_ANGULAR_VEL_INITIAL_COV;
+    angleFilter = RobotOrientationFilter(initialAngle,initialAngleCov,ROBOT_ANGLE_MODEL_ERROR,ROBOT_ANGLE_MEASUREMENT_ERROR,observation.timeCaptured);
+
+    registerLogFile({x,y},observation.bot.orientation());
 }
 
-/*
- * A short function to sort observations by time.
- */
-bool compareObservation(const RobotObservation &a, const RobotObservation &b) { return (a.timeCaptured < b.timeCaptured); }
-void RobotFilter::update(Time time, bool doLastPredict) {
-    std::sort(observations.begin(), observations.end(),
-              compareObservation);  // First sort the observations in time increasing order
-    auto it = observations.begin();
-    while (it != observations.end()) {
-        auto observation = (*it);
-        // the observation is either too old (we already updated the robot) or too new and we don't need it yet.
-        if (observation.timeCaptured < lastUpdateTime) {
-            observations.erase(it);
-            continue;
-        }
-        if (observation.timeCaptured> time) {
-            // relevant update, but we don't need the info yet so we skip it.
-            ++it;
-            continue;
-        }
-        // We first predict the robot, and then apply the observation to calculate errors/offsets.
-        bool cameraSwitched = switchCamera(observation.cameraID, observation.timeCaptured);
-        predict(observation.timeCaptured, true, cameraSwitched);
-        applyObservation(observation);
-        observations.erase(it);
-    }
-    if (doLastPredict) {
-        predict(time, false, false);
-    }
+void RobotFilter::predict(Time time) {
+    positionFilter.predict(time);
+    angleFilter.predict(time);
+    lastCycleWasUpdate = false;
 }
 
-void RobotFilter::KalmanInit(const proto::SSL_DetectionRobot &detectionRobot) {
-    // SSL units are in mm, we do everything in SI units.
-    double x = mmToM(detectionRobot.x());         // m
-    double y = mmToM(detectionRobot.y());         // m
-    double angle = detectionRobot.orientation();  // radians [-pi,pi)
-    Kalman::Vector startState = Kalman::Vector::Zero();
-    startState(0) = x;
-    startState(1) = y;
-    startState(2) = angle;
-
-    Kalman::Matrix startCov = Kalman::Matrix::Identity();
-    // initial noise estimates
-    const double startPosNoise = 0.1;
-    const double startAngleNoise = 0.1;
-    startCov(0, 0) = startPosNoise;    // m noise in x
-    startCov(1, 1) = startPosNoise;    // m noise in y
-    startCov(2, 2) = startAngleNoise;  // radians
-    kalman = std::make_unique<Kalman>(startState, startCov);
-
-    kalman->H = Kalman::MatrixO::Identity();  // Our observations are simply what we see.
+bool RobotFilter::update(const RobotObservation &observation) {
+    assert(observation.bot.robot_id() == botId); //sanity check
+    Eigen::Vector2d detectedPos = {mmToM(observation.bot.x()),mmToM(observation.bot.y())};
+    double angleDif = abs(RobotOrientationFilter::limitAngle(angleFilter.getPosition()-observation.bot.orientation()));
+    if((detectedPos-positionFilter.getPosition()).squaredNorm()>=0.4*0.4 || angleDif > M_PI_2){
+        return false;
+    }
+    //Update position kalman filter
+    positionFilter.update(detectedPos);
+    //Update angle kalman filter
+    angleFilter.update(observation.bot.orientation());
+    //update object seen settings
+    objectSeen(observation.timeCaptured);
+    lastCycleWasUpdate = true;
+    writeLogFile(detectedPos,observation.bot.orientation());
+    return true;
 }
 
-void RobotFilter::predict(Time time, bool permanentUpdate, bool cameraSwitched) {
-    double dt = (time - lastUpdateTime).asSeconds();
-  if(dt<0){
-    std::__throw_bad_alloc();
-  }
-    // forward model:
-    kalman->F = Kalman::Matrix::Identity();
-    kalman->F(0, 3) = dt;
-    kalman->F(1, 4) = dt;
-    kalman->F(2, 5) = dt;
-
-    // Set B
-    kalman->B = kalman->F;
-
-
-    // Set Q
-    const double posNoise = 1.0;
-    const double rotNoise = 1.0;
-    Kalman::MatrixO G = Kalman::MatrixO::Zero();
-    G(0, 0) = dt * posNoise;
-    G(0, 3) = 1 * posNoise;
-    G(1, 1) = dt * posNoise;
-    G(1, 4) = 1 * posNoise;
-    G(2, 2) = dt * rotNoise;
-    G(2, 5) = 1 * rotNoise;
-    // TODO: tune filters
-    // We add position errors in case we switch camera because calibration
-    if (cameraSwitched) {
-        G(0, 0) += 0.02;
-        G(1, 1) += 0.02;
-        G(2, 2) += 0.04;
-    }
-    kalman->Q = G.transpose() * G;
-
-    kalman->predict();
-    if (permanentUpdate) {
-        lastUpdateTime = time;
-    }
+void RobotFilter::updateRobotNotSeen(const Time &time) {
+    objectInvisible(time);
 }
 
-/* Updates the kalman filter with the observation.
- * This function assumes you have already predicted until the right time!
- */
-void RobotFilter::applyObservation(const RobotObservation &observation) {
-    // sanity check
-    assert(botId == observation.bot.robot_id());
 
-    Kalman::VectorO obsState = {mmToM(observation.bot.x()), mmToM(observation.bot.y()), 0};
-    // We need to do something about the rotation's discontinuities at -pi/pi so it works correctly.
-    // We allow the state to go outside of bounds (-PI,PI) in between updates, but then simply make sure the observation difference is correct
-    double stateRot = kalman->state()[2];
-    double limitedRot = limitAngle(stateRot);
-    if (stateRot != limitedRot) {
-        kalman->modifyState(2, limitedRot);  // We're adjusting the value of the Kalman Filter here, be careful.
-        // We're only doing this so we don't get flips from -inf to inf and loss of double precision at high values.
-    }
-    double difference = limitAngle(observation.bot.orientation() - stateRot);
-    obsState(2) = limitedRot + difference;
-
-    kalman->R = Kalman::MatrixOO::Zero();
-    // we put much more trust in observations done by our main camera.
-    if (observation.cameraID == mainCamera) {
-        // TODO: collect constants somewhere
-        const double posVar = 0.001;  // variance in meters. Error should be of the order ~1 cm to 1 mm
-        const double rotVar = 0.004;
-        kalman->R(0, 0) = posVar;
-        kalman->R(1, 1) = posVar;
-        kalman->R(2, 2) = rotVar;
-    } else {
-        const double posVar = 0.01;  // variance in meters
-        const double rotVar = 0.01;
-        kalman->R(0, 0) = posVar;
-        kalman->R(1, 1) = posVar;
-        kalman->R(2, 2) = rotVar;
-    }
-    kalman->update(obsState);
+bool RobotFilter::justUpdated() const {
+    return lastCycleWasUpdate;
 }
 
-double RobotFilter::limitAngle(double angle) const {
-    while (angle > M_PI) {
-        angle -= 2 * M_PI;
+FilteredRobot RobotFilter::getEstimate(const Time &time, bool writeUncertainties) const {
+    FilteredRobot robot;
+    robot.id = botId;
+    robot.pos = positionFilter.getPositionEstimate(time);
+    robot.vel = positionFilter.getVelocity();
+    robot.angle = angleFilter.getPositionEstimate(time);
+    robot.angularVel = angleFilter.getVelocity();
+    if(writeUncertainties){
+        robot.health = getHealth();
+        robot.posUncertainty = positionFilter.getPositionUncertainty().norm();
+        robot.velocityUncertainty = positionFilter.getVelocityUncertainty().norm();
+        robot.angleUncertainty = angleFilter.getPositionUncertainty();
+        robot.angularVelUncertainty = angleFilter.getVelocityUncertainty();
     }
-    while (angle <= -M_PI) {
-        angle += 2 * M_PI;
+    return robot;
+}
+
+void RobotFilter::registerLogFile(const Eigen::Vector2d &observation, double angleObserved) {
+    if(!matlab_logger::logger.isCurrentlyLogging()){
+        return;
     }
-    return angle;
+    VisionMatlabLogger::FilterType type = botIsBlue ? VisionMatlabLogger::ROBOT_FILTER_POSITION_BLUE : VisionMatlabLogger::ROBOT_FILTER_POSITION_YELLOW;
+    int positionFilterID = matlab_logger::logger.writeNewFilter(4,2,type);
+    setID(positionFilterID);
+    type = botIsBlue ? VisionMatlabLogger::ROBOT_FILTER_ANGLE_BLUE : VisionMatlabLogger::ROBOT_FILTER_ANGLE_YELLOW;
+    orientationFilterUniqueId = matlab_logger::logger.writeNewFilter(2,1,type);
+    writeLogFile(observation,angleObserved);
 }
-
-proto::WorldRobot RobotFilter::asWorldRobot() const {
-    proto::WorldRobot msg;
-    const Kalman::Vector &state = kalman->state();
-    msg.set_id(botId);
-    msg.mutable_pos()->set_x(state[0]);
-    msg.mutable_pos()->set_y(state[1]);
-    msg.set_angle(limitAngle(state[2]));  // Need to limit here again (see applyObservation)
-    msg.mutable_vel()->set_x(state[3]);
-    msg.mutable_vel()->set_y(state[4]);
-    msg.set_w(state[5]);
-    return msg;
-}
-
-void RobotFilter::addObservation(const RobotObservation& observation) {
-    observations.emplace_back(observation);
-}
-
-double RobotFilter::distanceTo(double x, double y) const {
-    const Kalman::Vector &state = kalman->state();
-    double dx = state[0] - mmToM(x);
-    double dy = state[1] - mmToM(y);
-    return sqrt(dx * dx + dy * dy);
+void RobotFilter::writeLogFile(const Eigen::Vector2d &observation, double observedAngle) {
+    if(!matlab_logger::logger.isCurrentlyLogging()){
+        return;
+    }
+    int id = getID();
+    if(id>0){
+        matlab_logger::logger.writeData(
+                id,
+                positionFilter.lastUpdated().asSeconds(),
+                observation,
+                positionFilter.getState(),
+                positionFilter.getCovariance(),
+                positionFilter.getInnovation()
+        );
+        Eigen::Matrix<double,1,1> angleSeen = {Eigen::Matrix<double,1,1>(observedAngle)};
+        Eigen::Matrix<double,1,1> innovation = {Eigen::Matrix<double,1,1>(angleFilter.getInnovation())};
+        matlab_logger::logger.writeData(
+                orientationFilterUniqueId,
+                angleFilter.lastUpdated().asSeconds(),
+                angleSeen,
+                angleFilter.getState(),
+                angleFilter.getCovariance(),
+                innovation
+                );
+    } else{
+        registerLogFile(observation,observedAngle);
+    }
 }

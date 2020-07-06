@@ -36,6 +36,11 @@ MainSettingsWidget::MainSettingsWidget(QWidget* parent) : QWidget(parent){
 
     connect(refereeCheckBox, &QCheckBox::clicked, this, &MainSettingsWidget::setListenToReferee);
 
+    matlabLoggingCheckbox = new QCheckBox("Log vision filter (Matlab)");
+    matlabLoggingCheckbox->setChecked(false);
+    checkBoxLayout->addWidget(matlabLoggingCheckbox);
+    connect(matlabLoggingCheckbox, &QCheckBox::clicked, this, &MainSettingsWidget::setMatlabLoggingOn);
+
     loggingCheckBox = new QCheckBox("Log data");
     loggingCheckBox->setChecked(false);
     checkBoxLayout->addWidget(loggingCheckBox);
@@ -73,6 +78,7 @@ MainSettingsWidget::MainSettingsWidget(QWidget* parent) : QWidget(parent){
     setDisabledColor(loggingCheckBox);
     setDisabledColor(leftTeamWidget);
     setDisabledColor(rightTeamWidget);
+    setDisabledColor(matlabLoggingCheckbox);
 
     leftTeamWidget->setEnabled(false);
     rightTeamWidget->setEnabled(false);
@@ -108,6 +114,7 @@ proto::Settings MainSettingsWidget::getSettings(){
         settings.set_savebacklog(true);
         saveBacklogNextTick = false;
     }
+    settings.set_logvisionmatlab(matlabLoggingOn);
     return settings;
 }
 void MainSettingsWidget::updateMode(int index) {
@@ -180,4 +187,8 @@ void MainSettingsWidget::visualizeFrame(const proto::FrameLog &frame){
 }
 void MainSettingsWidget::saveBacklog() {
     saveBacklogNextTick = true;
+}
+
+void MainSettingsWidget::setMatlabLoggingOn(bool logging) {
+    matlabLoggingOn = logging;
 }
