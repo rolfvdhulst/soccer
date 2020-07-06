@@ -7,9 +7,10 @@
 #include "FilterConstants.h"
 #include <visionMatlab/VisionMatlabLogger.h>
 
-RobotFilter::RobotFilter(const RobotObservation& observation) :
+RobotFilter::RobotFilter(const RobotObservation& observation, bool botIsBlue) :
 ObjectFilter(0.2,1/60.0,10,3,observation.timeCaptured),
-botId{static_cast<int>(observation.bot.robot_id())}{
+botId{static_cast<int>(observation.bot.robot_id())},
+botIsBlue{botIsBlue}{
     //Initialize position filter
     //TODO: initialize from other camera
     Eigen::Matrix4d initialPosCov = Eigen::Matrix4d::Zero();
@@ -53,6 +54,7 @@ bool RobotFilter::update(const RobotObservation &observation) {
     //update object seen settings
     objectSeen(observation.timeCaptured);
     lastCycleWasUpdate = true;
+    writeLogFile(detectedPos,observation.bot.orientation());
     return true;
 }
 
@@ -86,9 +88,11 @@ void RobotFilter::registerLogFile(const Eigen::Vector2d &observation, double ang
     if(!matlab_logger::logger.isCurrentlyLogging()){
         return;
     }
-    int positionFilterID = matlab_logger::logger.writeNewFilter(4,2,VisionMatlabLogger::ROBOT_FILTER_POSITION_BLUE);
+    VisionMatlabLogger::FilterType type = botIsBlue ? VisionMatlabLogger::ROBOT_FILTER_POSITION_BLUE : VisionMatlabLogger::ROBOT_FILTER_POSITION_YELLOW;
+    int positionFilterID = matlab_logger::logger.writeNewFilter(4,2,type);
     setID(positionFilterID);
-    orientationFilterUniqueId = matlab_logger::logger.writeNewFilter(2,1,VisionMatlabLogger::ROBOT_FILTER_ANGLE_BLUE);
+    type = botIsBlue ? VisionMatlabLogger::ROBOT_FILTER_ANGLE_BLUE : VisionMatlabLogger::ROBOT_FILTER_ANGLE_YELLOW;
+    orientationFilterUniqueId = matlab_logger::logger.writeNewFilter(2,1,type);
     writeLogFile(observation,angleObserved);
 }
 void RobotFilter::writeLogFile(const Eigen::Vector2d &observation, double observedAngle) {

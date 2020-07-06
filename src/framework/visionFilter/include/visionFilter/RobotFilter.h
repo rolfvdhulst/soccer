@@ -25,7 +25,7 @@ class RobotFilter : public ObjectFilter {
      * @param detectionRobot Initial observation of the robot we start our filter with.
      * @param detectTime Point in time we start the filter at.
      */
-    explicit RobotFilter(const RobotObservation& observation);
+    explicit RobotFilter(const RobotObservation& observation, bool botIsBlue);
     /**
      * Predicts the state of the robot based on past observations.
      * Note this is a permanent update so there is no going back after this is called.
@@ -59,6 +59,7 @@ class RobotFilter : public ObjectFilter {
     RobotOrientationFilter angleFilter;
     bool lastCycleWasUpdate = true; //The first message (initialization) counts as an update
     int botId;
+    bool botIsBlue;
     int orientationFilterUniqueId = 0;
 };
 

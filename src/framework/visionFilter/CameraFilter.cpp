@@ -51,7 +51,7 @@ void CameraFilter::processRobots(const DetectionFrame &frame, bool blueBots) {
         }
         //No existing filters accepted the robot detection so we create a new one with this detection
         if(!accepted){
-            oneIDFilters.emplace_back(RobotFilter(robot));
+            oneIDFilters.emplace_back(RobotFilter(robot,blueBots));
         }
     }
     //If a robot is not seen we forward that information to the existing filters with that ID
