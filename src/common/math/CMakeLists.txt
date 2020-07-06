@@ -39,7 +39,9 @@ add_library(math STATIC
         include/math/filters/ConstantMAFilter.h
         general/QuadraticEquation.cpp
         include/math/general/QuadraticEquation.h
-        filters/PosVelFilter1D.cpp include/math/filters/PosVelFilter1D.h)
+        filters/PosVelFilter1D.cpp
+        include/math/filters/PosVelFilter1D.h
+        )
 target_link_libraries(math
         PRIVATE containers
         PUBLIC proto

@@ -12,8 +12,6 @@
 
 class VisionFilter {
     public:
-        VisionFilter();
-        ~VisionFilter();
         proto::World process(const std::vector<proto::SSL_WrapperPacket>& packets, Time time);
         proto::World process(const std::vector<proto::SSL_WrapperPacket>& packets, const proto::TeamRobotInfo& robotInfo);
         bool hasNewGeometry() const;

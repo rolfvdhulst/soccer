@@ -51,9 +51,3 @@ bool VisionFilter::receivedFirstGeometry() const {
 const proto::SSL_GeometryData &VisionFilter::getGeometry() {
     return geomFilter.getGeometry();
 }
-
-VisionFilter::VisionFilter() {
-}
-
-VisionFilter::~VisionFilter() {
-}

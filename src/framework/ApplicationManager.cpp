@@ -126,13 +126,6 @@ void ApplicationManager::receiveVision() {
     while (visionReceiver->receive(visionPacket)) {
         visionPackets.push_back(visionPacket);
     }
-    if(!visionPackets.empty()){
-        std::cout<< visionPackets.size()<<" vision messages"<<std::endl;
-    }
-    proto::RoboCup2014Legacy::Wrapper::SSL_WrapperPacket packet;
-    while(visionReceiver->receive(packet)){
-        std::cout<<" received outdated packet"<<std::endl;
-    }
 }
 void ApplicationManager::setupNetworking() {
     constexpr int DEFAULT_VISION_PORT = 10006;
