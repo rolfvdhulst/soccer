@@ -8,6 +8,8 @@
 #include <eventDetection/DefenderFreeKickDistanceDetector.h>
 #include "eventDetection/BallPlacementInterferenceDetector.h"
 #include "eventDetection/BallPlacementDetector.h"
+#include "eventDetection/AttackerToDefenseAreaDistanceDetector.h"
+
 
 std::vector<proto::GameEvent> EventDetector::update(
     const proto::World &world, const proto::GameState &gameState,
@@ -58,4 +60,8 @@ EventDetector::EventDetector() {
   //Detects if defenders are too close during free kicks
   std::unique_ptr<SingleEventDetector>  defenderFreeKickDetector = std::make_unique<DefenderFreeKickDistanceDetector>();
   detectors.push_back(std::move(defenderFreeKickDetector));
+
+  //Detects if attackers keep distance from defense area during free kicks and stop
+  std::unique_ptr<SingleEventDetector>  attackerDefAreaDetector = std::make_unique<AttackerToDefenseAreaDistanceDetector>();
+  detectors.push_back(std::move(attackerDefAreaDetector));
 }

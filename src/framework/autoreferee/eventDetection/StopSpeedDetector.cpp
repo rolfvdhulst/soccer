@@ -5,7 +5,7 @@
 #include "eventDetection/StopSpeedDetector.h"
 StopSpeedDetector::StopSpeedDetector() : SingleEventDetector(){
 }
-//TODO: perhaps register robots and count time (and have e.g. 200/300 ms for them to be too fast before we register)
+//TODO: perhaps register robots and count time (and have e.g. 0.3 s for them to be too fast before we register)
 std::vector<proto::GameEvent> StopSpeedDetector::update(const Context &context) {
   if(context.worldHistory.empty()){
     return {};

@@ -88,6 +88,12 @@ class Rectangle {
     [[nodiscard]] std::vector<LineSegment> lines() const;
 
     /**
+     * Gets the distance to the closest point on the rectangle's boundary from the given point.
+     * @param point
+     * @return distance to closest edge or corner.
+     */
+    [[nodiscard]] double distanceTo(const Vector2& point) const;
+    /**
      * @brief Checks whether a given line intersects with `this`
      * @param line line segment to check for
      * @return vector with all of the points where the line segment intersects the rectangle

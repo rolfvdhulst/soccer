@@ -155,4 +155,17 @@ bool Rectangle::doesIntersect(const Line &line) const {
 bool Rectangle::contains(const Vector2 &point) const { return maxX() >= point.x() && minX() <= point.x() && maxY() >= point.y() && minY() <= point.y(); }
 std::ostream &Rectangle::write(std::ostream &os) const { return os << "Rect: " << min << max; }
 
+double Rectangle::distanceTo(const Vector2 &point) const {
+    //inefficient implementation, but it does the job.
+    //Could give numerical error problems if used for things like checking equality
+    double minDist = std::numeric_limits<double>::infinity();
+    for(const auto& line : lines()){
+        double dist = line.distanceTo(point);
+        if (dist < minDist){
+            minDist = dist;
+        }
+    }
+    return minDist;
+}
+
 std::ostream &operator<<(std::ostream &out, const Rectangle &rect) { return rect.write(out); }

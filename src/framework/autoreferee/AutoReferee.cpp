@@ -58,7 +58,7 @@ void AutoReferee::run() {
       events = eventDetector.update(world,gameState,geometry,defaultInfo);
     }
     for (const auto& event : events){
-        event.PrintDebugString();
+        //event.PrintDebugString();
       socket->sendEvent(event);
     }
 

@@ -4,7 +4,7 @@
 
 #include "eventDetection/DefenderFreeKickDistanceDetector.h"
 bool DefenderFreeKickDistanceDetector::isApplicable(const GameCommand &command) const {
-  return command.isFreeKick() || command.isFreeKick();
+  return command.isKickOff() || command.isFreeKick();
 }
 DefenderFreeKickDistanceDetector::DefenderFreeKickDistanceDetector() : SingleEventDetector(){
 
