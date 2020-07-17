@@ -70,3 +70,7 @@ bool GameCommand::isFreeKick() const {
 bool GameCommand::isKickOff() const{
   return value == KICKOFF_US || value == KICKOFF_THEM;
 }
+
+bool GameCommand::isTimeout() const {
+    return value == TIMEOUT_US || value == TIMEOUT_THEM;
+}

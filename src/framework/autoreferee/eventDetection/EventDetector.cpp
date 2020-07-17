@@ -6,6 +6,7 @@
 #include <referee/GameState.h>
 #include <eventDetection/StopSpeedDetector.h>
 #include <eventDetection/DefenderFreeKickDistanceDetector.h>
+#include "eventDetection/BotCollisionDetector.h"
 #include "eventDetection/BallPlacementInterferenceDetector.h"
 #include "eventDetection/BallPlacementDetector.h"
 #include "eventDetection/AttackerToDefenseAreaDistanceDetector.h"
@@ -30,7 +31,7 @@ std::vector<proto::GameEvent> EventDetector::update(
   context.commandChanged = game_state.refState->command != context.referee.command;
   context.referee = *(game_state.refState);
 
-  //run all event detectors (if applicable)
+  //run all event detectors
   std::vector<proto::GameEvent> detectedEvents;
   for (const auto &detector : detectors) {
     if (detector->isApplicable(context.referee.command)) {
@@ -64,4 +65,7 @@ EventDetector::EventDetector() {
   //Detects if attackers keep distance from defense area during free kicks and stop
   std::unique_ptr<SingleEventDetector>  attackerDefAreaDetector = std::make_unique<AttackerToDefenseAreaDistanceDetector>();
   detectors.push_back(std::move(attackerDefAreaDetector));
+
+  std::unique_ptr<SingleEventDetector> botCollisionDetector = std::make_unique<BotCollisionDetector>();
+  detectors.push_back(std::move(botCollisionDetector));
 }

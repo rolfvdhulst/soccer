@@ -60,6 +60,7 @@ class GameCommand {
         [[nodiscard]] bool isBallPlacement() const;
         [[nodiscard]] bool isFreeKick() const;
         [[nodiscard]] bool isKickOff() const;
+        [[nodiscard]] bool isTimeout() const;
     private:
         Command value;
 };
