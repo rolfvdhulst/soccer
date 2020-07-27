@@ -5,7 +5,7 @@ add_library(vision STATIC
         FilteredBall.cpp
         include/vision/FilteredBall.h
         FilteredRobot.cpp
-        include/vision/FilteredRobot.h)
+        include/vision/FilteredRobot.h ChipFitResult.cpp include/vision/ChipFitResult.h)
 
 target_link_libraries(vision
         PUBLIC math

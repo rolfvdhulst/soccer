@@ -27,7 +27,7 @@ add_library(visionFilter
         RobotOrientationFilter.cpp
         include/visionFilter/RobotOrientationFilter.h
         include/visionFilter/FilterConstants.h
-        )
+        ball/kickEstimation/chip/ChipEstimator6D.cpp ball/kickEstimation/chip/ChipEstimator6D.h ball/kickEstimation/chip/ChipEstimator5D.cpp ball/kickEstimation/chip/ChipEstimator5D.h ball/kickEstimation/chip/ChipEstimator.cpp ball/kickEstimation/chip/ChipEstimator.h ball/kickEstimation/chip/ChipEstimator6DSingle.cpp ball/kickEstimation/chip/ChipEstimator6DSingle.h ball/kickEstimation/chip/ChipEstimator6DRotated.cpp ball/kickEstimation/chip/ChipEstimator6DRotated.h)
 target_link_libraries(visionFilter
         PRIVATE math
         PRIVATE core
