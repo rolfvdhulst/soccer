@@ -20,14 +20,12 @@ add_library(visionFilter
         include/visionFilter/ball/BallFlyFilter.h
         ball/stateEstimation/BallStateEstimator.cpp
         ball/stateEstimation/BallStateEstimator.h
-        ball/kickDetection/KickDetector.cpp
-        ball/kickDetection/KickDetector.h
         ball/kickDetection/KickEvent.cpp
         ball/kickDetection/KickEvent.h
         RobotOrientationFilter.cpp
         include/visionFilter/RobotOrientationFilter.h
         include/visionFilter/FilterConstants.h
-        ball/kickEstimation/chip/ChipEstimator6D.cpp ball/kickEstimation/chip/ChipEstimator6D.h ball/kickEstimation/chip/ChipEstimator5D.cpp ball/kickEstimation/chip/ChipEstimator5D.h ball/kickEstimation/chip/ChipEstimator.cpp ball/kickEstimation/chip/ChipEstimator.h ball/kickEstimation/chip/ChipEstimator6DSingle.cpp ball/kickEstimation/chip/ChipEstimator6DSingle.h ball/kickEstimation/chip/ChipEstimator6DRotated.cpp ball/kickEstimation/chip/ChipEstimator6DRotated.h)
+        ball/kickEstimation/chip/ChipEstimator6D.cpp ball/kickEstimation/chip/ChipEstimator6D.h ball/kickEstimation/chip/ChipEstimator5D.cpp ball/kickEstimation/chip/ChipEstimator5D.h ball/kickEstimation/chip/ChipEstimator.cpp ball/kickEstimation/chip/ChipEstimator.h ball/kickEstimation/chip/ChipEstimator6DSingle.cpp ball/kickEstimation/chip/ChipEstimator6DSingle.h ball/kickEstimation/chip/ChipEstimator6DRotated.cpp ball/kickEstimation/chip/ChipEstimator6DRotated.h ball/kickDetection/VelocityChangeDetector.cpp ball/kickDetection/VelocityChangeDetector.h)
 target_link_libraries(visionFilter
         PRIVATE math
         PRIVATE core
