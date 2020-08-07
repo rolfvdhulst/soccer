@@ -2,18 +2,15 @@
 // Created by rolf on 17-11-19.
 //
 
-#include "ball/BallFilter.h"
-#include "Scaling.h"
+#include "ball/CameraBallFilter.h"
 #include "FilterConstants.h"
 #include <visionMatlab/VisionMatlabLogger.h>
 
-BallFilter::BallFilter(const BallObservation& observation)  :
-ObjectFilter(0.2,1/60.0,15,3,observation.timeCaptured)
+CameraBallFilter::CameraBallFilter(const BallObservation& observation, Eigen::Vector2d velocityEstimate)  :
+        CameraObjectFilter(0.2, 1 / 60.0, 15, 3, observation.timeCaptured)
 {
-    // SSL units are in mm, we do everything in SI units.
-    double x = mmToM(observation.ball.x());  // m
-    double y = mmToM(observation.ball.y());  // m
-    Eigen::Vector4d startState = {x, y, 0, 0};
+
+    Eigen::Vector4d startState = {observation.position.x(),observation.position.y(), velocityEstimate.x(), velocityEstimate.y()};
 
     Eigen::Matrix4d startCovariance = Eigen::Matrix4d::Zero();
     startCovariance(0,0) = BALL_POSITION_INITIAL_COV;
@@ -22,34 +19,30 @@ ObjectFilter(0.2,1/60.0,15,3,observation.timeCaptured)
     startCovariance(3,3) = BALL_VELOCITY_INITIAL_COV;
 
     positionFilter = PosVelFilter2D(startState,startCovariance,BALL_POSITION_MODEL_ERROR,BALL_POSITION_MEASUREMENT_ERROR,observation.timeCaptured);
-    registerLogFile({x,y});
+    registerLogFile(observation.position);
 }
 
-bool BallFilter::justUpdated() const {
+bool CameraBallFilter::justUpdated() const {
     return lastCycleWasUpdate;
 }
 
-void BallFilter::predict(Time time) {
+void CameraBallFilter::predict(Time time) {
     positionFilter.predict(time);
     lastCycleWasUpdate = false;
 }
-bool BallFilter::update(const BallObservation &observation) {
-    Eigen::Vector2d detectedPos = {mmToM(observation.ball.x()),mmToM(observation.ball.y())};
-    if((detectedPos-positionFilter.getPosition()).squaredNorm()>=0.5*0.5){
-        return false;
-    }
-    positionFilter.update(detectedPos);
+void CameraBallFilter::update(const BallObservation &observation) {
+    positionFilter.update(observation.position);
     objectSeen(observation.timeCaptured);
     lastCycleWasUpdate = true;
-    writeLogFile(detectedPos);
-    return true;
+    writeLogFile(observation.position);
 }
 
-void BallFilter::updateBallNotSeen(const Time &time) {
+bool CameraBallFilter::updateBallNotSeen(const Time &time) {
     objectInvisible(time);
+    return getHealth() <= 0.0 && consecutiveFramesNotSeen() > 3;
 }
 
-FilteredBall BallFilter::getEstimate(const Time &time, bool writeUncertainties) const {
+FilteredBall CameraBallFilter::getEstimate(const Time &time, bool writeUncertainties) const {
     FilteredBall ball;
     ball.pos = positionFilter.getPositionEstimate(time);
     ball.vel = positionFilter.getVelocity();
@@ -62,7 +55,7 @@ FilteredBall BallFilter::getEstimate(const Time &time, bool writeUncertainties) 
     return ball;
 }
 
-void BallFilter::writeLogFile(const Eigen::Vector2d& observation) {
+void CameraBallFilter::writeLogFile(const Eigen::Vector2d& observation) {
     if(!matlab_logger::logger.isCurrentlyLogging()){
         return;
     }
@@ -81,11 +74,20 @@ void BallFilter::writeLogFile(const Eigen::Vector2d& observation) {
     }
 
 }
-void BallFilter::registerLogFile(const Eigen::Vector2d &observation) {
+void CameraBallFilter::registerLogFile(const Eigen::Vector2d &observation) {
     if(!matlab_logger::logger.isCurrentlyLogging()){
         return;
     }
     int id = matlab_logger::logger.writeNewFilter(4,2,VisionMatlabLogger::BALL_FILTER);
     setID(id);
     writeLogFile(observation);
+}
+
+bool CameraBallFilter::acceptObservation(const BallObservation &observation) const {
+    return (observation.position-positionFilter.getPosition()).squaredNorm()<0.5*0.5;
+}
+
+Eigen::Vector2d CameraBallFilter::getVelocity(const Time &time) const {
+    //TODO: two phase ball model.
+    return positionFilter.getVelocity();
 }

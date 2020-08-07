@@ -5,9 +5,14 @@
 #include "BallObservation.h"
 
 BallObservation::BallObservation(int cameraID, Time timeCaptured, Time timeSent,
-        proto::SSL_DetectionBall detectionBall) :
+        const proto::SSL_DetectionBall& detectionBall) :
         cameraID(cameraID),
         timeCaptured(timeCaptured),
         timeSent(timeSent),
-        ball(std::move(detectionBall)){ }
+        position(detectionBall.x()/1000.0,detectionBall.y()/1000.0), //Position by SSL-Vision is given in millimeters
+        pixelPosition(detectionBall.pixel_x(),detectionBall.pixel_y()),
+        confidence(detectionBall.confidence()),
+        area(detectionBall.area()),
+        height(detectionBall.z()/1000.0){
+}
 

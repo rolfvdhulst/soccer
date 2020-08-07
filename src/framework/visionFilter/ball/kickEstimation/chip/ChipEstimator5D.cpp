@@ -29,7 +29,7 @@ bool ChipEstimator5D::setMatrices(const std::vector<BallObservation> &observatio
         double time = (observation.timeCaptured - firstTime).asSeconds() + tOffSet;
         //The obsPos z value here is a bit vague because it's not exactly 'clear' what height the ball is at as seen from the camera at all times
         //Any value between 0 and 0.04266666 should be fine-ish
-        Eigen::Vector3d obsPos(observation.ball.x() / 1000.0, observation.ball.y() / 1000.0, 0.021333);
+        Eigen::Vector3d obsPos(observation.position.x(), observation.position.y(), 0.021333);
         Eigen::Vector3d relPos = camPos - obsPos;
         double g = -9.81;
 

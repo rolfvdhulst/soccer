@@ -12,9 +12,9 @@ bool VelocityChangeDetector::velocityChanged() const {
     const BallObservation &second = buffer.at(1);
     const BallObservation &third = buffer.at(2);
 
-    Vector2 firstPos(first.ball.x(), first.ball.y());
-    Vector2 secondPos(second.ball.x(), second.ball.y());
-    Vector2 thirdPos(third.ball.x(), third.ball.y());
+    Vector2 firstPos(first.position.x(), first.position.y());
+    Vector2 secondPos(second.position.x(), second.position.y());
+    Vector2 thirdPos(third.position.x(), third.position.y());
 
     Vector2 firstVel = (secondPos - firstPos) / (second.timeCaptured - first.timeCaptured).asSeconds();
     Vector2 secondVel = (thirdPos - secondPos) / (third.timeCaptured - second.timeCaptured).asSeconds();
@@ -41,20 +41,23 @@ bool VelocityChangeDetector::velocityChanged() const {
            angleDiff > toRadians(kickDeviation);
 }
 
-bool VelocityChangeDetector::detectKick(const BallObservation &observation) {
+std::optional<VelocityChangeEvent> VelocityChangeDetector::detectKick(const BallObservation &observation) {
     if(!buffer.empty() && observation.timeCaptured < buffer.back().timeCaptured) {
-        throw std::invalid_argument("invalid timestamp");
+        assert(false); //TODO:ensure this never happens
+        return std::nullopt;
     }
     ++observations;
     buffer.push_back(observation);
     if(!buffer.full()){
-        return false;
+        return std::nullopt;
     }
     Time middleTime = buffer.at(1).timeCaptured;
     bool kickDetected = (middleTime-lastChangedTime) > COOLDOWN_TIME && velocityChanged();
     if(kickDetected){
         lastChangedTime = middleTime;
+        VelocityChangeEvent event(buffer.at(0),buffer.at(1),buffer.at(2));
+        return event;
     }
-    return kickDetected;
+    return std::nullopt;
 }
 

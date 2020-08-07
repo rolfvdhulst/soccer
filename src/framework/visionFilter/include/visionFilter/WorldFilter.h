@@ -3,9 +3,10 @@
 
 #include <protobuf/World.pb.h>
 #include <protobuf/messages_robocup_ssl_geometry.pb.h>
-#include <field/CameraMap.h>
-#include "CameraFilter.h"
-
+#include <field/GeometryData.h>
+#include "RobotFilter.h"
+#include "BallFilter.h"
+#include <vision/DetectionFrame.h>
 
 /**
  * @author Rolf van der Hulst
@@ -15,33 +16,34 @@
  */
 class WorldFilter {
    public:
-    WorldFilter();
-    /** Add a frame to the WorldFilter. This will be forwarded to the relevant filters (ball/robot)
-     *  Or they will be created if they do not exist yet. Note this does NOT call the Kalman update/predict equations and thus
-     *  only puts the data in the right spot. Worldfilter itself manages the messages based on their timestamps,
-     *  so in between update/predict calls the order in which you supply messages does not matter.
-     *  @param msg Frame to be given to the filter
-     */
-    void addFrame(const proto::SSL_DetectionFrame &msg);
-    /**
-     * Get the state estimation of the world as a proto message. This also calls update(), ensuring that data is sent
-     * is as up to date as possible.
-     * @param time The time at which you want an estimation of the world state.
-     * This should not be much more late than the latest message or else you will get very unphysical results.
-     * @return Proto message containing the entire world state.
-     */
+    WorldFilter() = default;
+
+    void process(const std::vector<proto::SSL_DetectionFrame> &frames);
+
     [[nodiscard]] proto::World getWorld(const Time& time) const;
 
     /**
-     * Updates the cameras which the worldFilter uses for calculations.
+     * Updates the cameras which the worldFilter uses for calculations, and the field geometry which is used for detecting
+     * wall collisions.
      * @param geometry to grab the cameras from
      */
-    void updateCameras(const proto::SSL_GeometryData& geometry);
+    void updateGeometry(const proto::SSL_GeometryData& geometry);
 
    private:
+    typedef std::map<int, std::vector<RobotFilter>> robotMap;
+    robotMap blue;
+    robotMap yellow;
+    std::vector<BallFilter> balls; // A list containing all filters which are tracking balls
+    GeometryData geometryData;
+    const int MAX_ROBOTFILTERS = 5;
+    const int MAX_BALLFILTERS = 8;
 
-    CameraMap cameras;
-    std::map<int,CameraFilter> cameraFilters;
+    void processRobots(const DetectionFrame& frame, bool blueBots);
+    void processBalls(const DetectionFrame& frame);
+
+    static void predictRobots(const DetectionFrame &frame, robotMap &robots);
+    void updateRobots(bool blueBots, robotMap &robots, const std::vector<RobotObservation> &detectedRobots);
+    static void updateRobotsNotSeen(const DetectionFrame &frame,robotMap &robots);
 };
 
 #endif  // SOCCER_WORLDFILTER_H

@@ -41,7 +41,7 @@ bool ChipEstimator6DRotated::setMatrices(const std::vector<BallObservation> &obs
         Eigen::Matrix3d camMatrix = camRotation.toRotationMatrix();
 
         double time = (observation.timeCaptured - firstTime).asSeconds();
-        Eigen::Vector3d obsPos(observation.ball.x() / 1000.0, observation.ball.y() / 1000.0, 0.021333);
+        Eigen::Vector3d obsPos(observation.position.x(), observation.position.y(), 0.021333);
         Eigen::Vector3d obsPosCamFrame = camRotation * (obsPos - camPos);
         double alpha = obsPosCamFrame.x() / obsPosCamFrame.z();
         double beta = obsPosCamFrame.y() / obsPosCamFrame.z();

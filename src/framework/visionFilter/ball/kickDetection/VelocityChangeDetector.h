@@ -7,10 +7,11 @@
 
 #include <vision/BallObservation.h>
 #include <containers/circular_buffer.h>
+#include "VelocityChangeEvent.h"
 
 class VelocityChangeDetector {
 public:
-    bool detectKick(const BallObservation &observation);
+    std::optional<VelocityChangeEvent> detectKick(const BallObservation &observation);
 private:
     bool velocityChanged() const;
     const Time COOLDOWN_TIME = Time(0.05);

@@ -7,6 +7,7 @@
 #include <protoUtils/Flip.h>
 #include <protobuf/FrameLog.pb.h>
 #include <interfaceAPI/SettingsAPI.h>
+#include <visionMatlab/VisionMatlabLogger.h>
 void ApplicationManager::init() {
     setupNetworking();
     //we wait for the first time we receive information from the interface (it has some startup time)

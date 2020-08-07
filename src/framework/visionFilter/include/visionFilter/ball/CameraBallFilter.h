@@ -9,12 +9,12 @@
 #include <math/filters/PosVelFilter2D.h>
 #include <vision/BallObservation.h>
 #include <vision/FilteredBall.h>
-#include "ObjectFilter.h"
+#include "CameraObjectFilter.h"
 
-class BallFilter : public ObjectFilter {
+class CameraBallFilter : public CameraObjectFilter {
    public:
     // TODO: add documentation
-    explicit BallFilter(const BallObservation& observation);
+    explicit CameraBallFilter(const BallObservation& observation, Eigen::Vector2d velocityEstimate = Eigen::Vector2d::Zero());
     /**
      * Outputs the current filter state in proto format.
      * @return The Proto message associated with the state of the filter
@@ -27,17 +27,21 @@ class BallFilter : public ObjectFilter {
  * @param time The time until we wish to have a prediction of where the robot will be
  */
     void predict(Time time);
+
+    [[nodiscard]] bool acceptObservation(const BallObservation& observation) const;
+
+    [[nodiscard]] Eigen::Vector2d getVelocity(const Time& time) const;
     /**
      * Updates the Filter until the specified time, applying observations
      * @param time Time until which we want to update.
      * @param doLastPredict In the very last step after applying all the observations, we can choose to not do the last
      * prediction if we do not immediately want to read the filter's data.
      */
-    bool update(const BallObservation& observation);
+    void update(const BallObservation& observation);
     /**
      * Updates the filter with the information that we did NOT see the robot on the frame at time t, when it was there at some previous point in time
      */
-    void updateBallNotSeen(const Time& time);
+    bool updateBallNotSeen(const Time& time);
 
     void registerLogFile(const Eigen::Vector2d& observation);
     void writeLogFile(const Eigen::Vector2d& observation);
