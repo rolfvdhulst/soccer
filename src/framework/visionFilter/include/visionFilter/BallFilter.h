@@ -15,6 +15,7 @@ public:
     bool processDetection(const BallObservation& observation);
     void predictCam(const int& cameraID, const Time& untilTime);
 
+    FilteredBall mergeBalls(const Time& time) const;
     /**
      * Checks if a camera has not seen, and if so, processes the fact that an object was not seen by a camera frame taken at time
      * @param cameraID
@@ -22,6 +23,8 @@ public:
      * @return true if this filter can be removed (e.g. is empty), false otherwise
      */
     bool processNotSeen(const int& cameraID, const Time& time);
+
+    double getHealth() const;
 
 private:
     std::map<int, CameraBallFilter> cameraFilters;

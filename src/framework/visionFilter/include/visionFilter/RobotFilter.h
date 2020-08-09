@@ -21,6 +21,9 @@ public:
      * @return true if this filter can be removed (e.g. is empty), false otherwise
      */
     bool processNotSeen(const int& cameraID, const Time& time);
+
+    double getHealth() const;
+    FilteredRobot mergeRobots(const Time& time) const;
 private:
     int robotID;
     bool isBlue;

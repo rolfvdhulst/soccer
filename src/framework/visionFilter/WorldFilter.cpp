@@ -1,5 +1,5 @@
-//
 // Created by kjhertenberg on 13-5-19.
+//
 //
 
 #include "WorldFilter.h"
@@ -13,20 +13,52 @@ void WorldFilter::updateGeometry(const proto::SSL_GeometryData &geometry) {
 }
 
 proto::World WorldFilter::getWorld(const Time &time) const {
+    //TODO: split up in functions for robot and ball
     proto::World world;
     for(const auto& oneIDFilters : blue){
-
+        if(!oneIDFilters.second.empty()){
+            double maxHealth = - std::numeric_limits<double>::infinity();
+            auto bestFilter = oneIDFilters.second.begin();
+            for(auto robotFilter = oneIDFilters.second.begin(); robotFilter != oneIDFilters.second.end(); ++robotFilter){
+                double health = robotFilter->getHealth();
+                if(health > maxHealth){
+                    maxHealth = health;
+                    bestFilter = robotFilter;
+                }
+            }
+            FilteredRobot bestRobot = bestFilter->mergeRobots(time);
+            world.mutable_blue()->Add()->CopyFrom(bestRobot.asWorldRobot());
+        }
     }
     for(const auto& oneIDFilters : yellow){
-
+        if(!oneIDFilters.second.empty()){
+            double maxHealth = - std::numeric_limits<double>::infinity();
+            auto bestFilter = oneIDFilters.second.begin();
+            for(auto robotFilter = oneIDFilters.second.begin(); robotFilter != oneIDFilters.second.end(); ++robotFilter){
+                double health = robotFilter->getHealth();
+                if(health > maxHealth){
+                    maxHealth = health;
+                    bestFilter = robotFilter;
+                }
+            }
+            FilteredRobot bestRobot = bestFilter->mergeRobots(time);
+            world.mutable_yellow()->Add()->CopyFrom(bestRobot.asWorldRobot());
+        }
     }
     if(!balls.empty()){
         double maxHealth = - std::numeric_limits<double>::infinity();
-        auto & bestFilter = balls[0];
-        for ( auto& ballFilter : balls){
+        auto bestFilter = balls.begin();
+        for (auto ballFilter = balls.begin(); ballFilter != balls.end(); ++ballFilter){
+            double health = ballFilter->getHealth();
+            if(health > maxHealth){
+                maxHealth = health;
+                bestFilter = ballFilter;
+            }
         }
+        FilteredBall bestBall = bestFilter->mergeBalls(time);
+        world.mutable_ball()->CopyFrom(bestBall.asWorldBall());
     }
-
+    world.set_time(time.asNanoSeconds());
 
     return world;
 }

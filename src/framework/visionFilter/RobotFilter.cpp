@@ -3,6 +3,7 @@
 //
 
 #include "RobotFilter.h"
+#include <math/geometry/Angle.h>
 
 bool RobotFilter::processDetection(const RobotObservation &observation) {
     auto cameraFilter = cameraFilters.find(observation.cameraID);
@@ -61,4 +62,56 @@ void RobotFilter::predictCam(const int &cameraID, const Time &untilTime) {
         cameraFilter->second.predict(untilTime);
     }
 }
+double RobotFilter::getHealth() const {
+    double maxHealth = 0.0;
+    for (const auto &filter : cameraFilters) {
+        maxHealth = fmax(filter.second.getHealth(), maxHealth);
+    }
+    return maxHealth;
+}
+FilteredRobot RobotFilter::mergeRobots(const Time &time) const {
+    double mergeFactor = 1.5;
+    Eigen::Vector2d vel(0, 0);
+    Eigen::Vector2d pos(0, 0);
+    double angle = 0;
+    double angularVel = 0;
+    double totalPosUncertainty = 0;
+    double totalVelUncertainty = 0;
+    double totalAngleUncertainty = 0;
+    double totalAngleVelUncertainty = 0;
+    //We cannot take averages of angular coordinates easily, so we take the averages of the offsets (this works)
+    double angleOffset = cameraFilters.at(0).getEstimate(time).angle;
+    for (const auto &filter : cameraFilters) {
+        FilteredRobot robot = filter.second.getEstimate(time, true);
+        //Use the filter health and uncertainties for a weighted average of observations
+        double weight = 100.0/robot.health;
+        double posWeight = pow(robot.posUncertainty*weight, - mergeFactor);
+        double velWeight = pow(robot.velocityUncertainty*weight, - mergeFactor);
+        double angleWeight = pow(robot.angleUncertainty*weight,-mergeFactor);
+        double angleVelWeight = pow(robot.angularVelUncertainty*weight,-mergeFactor);
+
+        pos += robot.pos*posWeight;
+        vel += robot.vel*velWeight;
+        angle += Angle(robot.angle - angleOffset).getAngle()*angleWeight;
+        angularVel += robot.angularVel*angleVelWeight;
+
+        totalPosUncertainty += posWeight;
+        totalVelUncertainty += velWeight;
+        totalAngleUncertainty += angleWeight;
+        totalAngleVelUncertainty += angleVelWeight;
+
+    }
+    pos /= totalPosUncertainty;
+    vel /= totalVelUncertainty;
+    angle /= totalAngleUncertainty;
+    angularVel /= totalAngleVelUncertainty;
+    FilteredRobot result;
+    result.pos = pos;
+    result.vel = vel;
+    result.angle = Angle(angleOffset+angle).getAngle();
+    result.angularVel = angularVel;
+    result.id = robotID;
+    return result;
+}
+
 
