@@ -80,7 +80,8 @@ FilteredRobot RobotFilter::mergeRobots(const Time &time) const {
     double totalAngleUncertainty = 0;
     double totalAngleVelUncertainty = 0;
     //We cannot take averages of angular coordinates easily, so we take the averages of the offsets (this works)
-    double angleOffset = cameraFilters.at(0).getEstimate(time).angle;
+    double angleOffset = cameraFilters.begin()->second.getEstimate(time).angle;
+
     for (const auto &filter : cameraFilters) {
         FilteredRobot robot = filter.second.getEstimate(time, true);
         //Use the filter health and uncertainties for a weighted average of observations
