@@ -100,7 +100,7 @@ void ApplicationManager::run(bool &exit) {
             total += (after - before);
             count ++;
             if (count%100 == 0) {
-                std::cout << total.asSeconds()*1000/count << std::endl;
+                std::cout << total.asSeconds()*1000/count<<" ms" << std::endl;
                 total = Time(0.0);
                 count = 0;
             }
