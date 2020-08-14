@@ -125,7 +125,7 @@ void WorldFilter::predictRobots(const DetectionFrame &frame, robotMap &robots){
 
 void WorldFilter::processBalls(const DetectionFrame &frame) {
     for(auto& filter : balls){
-        filter.predictCam(frame.cameraID,frame.timeCaptured);
+        filter.predictCam(frame.cameraID,frame.timeCaptured,geometryData);
     }
     for (const auto& detectedBall : frame.balls){
         bool accepted = false;

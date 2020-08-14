@@ -6,14 +6,14 @@
 
 BallFilter::BallFilter(const BallObservation &observation)
         :ObjectFilter(),
-         cameraFilters{std::make_pair(observation.cameraID, CameraBallFilter(observation))} {
+         cameraFilters{std::make_pair(observation.cameraID, CameraBallFilter_v2(observation))} {
 
 }
 
-void BallFilter::predictCam(const int &cameraID, const Time &untilTime) {
+void BallFilter::predictCam(const int &cameraID, const Time &untilTime, const GeometryData& geometryData) {
     auto cameraFilter = cameraFilters.find(cameraID);
     if (cameraFilter != cameraFilters.end()) {
-        cameraFilter->second.predict(untilTime);
+        cameraFilter->second.predict(untilTime, geometryData);
     }
 }
 
@@ -56,7 +56,7 @@ bool BallFilter::processDetection(const BallObservation &observation) {
                 velocity += filter.second.getVelocity(observation.timeCaptured);
             }
             velocity /= cameraFilters.size();
-            cameraFilters.insert(std::make_pair(observation.cameraID, CameraBallFilter(observation, velocity)));
+            cameraFilters.insert(std::make_pair(observation.cameraID, CameraBallFilter_v2(observation, velocity)));
         }
         return accept;
     }

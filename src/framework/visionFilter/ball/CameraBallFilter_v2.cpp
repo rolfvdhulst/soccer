@@ -1,12 +1,13 @@
 //
-// Created by rolf on 17-11-19.
+// Created by rolf on 11-08-20.
 //
 
-#include "ball/CameraBallFilter.h"
+#include "ball/CameraBallFilter_v2.h"
 #include "FilterConstants.h"
 #include <visionMatlab/VisionMatlabLogger.h>
+#include "collision/FieldWallCollisionChecker.h"
 
-CameraBallFilter::CameraBallFilter(const BallObservation& observation, Eigen::Vector2d velocityEstimate)  :
+CameraBallFilter_v2::CameraBallFilter_v2(const BallObservation& observation, Eigen::Vector2d velocityEstimate)  :
         CameraObjectFilter(0.2, 1 / 60.0, 15, 3, observation.timeCaptured)
 {
 
@@ -22,27 +23,45 @@ CameraBallFilter::CameraBallFilter(const BallObservation& observation, Eigen::Ve
     registerLogFile(observation.position);
 }
 
-bool CameraBallFilter::justUpdated() const {
+bool CameraBallFilter_v2::justUpdated() const {
     return lastCycleWasUpdate;
 }
 
-void CameraBallFilter::predict(const Time& time) {
+void CameraBallFilter_v2::predict(const Time& time, const GeometryData& geometryData ) {
+    FieldWallCollisionChecker::SimpleBallSegment segment;
+    segment.beforePos = Vector2(positionFilter.getPosition());
+    segment.beforeTime = positionFilter.lastUpdated();
+    segment.afterPos = Vector2(positionFilter.getPositionEstimate(time));
+    segment.afterTime = time;
+    segment.velocity = Vector2(positionFilter.getVelocity());
+    if(! (segment.beforePos == segment.afterPos)) {
+        auto collision = FieldWallCollisionChecker::getFieldOutsideWallCollision(segment, geometryData);
+        if (collision) {
+            positionFilter.predict(collision->collisionTime);
+            positionFilter.setVelocity(collision->outVelocity);
+            Eigen::Vector2d posUnc = positionFilter.getPositionUncertainty();
+            Eigen::Vector2d velUnc = positionFilter.getVelocityUncertainty();
+            std::cout << "Collision at " << collision->ballCollisionPos << " filter state: "
+                      << Vector2(positionFilter.getPosition()) << std::endl;
+        }
+    }
     positionFilter.predict(time);
+
     lastCycleWasUpdate = false;
 }
-void CameraBallFilter::update(const BallObservation &observation) {
+void CameraBallFilter_v2::update(const BallObservation &observation) {
     positionFilter.update(observation.position);
     objectSeen(observation.timeCaptured);
     lastCycleWasUpdate = true;
     writeLogFile(observation.position);
 }
 
-bool CameraBallFilter::updateBallNotSeen(const Time &time) {
+bool CameraBallFilter_v2::updateBallNotSeen(const Time &time) {
     objectInvisible(time);
     return getHealth() <= 0.0 && consecutiveFramesNotSeen() > 3;
 }
 
-FilteredBall CameraBallFilter::getEstimate(const Time &time, bool writeUncertainties) const {
+FilteredBall CameraBallFilter_v2::getEstimate(const Time &time, bool writeUncertainties) const {
     FilteredBall ball;
     ball.pos = positionFilter.getPositionEstimate(time);
     ball.vel = positionFilter.getVelocity();
@@ -55,7 +74,7 @@ FilteredBall CameraBallFilter::getEstimate(const Time &time, bool writeUncertain
     return ball;
 }
 
-void CameraBallFilter::writeLogFile(const Eigen::Vector2d& observation) {
+void CameraBallFilter_v2::writeLogFile(const Eigen::Vector2d& observation) {
     if(!matlab_logger::logger.isCurrentlyLogging()){
         return;
     }
@@ -74,7 +93,7 @@ void CameraBallFilter::writeLogFile(const Eigen::Vector2d& observation) {
     }
 
 }
-void CameraBallFilter::registerLogFile(const Eigen::Vector2d &observation) {
+void CameraBallFilter_v2::registerLogFile(const Eigen::Vector2d &observation) {
     if(!matlab_logger::logger.isCurrentlyLogging()){
         return;
     }
@@ -83,11 +102,10 @@ void CameraBallFilter::registerLogFile(const Eigen::Vector2d &observation) {
     writeLogFile(observation);
 }
 
-bool CameraBallFilter::acceptObservation(const BallObservation &observation) const {
+bool CameraBallFilter_v2::acceptObservation(const BallObservation &observation) const {
     return (observation.position-positionFilter.getPosition()).squaredNorm()<0.5*0.5;
 }
 
-Eigen::Vector2d CameraBallFilter::getVelocity(const Time &time) const {
-    //TODO: two phase ball model.
+Eigen::Vector2d CameraBallFilter_v2::getVelocity(const Time &time) const {
     return positionFilter.getVelocity();
 }

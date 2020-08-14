@@ -7,13 +7,13 @@
 
 #include "ObjectFilter.h"
 #include <vision/BallObservation.h>
-#include "ball/CameraBallFilter.h"
+#include "ball/CameraBallFilter_v2.h"
 
 class BallFilter : public ObjectFilter {
 public:
     explicit BallFilter(const BallObservation &observation);
     bool processDetection(const BallObservation& observation);
-    void predictCam(const int& cameraID, const Time& untilTime);
+    void predictCam(const int& cameraID, const Time& untilTime, const GeometryData& geometryData);
 
     FilteredBall mergeBalls(const Time& time) const;
     /**
@@ -27,7 +27,7 @@ public:
     double getHealth() const;
 
 private:
-    std::map<int, CameraBallFilter> cameraFilters;
+    std::map<int, CameraBallFilter_v2> cameraFilters;
 };
 
 
