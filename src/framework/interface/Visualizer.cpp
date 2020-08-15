@@ -138,11 +138,9 @@ void Visualizer::updateWorld(const proto::World& world) {
     }
     if (world.has_ball()) {
         ball->setPos(world.ball().pos().x(), -world.ball().pos().y());
-        std::cout<<"ball vel:"<< world.ball().vel().x()<<" , "<<world.ball().vel().y()<<std::endl;
-        std::cout<<"ball pos: "<<world.ball().pos().x()<<" , "<<world.ball().pos().y()<<std::endl;
         ball->setVelocity(world.ball().vel().x(),-world.ball().vel().y());
         ball->show();
-        ball->showVelocity(true);
+        ball->showVelocity(showBallVelocity);
     } else {
         ball->hide();
     }
@@ -450,6 +448,12 @@ void Visualizer::updateSingleFrame(const proto::FrameLog& frame) {
 void Visualizer::updateRobotInfo(const proto::TeamRobotInfo& robotInfo) {
     teamRobotInfo.CopyFrom(robotInfo);  // Copy robotInfo
 }
+
+void Visualizer::setShowBallVelocity(bool show) {
+    showBallVelocity = show;
+    ball->showVelocity(showBallVelocity);
+}
+
 void Visualizer::Ball::show() {
     actual->show();
     attentionCircle->show();

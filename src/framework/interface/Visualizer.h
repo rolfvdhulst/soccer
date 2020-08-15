@@ -65,6 +65,7 @@ class Visualizer : public QGraphicsView {
         void setShowDetections(bool showDetections);
         void setShowPlacementMarker(bool show);
         void setShowCameraOutlines(bool show);
+        void setShowBallVelocity(bool show);
     private slots:
         void updateAll();
 
@@ -116,6 +117,7 @@ class Visualizer : public QGraphicsView {
         bool showDetections = false;
         bool showCameraOutlines = false;
         bool showPlacementMarker = true;
+        bool showBallVelocity = false;
 
         double totalZoom = 1.0;
 };
