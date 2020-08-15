@@ -10,5 +10,4 @@ message WorldBall {
     required Vector2f vel = 3;
     optional float z_vel = 4;
     required bool visible = 5;
-    optional uint32 area = 6;
 }

@@ -30,8 +30,12 @@ class Visualizer : public QGraphicsView {
         struct Ball{
           QGraphicsEllipseItem *actual;
           QGraphicsEllipseItem *attentionCircle;
+          QGraphicsLineItem *velocity;
           QGraphicsSimpleTextItem *noBallWarning;
+          double attentionRadius;
           void setPos(qreal x, qreal y);
+          void setVelocity(qreal x, qreal y);
+          void showVelocity(bool show);
           void hide();
           void show();
         };

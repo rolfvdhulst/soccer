@@ -24,6 +24,7 @@ namespace FieldWallCollisionChecker {
         Time afterTime;
     };
     struct FieldCollisionResult{
+
         Vector2 ballCollisionPos;
         Vector2 outVelocity;
         Time collisionTime;
@@ -35,7 +36,8 @@ namespace FieldWallCollisionChecker {
      */
     std::optional<FieldCollisionResult> getFieldOutsideWallCollision(const SimpleBallSegment& ballSegment, const GeometryData& geometryData);
 
-    std::optional<FieldCollisionResult> getFieldGoalWallCollision(const SimpleBallSegment& ballSegment);
+    std::optional<FieldCollisionResult> getFieldGoalWallCollision(const SimpleBallSegment& ballSegment, const GeometryData& geometryData);
+
 };
 
 

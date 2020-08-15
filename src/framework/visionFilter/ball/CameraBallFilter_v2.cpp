@@ -37,12 +37,17 @@ void CameraBallFilter_v2::predict(const Time& time, const GeometryData& geometry
     if(! (segment.beforePos == segment.afterPos)) {
         auto collision = FieldWallCollisionChecker::getFieldOutsideWallCollision(segment, geometryData);
         if (collision) {
+            double collisionVel = positionFilter.getVelocity().norm();
             positionFilter.predict(collision->collisionTime);
             positionFilter.setVelocity(collision->outVelocity);
+            positionFilter.addUncertainty(0.05,std::min(0.1,collisionVel*0.1));
             Eigen::Vector2d posUnc = positionFilter.getPositionUncertainty();
             Eigen::Vector2d velUnc = positionFilter.getVelocityUncertainty();
             std::cout << "Collision at " << collision->ballCollisionPos << " filter state: "
-                      << Vector2(positionFilter.getPosition()) << std::endl;
+                      << Vector2(positionFilter.getPosition())
+                      << "vel: "<<collision->outVelocity
+                      << std::endl;
+
         }
     }
     positionFilter.predict(time);
@@ -109,3 +114,4 @@ bool CameraBallFilter_v2::acceptObservation(const BallObservation &observation) 
 Eigen::Vector2d CameraBallFilter_v2::getVelocity(const Time &time) const {
     return positionFilter.getVelocity();
 }
+

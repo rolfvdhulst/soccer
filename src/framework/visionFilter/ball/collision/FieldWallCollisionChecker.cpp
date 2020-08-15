@@ -8,10 +8,16 @@
 
 namespace FieldWallCollisionChecker{
     std::optional<FieldCollisionResult> getFieldOutsideWallCollision(const SimpleBallSegment& ballSegment, const GeometryData& geometryData){
+        //TODO: add check if line is completely within field without margin. If so, simply return nullopt.
         LineSegment ballPath(ballSegment.beforePos,ballSegment.afterPos);
         const double ballRadius = 0.021333; //TODO: fix this being local
         //Get outside wall lines where the ball would collide
         Rectangle outerWall = geometryData.field.getFieldCorrected(geometryData.field.getBoundaryWidth()-ballRadius);
+        if(!outerWall.contains(ballSegment.beforePos)){ //check if the ball is inside the collision margin.
+            //If we don't do this, sometimes the ball after a collision will be seen as outside of the field and collide with the outside again
+            // because it's velocity points into the field
+            return std::nullopt;
+        }
         std::optional<Vector2> firstCollisionPoint = std::nullopt;
         std::optional<Line> normalThroughCollisionPoint = std::nullopt;
         for(const auto & wallLine: outerWall.lines()){
@@ -49,4 +55,16 @@ namespace FieldWallCollisionChecker{
         result.outVelocity = outVel;
         return result;
     }
+
+    std::optional<FieldCollisionResult> getFieldGoalWallCollision(const SimpleBallSegment& ballSegment, const GeometryData& geometryData){
+        LineSegment ballPath(ballSegment.beforePos,ballSegment.afterPos);
+
+        const double ballRadius = 0.021333; //TODO: fix this being local
+
+        //For both goals
+        //Check if line and bounding box overlap (extend bounding box by ball radius)
+        //If not, return nullopt for this goal
+        //else, check for each line of the goal box extended by ball radius if they intersect
+    }
+
 }
