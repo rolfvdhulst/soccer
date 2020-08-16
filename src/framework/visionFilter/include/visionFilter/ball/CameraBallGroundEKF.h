@@ -9,10 +9,10 @@
 #include <vision/BallObservation.h>
 #include <vision/FilteredBall.h>
 #include <math/filters/KalmanFilter.h>
+#include <field/GeometryData.h>
 
 class CameraBallGroundEKF : public CameraObjectFilter {
 public:
-    // TODO: add documentation
     explicit CameraBallGroundEKF(const BallObservation &observation,
                                  Eigen::Vector2d velocityEstimate = Eigen::Vector2d::Zero());
 
@@ -29,7 +29,7 @@ public:
  * Note this is a permanent update so there is no going back after this is called.
  * @param time The time until we wish to have a prediction of where the robot will be
  */
-    void predict(Time time);
+    void predict(Time time, const GeometryData& geometryData);
 
     [[nodiscard]] bool acceptObservation(const BallObservation &observation) const;
 
@@ -54,9 +54,11 @@ public:
 
 private:
     struct BallEKF {
+        BallEKF() = default;
         BallEKF(Eigen::Vector4d initialState,Eigen::Matrix4d initialCovariance,
                 double modelError, double measurementError, const Time& timeStamp);
         double modelError;
+        double acc = - 0.3;
         Time lastUpdateTime;
         Eigen::Vector4d X;
         Eigen::Matrix4d P;
@@ -69,11 +71,19 @@ private:
         Eigen::Vector2d y; //Innovation. Not strictly necessary to store but often used to measure performance
         void predict(const Time& predictionTime);
         void update(const Eigen::Vector2d& observation);
-    private:
-        void predictAndSetJacobian(double dt);
-        void setProcessNoise(double dt);
+        //TODO: use the below functions in the appropriate places
+        [[nodiscard]] Eigen::Vector2d getPosition() const;
+        [[nodiscard]] Eigen::Vector4d getStateEstimate(const Time& time) const;
+        [[nodiscard]] Eigen::Vector4d getStateEstimate(double dt);
+        [[nodiscard]] Eigen::Vector2d getVelocity() const;
+        void setVelocity(const Eigen::Vector2d& velocity);
+        void addUncertainty(double posUncertainty, double velUncertainty);
+        //TODO: make these time-based?
+        [[nodiscard]] Eigen::Vector2d getVelocityUncertainty() const;
+        [[nodiscard]] Eigen::Vector2d getPositionUncertainty() const;
 
     };
+    BallEKF ekf;
     bool lastCycleWasUpdate = true; //The first message (initialization) counts as an update
 };
 
