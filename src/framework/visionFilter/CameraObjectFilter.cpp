@@ -20,7 +20,7 @@ void CameraObjectFilter::objectSeen(const Time &time) {
 }
 
 void CameraObjectFilter::objectInvisible(const Time &time) {
-    assert(time > lastSeenTime);
+    assert(time >= lastSeenTime); //TODO: change back to >
     health = fmax(health - (time - lastSeenTime).asSeconds() * DECREMENT_SLOPE, 0);
     lastUpdateTime = time;
     ++framesNotSeenFor;

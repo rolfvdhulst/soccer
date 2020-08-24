@@ -52,11 +52,16 @@ public:
 
     void writeLogFile(const Eigen::Vector2d &observation);
 
+    bool addObservation(const BallObservation &observation);
+
+    bool processFrame();
+
 private:
     struct BallEKF {
         BallEKF() = default;
         BallEKF(Eigen::Vector4d initialState,Eigen::Matrix4d initialCovariance,
                 double modelError, double measurementError, const Time& timeStamp);
+    private:
         double modelError;
         double acc = - 0.3;
         Time lastUpdateTime;
@@ -69,21 +74,35 @@ private:
         Eigen::Matrix2d R;  // Observation Noise Covariance. Keeps track of how noisy the observations are.
 
         Eigen::Vector2d y; //Innovation. Not strictly necessary to store but often used to measure performance
+
+        void setProccessNoise(double dt);
+    public:
+
         void predict(const Time& predictionTime);
         void update(const Eigen::Vector2d& observation);
         //TODO: use the below functions in the appropriate places
         [[nodiscard]] Eigen::Vector2d getPosition() const;
+        [[nodiscard]] Eigen::Vector2d getPositionEstimate(const Time& time) const;
         [[nodiscard]] Eigen::Vector4d getStateEstimate(const Time& time) const;
-        [[nodiscard]] Eigen::Vector4d getStateEstimate(double dt);
+        [[nodiscard]] Eigen::Vector4d getStateEstimate(double dt) const;
         [[nodiscard]] Eigen::Vector2d getVelocity() const;
+        [[nodiscard]] Eigen::Vector2d getVelocityEstimate(const Time& time) const;
         void setVelocity(const Eigen::Vector2d& velocity);
         void addUncertainty(double posUncertainty, double velUncertainty);
         //TODO: make these time-based?
         [[nodiscard]] Eigen::Vector2d getVelocityUncertainty() const;
         [[nodiscard]] Eigen::Vector2d getPositionUncertainty() const;
+        [[nodiscard]] double getAcc() const;
+        void setAcc(double acceleration);
 
+        [[nodiscard]] Eigen::Vector2d innovation() const;
+        [[nodiscard]] Time lastUpdated() const;
+
+        [[nodiscard]] Eigen::Vector4d state() const;
+        [[nodiscard]] Eigen::Matrix4d covariance() const;
     };
     BallEKF ekf;
+    std::vector<BallObservation> lastFrameObservations;
     bool lastCycleWasUpdate = true; //The first message (initialization) counts as an update
 };
 

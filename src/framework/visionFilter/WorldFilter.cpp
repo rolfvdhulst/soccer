@@ -130,7 +130,7 @@ void WorldFilter::processBalls(const DetectionFrame &frame) {
     for (const auto& detectedBall : frame.balls){
         bool accepted = false;
         for(BallFilter& ballFilter : balls){
-            accepted |= ballFilter.processDetection(detectedBall);
+            accepted |= ballFilter.acceptDetection(detectedBall);
         }
         if(!accepted && balls.size() < MAX_BALLFILTERS){
             balls.emplace_back(BallFilter(detectedBall));
@@ -139,7 +139,8 @@ void WorldFilter::processBalls(const DetectionFrame &frame) {
     // process balls that weren't seen and remove them if necessary
     auto it = balls.begin();
     while(it!=balls.end()) {
-        if(it->processNotSeen(frame.cameraID,frame.timeCaptured)){
+        bool removeFilter = it->processFrame(frame.cameraID,frame.timeCaptured);
+        if(removeFilter){
             it = balls.erase(it);
         } else{
             it++;

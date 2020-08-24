@@ -21,10 +21,7 @@ CameraBallFilter_v2::CameraBallFilter_v2(const BallObservation& observation, Eig
 
     positionFilter = PosVelFilter2D(startState,startCovariance,BALL_POSITION_MODEL_ERROR,BALL_POSITION_MEASUREMENT_ERROR,observation.timeCaptured);
     registerLogFile(observation.position);
-}
 
-bool CameraBallFilter_v2::justUpdated() const {
-    return lastCycleWasUpdate;
 }
 
 void CameraBallFilter_v2::predict(const Time& time, const GeometryData& geometryData ) {
@@ -115,3 +112,28 @@ Eigen::Vector2d CameraBallFilter_v2::getVelocity(const Time &time) const {
     return positionFilter.getVelocity();
 }
 
+bool CameraBallFilter_v2::addObservation(const BallObservation &observation) {
+    bool accepted = acceptObservation(observation);
+    if(accepted){
+        lastFrameObservations.push_back(observation);
+    }
+    return accepted;
+}
+
+bool CameraBallFilter_v2::processFrame() {
+    bool removeFilter = false;
+    if(lastFrameObservations.empty()){
+        removeFilter = updateBallNotSeen(positionFilter.lastUpdated());
+    }else if(lastFrameObservations.size()==1){
+        update(lastFrameObservations.at(0));
+    }else{
+        //more than one observation. There are a few cases this can happen:
+        //1: The ball is seen as two separate balls.
+        //2: A robot on the frame was also detected as a ball.
+        //3: (unlikely): there is more than one ball on the field
+        BallObservation merged = mergeBallObservationsByArea(lastFrameObservations);
+        update(merged);
+    }
+    lastFrameObservations.clear();
+    return removeFilter;
+}

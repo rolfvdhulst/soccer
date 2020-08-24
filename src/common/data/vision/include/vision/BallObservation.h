@@ -11,6 +11,7 @@
 
 struct BallObservation {
     explicit BallObservation(int cameraID, Time timeCaptured, Time timeSent, const proto::SSL_DetectionBall& detectionBall);
+    explicit BallObservation(int cameraID, Time timeCaptured, Time timeSent, Eigen::Vector2d position, Eigen::Vector2d pixelPosition, double confidence, unsigned int area, double height);
     int cameraID;
     Time timeCaptured;
     Time timeSent;
@@ -18,6 +19,7 @@ struct BallObservation {
     Eigen::Vector2d pixelPosition;
     uint32_t area;
     double confidence; //practically useless?
-    double height; //practically useless, is always
+    double height; //practically useless, is always the same
 };
+BallObservation mergeBallObservationsByArea(const std::vector<BallObservation>& observations);
 #endif  // RTT_BALLOBSERVATION_H

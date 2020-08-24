@@ -8,26 +8,20 @@
 #include "ObjectFilter.h"
 #include <vision/BallObservation.h>
 #include "ball/CameraBallFilter_v2.h"
-
+#include "ball/CameraBallGroundEKF.h"
 class BallFilter : public ObjectFilter {
 public:
     explicit BallFilter(const BallObservation &observation);
-    bool processDetection(const BallObservation& observation);
-    void predictCam(const int& cameraID, const Time& untilTime, const GeometryData& geometryData);
+    void predictCam(int cameraID, const Time &untilTime, const GeometryData& geometryData);
+    bool acceptDetection(const BallObservation& observation);
+    bool processFrame(int cameraID, Time time);
 
     FilteredBall mergeBalls(const Time& time) const;
-    /**
-     * Checks if a camera has not seen, and if so, processes the fact that an object was not seen by a camera frame taken at time
-     * @param cameraID
-     * @param untilTime
-     * @return true if this filter can be removed (e.g. is empty), false otherwise
-     */
-    bool processNotSeen(const int& cameraID, const Time& time);
 
     double getHealth() const;
 
 private:
-    std::map<int, CameraBallFilter_v2> cameraFilters;
+    std::map<int, CameraBallGroundEKF> cameraFilters;
 };
 
 
