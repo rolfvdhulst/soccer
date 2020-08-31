@@ -11,34 +11,35 @@
 
 CameraBallGroundEKF::CameraBallGroundEKF(const BallObservation &observation, Eigen::Vector2d velocityEstimate) :
         CameraObjectFilter(0.2, 1 / 60.0, 15, 3, observation.timeCaptured) {
-    Eigen::Vector4d startState = {observation.position.x(),observation.position.y(), velocityEstimate.x(), velocityEstimate.y()};
+    Eigen::Vector4d startState = {observation.position.x(), observation.position.y(), velocityEstimate.x(),
+                                  velocityEstimate.y()};
 
     Eigen::Matrix4d startCovariance = Eigen::Matrix4d::Zero();
-    startCovariance(0,0) = BALL_POSITION_INITIAL_COV;
-    startCovariance(1,1) = BALL_POSITION_INITIAL_COV;
-    startCovariance(2,2) = BALL_VELOCITY_INITIAL_COV;
-    startCovariance(3,3) = BALL_VELOCITY_INITIAL_COV;
+    startCovariance(0, 0) = BALL_POSITION_INITIAL_COV;
+    startCovariance(1, 1) = BALL_POSITION_INITIAL_COV;
+    startCovariance(2, 2) = BALL_VELOCITY_INITIAL_COV;
+    startCovariance(3, 3) = BALL_VELOCITY_INITIAL_COV;
 
-    ekf = BallEKF(startState,startCovariance,1.0,BALL_POSITION_MEASUREMENT_ERROR,observation.timeCaptured);
+    ekf = BallEKF(startState, startCovariance, 1.0, BALL_POSITION_MEASUREMENT_ERROR, observation.timeCaptured);
     registerLogFile(observation.position);
 
 }
 
 void CameraBallGroundEKF::registerLogFile(const Eigen::Vector2d &observation) {
-    if(!matlab_logger::logger.isCurrentlyLogging()){
+    if (!matlab_logger::logger.isCurrentlyLogging()) {
         return;
     }
-    int id = matlab_logger::logger.writeNewFilter(4,2,VisionMatlabLogger::BALL_FILTER);
+    int id = matlab_logger::logger.writeNewFilter(4, 2, VisionMatlabLogger::BALL_FILTER);
     setID(id);
     writeLogFile(observation);
 }
 
 void CameraBallGroundEKF::writeLogFile(const Eigen::Vector2d &observation) {
-    if(!matlab_logger::logger.isCurrentlyLogging()){
+    if (!matlab_logger::logger.isCurrentlyLogging()) {
         return;
     }
     int id = getID();
-    if(id>0){
+    if (id > 0) {
         matlab_logger::logger.writeData(
                 id,
                 ekf.lastUpdated().asSeconds(),
@@ -47,7 +48,7 @@ void CameraBallGroundEKF::writeLogFile(const Eigen::Vector2d &observation) {
                 ekf.covariance(),
                 ekf.innovation()
         );
-    } else{
+    } else {
         registerLogFile(observation);
     }
 
@@ -62,17 +63,18 @@ void CameraBallGroundEKF::update(const BallObservation &observation) {
 
 bool CameraBallGroundEKF::updateBallNotSeen(const Time &time) {
     objectInvisible(time);
-    return getHealth() <= 0.0 && consecutiveFramesNotSeen() > 3;}
+    return getHealth() <= 0.0 && consecutiveFramesNotSeen() > 3;
+}
 
 bool CameraBallGroundEKF::acceptObservation(const BallObservation &observation) const {
-    return (observation.position-ekf.getPosition()).squaredNorm()<0.5*0.5;
+    return (observation.position - ekf.getPosition()).squaredNorm() < 0.5 * 0.5;
 }
 
 Eigen::Vector2d CameraBallGroundEKF::getVelocity(const Time &time) const {
     return ekf.getVelocityEstimate(time);
 }
 
-void CameraBallGroundEKF::predict(Time time, const GeometryData& geometryData) {
+void CameraBallGroundEKF::predict(Time time, const GeometryData &geometryData) {
     FieldWallCollisionChecker::SimpleBallSegment segment;
     segment.beforePos = Vector2(ekf.getPosition());
     segment.beforeTime = ekf.lastUpdated();
@@ -80,16 +82,16 @@ void CameraBallGroundEKF::predict(Time time, const GeometryData& geometryData) {
     segment.afterTime = time;
     segment.velocity = Vector2(ekf.getVelocity());
     //TODO: make sure collision detection and reflection calculation are seperated so we can pass velocity as a function of time
-    if(! (segment.beforePos == segment.afterPos)) {
+    if (!(segment.beforePos == segment.afterPos)) {
         auto collision = FieldWallCollisionChecker::getFieldOutsideWallCollision(segment, geometryData);
         if (collision) {
             double collisionVel = ekf.getVelocityEstimate(collision->collisionTime).norm();
             ekf.predict(collision->collisionTime);
             ekf.setVelocity(collision->outVelocity);
-            ekf.addUncertainty(0.05,std::min(0.1,collisionVel*0.1));
+            ekf.addUncertainty(0.05, std::min(0.1, collisionVel * 0.1));
             std::cout << "Collision at " << collision->ballCollisionPos << " filter state: "
                       << Vector2(ekf.getPosition())
-                      << "vel: "<<collision->outVelocity
+                      << "vel: " << collision->outVelocity
                       << std::endl;
 
         }
@@ -99,19 +101,16 @@ void CameraBallGroundEKF::predict(Time time, const GeometryData& geometryData) {
     lastCycleWasUpdate = false;
 }
 
-bool CameraBallGroundEKF::justUpdated() const {
-    return lastCycleWasUpdate;
-}
 
 FilteredBall CameraBallGroundEKF::getEstimate(const Time &time, bool writeUncertainties) const {
     FilteredBall ball;
     ball.pos = ekf.getPositionEstimate(time);
     ball.vel = ekf.getVelocityEstimate(time);
-    ball.isVisible = time-lastSeen()>Time(0.05);
-    if(writeUncertainties){
+    ball.isVisible = time - lastSeen() > Time(0.05);
+    if (writeUncertainties) {
         ball.health = getHealth();
         ball.posUncertainty = ekf.getPositionUncertainty().norm();
-        ball.velocityUncertainty =ekf.getVelocityUncertainty().norm();
+        ball.velocityUncertainty = ekf.getVelocityUncertainty().norm();
     }
     return ball;
 }
@@ -174,7 +173,7 @@ void CameraBallGroundEKF::BallEKF::update(const Eigen::Vector2d &observation) {
     // Variance of innovation
     Eigen::Matrix2d S = H * P * H.transpose() + R;
     // compute kalman gain. For small matrices, Eigen's inverse function is efficient but be careful with larger matrices (solve a system of eq's instead)
-    Eigen::Matrix<double,4,2> K = P * H.transpose() * S.inverse();
+    Eigen::Matrix<double, 4, 2> K = P * H.transpose() * S.inverse();
     // update state with prediction
     X = X + K * y;
     // update covariance
@@ -183,16 +182,15 @@ void CameraBallGroundEKF::BallEKF::update(const Eigen::Vector2d &observation) {
 
 CameraBallGroundEKF::BallEKF::BallEKF(Eigen::Vector4d initialState, Eigen::Matrix4d initialCovariance,
                                       double modelError, double measurementError, const Time &timeStamp) :
-                                      modelError{modelError},
-                                      lastUpdateTime{timeStamp},
-                                      X{std::move(initialState)},
-                                      P{std::move(initialCovariance)},
-                                      F{Eigen::Matrix4d::Identity()},
-                                      H{Eigen::Matrix<double,2,4>::Identity()},
-                                      Q{Eigen::Matrix4d::Zero()},
-                                      R{Eigen::Matrix2d::Identity()*measurementError},
-                                      y{Eigen::Vector2d::Zero()}
-                                      { }
+        modelError{modelError},
+        lastUpdateTime{timeStamp},
+        X{std::move(initialState)},
+        P{std::move(initialCovariance)},
+        F{Eigen::Matrix4d::Identity()},
+        H{Eigen::Matrix<double, 2, 4>::Identity()},
+        Q{Eigen::Matrix4d::Zero()},
+        R{Eigen::Matrix2d::Identity() * measurementError},
+        y{Eigen::Vector2d::Zero()} {}
 
 Eigen::Vector2d CameraBallGroundEKF::BallEKF::getPosition() const {
     return X.head<2>();
@@ -211,8 +209,8 @@ void CameraBallGroundEKF::BallEKF::setVelocity(const Eigen::Vector2d &velocity) 
 }
 
 void CameraBallGroundEKF::BallEKF::addUncertainty(double posUncertainty, double velUncertainty) {
-    P.diagonal().head<2>().array()+= posUncertainty;
-    P.diagonal().tail<2>().array()+= velUncertainty;
+    P.diagonal().head<2>().array() += posUncertainty;
+    P.diagonal().tail<2>().array() += velUncertainty;
 }
 
 Eigen::Vector2d CameraBallGroundEKF::BallEKF::getPositionUncertainty() const {
@@ -230,29 +228,29 @@ void CameraBallGroundEKF::BallEKF::setAcc(double acceleration) {
 void CameraBallGroundEKF::BallEKF::setProccessNoise(double dt) {
     double sigma = modelError;
     double dt3 = (1.0 / 3.0) * dt * dt * dt * sigma * sigma;
-    double dt2 = (1.0 / 2.0) * dt* dt * sigma * sigma;
+    double dt2 = (1.0 / 2.0) * dt * dt * sigma * sigma;
     double dt1 = dt * sigma * sigma;
 
-    Q(0,0) = dt3;
-    Q(0,2) = dt2;
-    Q(1,1) = dt3;
-    Q(1,3) = dt2;
+    Q(0, 0) = dt3;
+    Q(0, 2) = dt2;
+    Q(1, 1) = dt3;
+    Q(1, 3) = dt2;
 
-    Q(2,0) = dt2;
-    Q(2,2) = dt1;
-    Q(3,1) = dt2;
-    Q(3,3) = dt1;
+    Q(2, 0) = dt2;
+    Q(2, 2) = dt1;
+    Q(3, 1) = dt2;
+    Q(3, 3) = dt1;
 }
 
-Eigen::Vector4d CameraBallGroundEKF::BallEKF::getStateEstimate(double dt) const{
+Eigen::Vector4d CameraBallGroundEKF::BallEKF::getStateEstimate(double dt) const {
     Eigen::Vector2d currentPos = getPosition();
     Eigen::Vector2d currentVel = getVelocity();
     double vel = currentVel.norm();
     Eigen::Vector4d estimate;
-    if(vel!=0.0){
-        estimate.head<2>() = currentPos + currentVel * dt + 0.5 * currentVel/vel * acc * dt * dt;
-        estimate.tail<2>() = currentVel + currentVel/vel * acc * dt;
-    }else{
+    if (vel != 0.0) {
+        estimate.head<2>() = currentPos + currentVel * dt + 0.5 * currentVel / vel * acc * dt * dt;
+        estimate.tail<2>() = currentVel + currentVel / vel * acc * dt;
+    } else {
         estimate.head<2>() = currentPos;
         estimate.tail<2>() = currentVel;
     }
@@ -261,44 +259,51 @@ Eigen::Vector4d CameraBallGroundEKF::BallEKF::getStateEstimate(double dt) const{
 }
 
 Eigen::Vector4d CameraBallGroundEKF::BallEKF::getStateEstimate(const Time &time) const {
-    if(time<lastUpdateTime){
+    if (time < lastUpdateTime) {
+        std::cout << "Too late by: " << (lastUpdateTime - time).asMilliSeconds() << " ms" << std::endl;
         std::__throw_invalid_argument("Bad timestamp");
     }
-    double frame_dt = (time-lastUpdateTime).asSeconds();
-    if (frame_dt<=0){
+    double frame_dt = (time - lastUpdateTime).asSeconds();
+    if (frame_dt <= 0) {
         return X;
     }
     double vel = getVelocity().norm();
     //We need to check if the velocity does not reach 0, as at that point the ball simply lays still
     //Because of the dimples it usually lays still when it reaches ~= 0.01 cm/s but this is typically negligible
     double dt = frame_dt;
-    if(vel + acc*frame_dt < 0){
-        dt = - vel/acc;
+    if (vel + acc * frame_dt < 0) {
+        dt = -vel / acc;
     }
     return getStateEstimate(dt);
 }
+
 Eigen::Vector2d CameraBallGroundEKF::BallEKF::getVelocityEstimate(const Time &time) const {
     return getStateEstimate(time).tail<2>();
 }
-Eigen::Vector2d CameraBallGroundEKF::BallEKF::getPositionEstimate(const Time& time) const {
+
+Eigen::Vector2d CameraBallGroundEKF::BallEKF::getPositionEstimate(const Time &time) const {
     return getStateEstimate(time).head<2>();
 }
+
 Eigen::Vector2d CameraBallGroundEKF::BallEKF::innovation() const {
     return y;
 }
+
 Time CameraBallGroundEKF::BallEKF::lastUpdated() const {
     return lastUpdateTime;
 }
+
 Eigen::Vector4d CameraBallGroundEKF::BallEKF::state() const {
     return X;
 }
+
 Eigen::Matrix4d CameraBallGroundEKF::BallEKF::covariance() const {
     return P;
 }
 
 bool CameraBallGroundEKF::addObservation(const BallObservation &observation) {
     bool accepted = acceptObservation(observation);
-    if(accepted){
+    if (accepted) {
         lastFrameObservations.push_back(observation);
     }
     return accepted;
@@ -306,23 +311,40 @@ bool CameraBallGroundEKF::addObservation(const BallObservation &observation) {
 
 bool CameraBallGroundEKF::processFrame() {
     bool removeFilter = false;
-    if(lastFrameObservations.empty()){
+    if (lastFrameObservations.empty()) {
         removeFilter = updateBallNotSeen(ekf.lastUpdated());
-    }else if(lastFrameObservations.size()==1){
+    } else if (lastFrameObservations.size() == 1) {
         update(lastFrameObservations.at(0));
-    }else{
+    } else {
         //more than one observation. There are a few cases this can happen:
-        //1: The ball is seen as two separate balls.
-        //2: A robot on the frame was also detected as a ball.
+        //1: The ball is seen as two separate balls. This happens occasionally.
+        //2: A robot on the frame close to the ball was also detected as a ball.
         //3: (unlikely): there is more than one ball on the field
-        BallObservation merged = mergeBallObservationsByArea(lastFrameObservations);
-        std::cout<<"MERGE DETECTED BALLS"<<std::endl;
-        std::cout<<merged.position;
-        for(const auto& obs : lastFrameObservations){
-            std::cout<<"|| "<<obs.position;
+
+        //Sort observations by distance to predicted pos
+        Eigen::Vector2d predictedPos = ekf.getPosition();
+        std::sort(lastFrameObservations.begin(), lastFrameObservations.end(),
+                  [predictedPos](const BallObservation &first, const BallObservation &second) {
+                      return (first.position - predictedPos).squaredNorm() <
+                             (second.position - predictedPos).squaredNorm();
+                  });
+
+        //Take the one that's closest and use it
+        //If it's the ball we merge it by area with any other detections that are close enough
+        Eigen::Vector2d bestDetectionPos = lastFrameObservations.front().position;
+        std::vector<BallObservation> closeToBest;
+        for(const auto& observation : lastFrameObservations){
+            if((observation.position-bestDetectionPos).norm()<0.04){ //TODO: magic constant for merging two balls
+                closeToBest.emplace_back(observation);
+            }
         }
-        std::cout<<std::endl;
-        update(merged);
+        BallObservation best = closeToBest[0];
+        if(closeToBest.size()>1){
+            best = mergeBallObservationsByArea(closeToBest);
+        }
+        //TODO: what to do with discarded detections? Maybe make acceptance/nonacceptance a different call hierarchy
+        //Possibly objects that are 'accepted' are now not used as new object filters
+        update(best);
     }
     lastFrameObservations.clear();
     return removeFilter;

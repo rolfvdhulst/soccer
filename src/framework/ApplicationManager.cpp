@@ -109,7 +109,7 @@ void ApplicationManager::run(bool &exit) {
             lastSavedBacklognumber = settings.messagecounter();
             backLogger.saveBacklog();
         }
-        this_thread::sleep_for(std::chrono::milliseconds(3));
+        this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 }
 void ApplicationManager::receiveReferee(){
@@ -118,7 +118,7 @@ void ApplicationManager::receiveReferee(){
     while (refereeReceiver->receive(refereePacket)) {
        refereePackets.push_back(refereePacket);
     }
-    sort(refereePackets.begin(), refereePackets.end(),
+    std::sort(refereePackets.begin(), refereePackets.end(),
             [](const proto::Referee& a,const proto::Referee& b)
             {return a.command_timestamp()<b.command_timestamp();});
 }

@@ -22,8 +22,6 @@ public:
      */
     [[nodiscard]] FilteredBall getEstimate(const Time &time, bool writeUncertainties = false) const;
 
-    [[nodiscard]] bool justUpdated() const;
-
     /**
  * Predicts the state of the robot based on past observations.
  * Note this is a permanent update so there is no going back after this is called.

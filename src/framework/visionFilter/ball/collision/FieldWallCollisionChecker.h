@@ -24,7 +24,6 @@ namespace FieldWallCollisionChecker {
         Time afterTime;
     };
     struct FieldCollisionResult{
-
         Vector2 ballCollisionPos;
         Vector2 outVelocity;
         Time collisionTime;
