@@ -7,7 +7,7 @@
 #include <utility>
 #include <FilterConstants.h>
 #include <visionMatlab/VisionMatlabLogger.h>
-#include "collision/FieldWallCollisionChecker.h"
+#include "collision/CollisionChecker.h"
 
 CameraBallGroundEKF::CameraBallGroundEKF(const BallObservation &observation, Eigen::Vector2d velocityEstimate) :
         CameraObjectFilter(0.2, 1 / 60.0, 15, 3, observation.timeCaptured) {
@@ -75,7 +75,7 @@ Eigen::Vector2d CameraBallGroundEKF::getVelocity(const Time &time) const {
 }
 
 void CameraBallGroundEKF::predict(Time time, const GeometryData &geometryData) {
-    FieldWallCollisionChecker::SimpleBallSegment segment;
+    CollisionChecker::SimpleBallSegment segment;
     segment.beforePos = Vector2(ekf.getPosition());
     segment.beforeTime = ekf.lastUpdated();
     segment.afterPos = Vector2(ekf.getPositionEstimate(time));
@@ -83,7 +83,7 @@ void CameraBallGroundEKF::predict(Time time, const GeometryData &geometryData) {
     segment.velocity = Vector2(ekf.getVelocity());
     //TODO: make sure collision detection and reflection calculation are seperated so we can pass velocity as a function of time
     if (!(segment.beforePos == segment.afterPos)) {
-        auto collision = FieldWallCollisionChecker::getFieldOutsideWallCollision(segment, geometryData);
+        auto collision = CollisionChecker::getFieldOutsideWallCollision(segment, geometryData);
         if (collision) {
             double collisionVel = ekf.getVelocityEstimate(collision->collisionTime).norm();
             ekf.predict(collision->collisionTime);

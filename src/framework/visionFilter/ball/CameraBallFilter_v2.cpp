@@ -5,7 +5,7 @@
 #include "ball/CameraBallFilter_v2.h"
 #include "FilterConstants.h"
 #include <visionMatlab/VisionMatlabLogger.h>
-#include "collision/FieldWallCollisionChecker.h"
+#include "collision/CollisionChecker.h"
 
 CameraBallFilter_v2::CameraBallFilter_v2(const BallObservation& observation, Eigen::Vector2d velocityEstimate)  :
         CameraObjectFilter(0.2, 1 / 60.0, 15, 3, observation.timeCaptured)
@@ -25,14 +25,14 @@ CameraBallFilter_v2::CameraBallFilter_v2(const BallObservation& observation, Eig
 }
 
 void CameraBallFilter_v2::predict(const Time& time, const GeometryData& geometryData ) {
-    FieldWallCollisionChecker::SimpleBallSegment segment;
+    CollisionChecker::SimpleBallSegment segment;
     segment.beforePos = Vector2(positionFilter.getPosition());
     segment.beforeTime = positionFilter.lastUpdated();
     segment.afterPos = Vector2(positionFilter.getPositionEstimate(time));
     segment.afterTime = time;
     segment.velocity = Vector2(positionFilter.getVelocity());
     if(! (segment.beforePos == segment.afterPos)) {
-        auto collision = FieldWallCollisionChecker::getFieldOutsideWallCollision(segment, geometryData);
+        auto collision = CollisionChecker::getFieldOutsideWallCollision(segment, geometryData);
         if (collision) {
             double collisionVel = positionFilter.getVelocity().norm();
             positionFilter.predict(collision->collisionTime);
