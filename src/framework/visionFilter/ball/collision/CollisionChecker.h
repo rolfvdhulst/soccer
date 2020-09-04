@@ -54,6 +54,8 @@ namespace CollisionChecker {
     std::optional<CollisionPreliminaryResult> getFieldGoalWallCollision(const BallTrajectorySegment& ballSegment, const GeometryData& geometryData);
 
     Collision fieldCollideAndReflect(const BallTrajectorySegment& segment, const CollisionPreliminaryResult& preliminary);
+
+    double getRestitution(CollisionType type);
 };
 
 

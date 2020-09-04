@@ -145,7 +145,7 @@ std::optional<Vector2> LineSegment::intersects(const LineSegment &line) const {
     }
     return std::nullopt;
 }
-std::optional<double> LineSegment::intersectParametrize(const LineSegment& line){
+std::optional<double> LineSegment::intersectsParametrize(const LineSegment& line) const{
     Vector2 p = m_start;
     Vector2 r = direction();
     Vector2 q = line.start();
@@ -188,7 +188,7 @@ std::optional<double> LineSegment::intersectParametrize(const LineSegment& line)
     }
     return std::nullopt;
 }
-Vector2 LineSegment::pointOnLine(double t){
+Vector2 LineSegment::getPos(double t) const {
     return m_start + direction()*t;
 };
 double LineSegment::distanceTo(const Vector2 &point) const { return (this->project(point) - point).length(); }

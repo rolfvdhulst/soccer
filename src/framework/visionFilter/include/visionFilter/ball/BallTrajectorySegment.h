@@ -6,6 +6,7 @@
 #define SOCCER_BALLTRAJECTORYSEGMENT_H
 
 #include <math/geometry/Vector2.h>
+#include <math/geometry/LineSegment.h>
 #include <core/Time.h>
 
 /**
@@ -21,6 +22,9 @@ struct BallTrajectorySegment {
     double dt;
     Time startTime;
     Time endTime;
+
+    [[nodiscard]] LineSegment path() const;
+    [[nodiscard]] Vector2 getVelocity(double time) const;
 };
 
 
