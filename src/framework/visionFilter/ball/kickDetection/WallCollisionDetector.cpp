@@ -4,6 +4,3 @@
 
 #include "WallCollisionDetector.h"
 
-std::optional<CollisionEvent> WallCollisionDetector::checkForCollision(const VelocityChangeEvent &velocityChange) {
-
-}

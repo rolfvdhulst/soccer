@@ -19,6 +19,7 @@ class RobotShape : public Shape {
   Line kickerLine;//We use a Line as it gives more efficient computations
 
  public:
+    RobotShape() : RobotShape(Vector2(0,0),cos(0.785)*0.09,0.09,Angle(0.0)){}
   RobotShape(const Vector2 &pos, double centerToFront, double radius, Angle orientation);
 
   /**
@@ -57,6 +58,9 @@ class RobotShape : public Shape {
 
   [[nodiscard]] std::vector<Vector2> intersects(const Ray &ray) const override;
 
+  [[nodiscard]] double radius() const;
+
+  [[nodiscard]] double centerToFrontDist() const;
 };
 
 #endif //SOCCER_SRC_COMMON_MATH_GEOMETRY_ROBOTSHAPE_H_

@@ -1,7 +1,3 @@
-// Created by kjhertenberg on 13-5-19.
-//
-//
-
 #include "WorldFilter.h"
 #include <protobuf/messages_robocup_ssl_detection.pb.h>
 #include <protobuf/messages_robocup_ssl_geometry.pb.h>
@@ -73,10 +69,8 @@ void WorldFilter::process(const std::vector<proto::SSL_DetectionFrame> &frames) 
     //Sort by time
     std::sort(detectionFrames.begin(), detectionFrames.end(),
               [](const DetectionFrame &lhs, const DetectionFrame &rhs) { return lhs.timeCaptured < rhs.timeCaptured; });
-    for (const auto& frame : detectionFrames) {
-        processRobots(frame, true);
-        processRobots(frame, false);
-        processBalls(frame);
+    for (const auto &frame : detectionFrames) {
+        processFrame(frame);
     }
 }
 
@@ -130,9 +124,9 @@ void WorldFilter::predictRobots(const DetectionFrame &frame, robotMap &robots) {
     }
 }
 
-void WorldFilter::processBalls(const DetectionFrame &frame) {
+void WorldFilter::processBalls(const DetectionFrame &frame, const std::vector<RobotTrajectorySegment>& robotTrajectories) {
     for (auto &filter : balls) {
-        filter.predictCam(frame.cameraID, frame.timeCaptured, geometryData);
+        filter.predictCam(frame.cameraID, frame.timeCaptured, geometryData, robotTrajectories);
     }
     for (const auto &detectedBall : frame.balls) {
         bool accepted = false;
@@ -153,4 +147,34 @@ void WorldFilter::processBalls(const DetectionFrame &frame) {
             it++;
         }
     }
+}
+
+void WorldFilter::processFrame(const DetectionFrame &frame) {
+    processRobots(frame, true);
+    processRobots(frame, false);
+    std::vector<RobotTrajectorySegment> trajectories = getPreviousFrameTrajectories(true, frame.cameraID);
+    std::vector<RobotTrajectorySegment> yellowTrajs = getPreviousFrameTrajectories(false, frame.cameraID);
+    trajectories.insert(trajectories.end(), std::make_move_iterator(yellowTrajs.begin()),
+                        std::make_move_iterator(yellowTrajs.end()));
+    processBalls(frame,trajectories);
+}
+
+std::vector<RobotTrajectorySegment> WorldFilter::getPreviousFrameTrajectories(bool isBlue, int cameraID) const {
+    const robotMap &robots = isBlue ? blue : yellow;
+    const RobotParameters &params = isBlue ? blueParams : yellowParams;
+    std::vector<RobotTrajectorySegment> segments;
+    for (const auto &oneIDFilters : robots) {
+        for (const auto &bot : oneIDFilters.second) {
+            std::optional<RobotTrajectorySegment> trajectory = bot.getLastFrameTrajectory(cameraID, params);
+            if (trajectory) {
+                segments.push_back(*trajectory);
+            }
+        }
+    }
+    return segments;
+}
+
+void WorldFilter::updateRobotParameters(const proto::TeamRobotInfo &robotInfo) {
+    blueParams = RobotParameters(robotInfo.blue());
+    yellowParams = RobotParameters(robotInfo.yellow());
 }

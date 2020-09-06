@@ -10,10 +10,11 @@ BallFilter::BallFilter(const BallObservation &observation)
 
 }
 
-void BallFilter::predictCam(int cameraID, const Time &untilTime, const GeometryData &geometryData) {
+void BallFilter::predictCam(int cameraID, const Time &untilTime, const GeometryData &geometryData,
+                            const std::vector<RobotTrajectorySegment>& robotTrajectories){
     auto cameraFilter = cameraFilters.find(cameraID);
     if (cameraFilter != cameraFilters.end()) {
-        cameraFilter->second.predict(untilTime, geometryData);
+        cameraFilter->second.predict(untilTime, geometryData,robotTrajectories);
     }
 }
 

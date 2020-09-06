@@ -9,10 +9,12 @@
 #include <vision/BallObservation.h>
 #include "ball/CameraBallFilter_v2.h"
 #include "ball/CameraBallGroundEKF.h"
+#include "RobotTrajectorySegment.h"
+
 class BallFilter : public ObjectFilter {
 public:
     explicit BallFilter(const BallObservation &observation);
-    void predictCam(int cameraID, const Time &untilTime, const GeometryData& geometryData);
+    void predictCam(int cameraID, const Time &untilTime, const GeometryData& geometryData, const std::vector<RobotTrajectorySegment>& robotTrajectorySegments);
     bool acceptDetection(const BallObservation& observation);
     bool processFrame(int cameraID, Time time);
 

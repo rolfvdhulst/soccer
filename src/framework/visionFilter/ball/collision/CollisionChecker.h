@@ -8,6 +8,7 @@
 
 
 #include "ball/BallTrajectorySegment.h"
+#include "RobotTrajectorySegment.h"
 #include <field/GeometryData.h>
 
 /**
@@ -34,6 +35,7 @@ namespace CollisionChecker {
 
     struct Collision{
         Vector2 position;
+        Vector2 inVelocity;
         Vector2 outVelocity;
         double dt;
         Time collisionTime;
@@ -41,8 +43,29 @@ namespace CollisionChecker {
     };
 
     struct RobotCollisionPreliminaryResult{
-        CollisionPreliminaryResult collision;
+        double dt;
+        Vector2 normalDir;
+        CollisionType type;
+        RobotTrajectorySegment segment;
+    };
+    struct RobotCollision{
+        Collision collision;
+        int robotID;
+        bool robotIsBlue;
+    };
 
+
+    struct RobotConstVelModel{
+        //assumes the robot is at (0,0), and the ball velocity is given in the robots frame of reference
+        Vector2 startPos;
+        Vector2 vel;
+        Vector2 acc;
+        double initialAngle;
+        double angVel;
+        double centerToFront;
+        [[nodiscard]] double fvalue(double t) const noexcept;
+        [[nodiscard]] double derivative(double t) const noexcept;
+        [[nodiscard]] std::pair<double,double> funcAndDerivative(double t) const noexcept;
     };
     /**
      * Computes a collision with the outer walls of the field, if one exists
@@ -55,6 +78,16 @@ namespace CollisionChecker {
 
     Collision fieldCollideAndReflect(const BallTrajectorySegment& segment, const CollisionPreliminaryResult& preliminary);
 
+    std::optional<RobotCollisionPreliminaryResult> checkRobotConstVel(const BallTrajectorySegment& ballSegment, const RobotTrajectorySegment& trajectory);
+    std::optional<double> solveRobotFrontCollisionTime(RobotConstVelModel model, double minSearch, double maxSearch);
+    double solveCollisionTime(const BallTrajectorySegment& ballSegment, const RobotTrajectorySegment& trajectory,
+                              double lineFraction);
+
+    std::optional<CollisionPreliminaryResult> checkRobotOuterCollision(const BallTrajectorySegment& ballSegment);
+
+    std::optional<CollisionPreliminaryResult> checkRobotFrontCollision(const BallTrajectorySegment& ballSegment);
+
+    Collision robotCollideAndReflect(const BallTrajectorySegment&, const CollisionPreliminaryResult& preliminaryResult);
     double getRestitution(CollisionType type);
 };
 

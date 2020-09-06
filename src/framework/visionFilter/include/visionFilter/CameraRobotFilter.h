@@ -9,8 +9,10 @@
 #include <math/filters/PosVelFilter2D.h>
 #include <vision/RobotObservation.h>
 #include <vision/FilteredRobot.h>
+#include <world/RobotParameters.h>
 #include "CameraObjectFilter.h"
 #include "RobotOrientationFilter.h"
+#include "RobotTrajectorySegment.h"
 
 
 /**
@@ -57,9 +59,14 @@ class CameraRobotFilter : public CameraObjectFilter {
 
     [[nodiscard]] Eigen::Vector3d getVelocity(const Time& time) const;
 
+    [[nodiscard]] RobotTrajectorySegment getFrameTrajectory(const RobotParameters &robotParams) const;
+
     void registerLogFile(const Eigen::Vector2d& observation, double observedAngle);
     void writeLogFile(const Eigen::Vector2d& observation, double observedAngle);
    private:
+
+    void updatePreviousInfo();
+
     PosVelFilter2D positionFilter;
     RobotOrientationFilter angleFilter;
     bool lastCycleWasUpdate = true; //The first message (initialization) counts as an update
@@ -67,6 +74,9 @@ class CameraRobotFilter : public CameraObjectFilter {
     int cameraID;
     bool botIsBlue;
     int orientationFilterUniqueId = 0;
+    Vector2 previousPos;
+    Angle previousAngle;
+    Time previousTime;
 };
 
 #endif  // RTT_ROBOTFILTER_H

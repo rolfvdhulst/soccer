@@ -28,10 +28,15 @@ CameraRobotFilter::CameraRobotFilter(const RobotObservation& observation, bool b
     initialAngleCov(1,1) = ROBOT_ANGULAR_VEL_INITIAL_COV;
     angleFilter = RobotOrientationFilter(initialAngle,initialAngleCov,ROBOT_ANGLE_MODEL_ERROR,ROBOT_ANGLE_MEASUREMENT_ERROR,observation.timeCaptured);
 
+    previousPos = observation.position;
+    previousAngle = Angle(observation.orientation);
+    previousTime = Time(observation.timeCaptured);
+
     registerLogFile(observation.position,observation.orientation);
 }
 
 void CameraRobotFilter::predict(Time time) {
+    updatePreviousInfo();
     positionFilter.predict(time);
     angleFilter.predict(time);
     lastCycleWasUpdate = false;
@@ -39,7 +44,7 @@ void CameraRobotFilter::predict(Time time) {
 
 bool CameraRobotFilter::update(const RobotObservation &observation) {
     assert(observation.robotId == botId); //sanity check
-    assert(observation.cameraID == cameraID); //sanity check again
+    assert(observation.cameraID == cameraID);
     //Update position kalman filter
     positionFilter.update(observation.position);
     //Update angle kalman filter
@@ -128,4 +133,34 @@ Eigen::Vector3d CameraRobotFilter::getVelocity(const Time &time) const {
     Eigen::Vector2d vel = positionFilter.getVelocity();
     double angVel = angleFilter.getVelocity();
     return Eigen::Vector3d(vel.x(),vel.y(),angVel);
+}
+RobotTrajectorySegment CameraRobotFilter::getFrameTrajectory(const RobotParameters &robotParams) const{
+    Vector2 currentPos(positionFilter.getPosition());
+    Angle currentAngle(angleFilter.getPosition());
+    Time currentTime = positionFilter.lastUpdated();
+
+    double dt = (currentTime-previousTime).asSeconds();
+    double w = (currentAngle-previousAngle).getAngle()/dt;
+    Vector2 vel = (currentPos-previousPos)/dt;
+    if(dt==0.0){ //This happens if robot was just initialized
+        w = 0.0;
+        vel = Vector2();
+    }
+
+    RobotTrajectorySegment segment;
+    segment.startPos = RobotShape(previousPos,robotParams.centerToFront,robotParams.radius,previousAngle);//Contains initial angle and position
+    segment.vel = vel;
+    segment.angVel = w;
+    segment.dt = dt;
+    segment.startTime = currentTime;
+    segment.endTime = previousTime;
+    segment.isBlue = botIsBlue;
+    segment.robotID = botId;
+    return segment;
+}
+
+void CameraRobotFilter::updatePreviousInfo() {
+    previousPos = positionFilter.getPosition();
+    previousAngle = angleFilter.getPosition();
+    previousTime = positionFilter.lastUpdated();
 }

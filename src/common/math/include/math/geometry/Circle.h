@@ -74,6 +74,9 @@ class Circle : public Shape{
    * @return
    */
   [[nodiscard]] std::vector<Vector2> intersects(const LineSegment &segment) const override;
+
+  [[nodiscard]] std::vector<double> intersectionParametrized(const LineSegment &segment) const;
+
   /**
    * Returns intersection points of the line segment. The intersections are ordered in distance from the start of the ray.
    * @param segment

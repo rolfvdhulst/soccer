@@ -42,7 +42,7 @@ RobotFilter::RobotFilter(const RobotObservation &observation, bool botIsBlue) :
         cameraFilters{std::make_pair(observation.cameraID, CameraRobotFilter(observation, botIsBlue))} {
 }
 
-bool RobotFilter::processNotSeen(const int &cameraID, const Time &time) {
+bool RobotFilter::processNotSeen(int cameraID, const Time &time) {
     auto cameraFilter = cameraFilters.find(cameraID);
     if (cameraFilter == cameraFilters.end()) {
         return false; //if the relevant camera does not exist, we do not need to remove it
@@ -113,6 +113,15 @@ FilteredRobot RobotFilter::mergeRobots(const Time &time) const {
     result.angularVel = angularVel;
     result.id = robotID;
     return result;
+}
+
+std::optional<RobotTrajectorySegment> RobotFilter::getLastFrameTrajectory(int cameraID, const RobotParameters &parameters) const {
+    auto cameraFilter = cameraFilters.find(cameraID);
+    if(cameraFilter != cameraFilters.end()){
+        return cameraFilter->second.getFrameTrajectory(parameters);
+    }else{
+        return std::nullopt;
+    }
 }
 
 

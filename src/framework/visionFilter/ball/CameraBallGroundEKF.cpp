@@ -74,24 +74,41 @@ Eigen::Vector2d CameraBallGroundEKF::getVelocity(const Time &time) const {
     return ekf.getVelocityEstimate(time);
 }
 
-void CameraBallGroundEKF::predict(Time time, const GeometryData &geometryData) {
-    CollisionChecker::SimpleBallSegment segment;
-    segment.beforePos = Vector2(ekf.getPosition());
-    segment.beforeTime = ekf.lastUpdated();
-    segment.afterPos = Vector2(ekf.getPositionEstimate(time));
-    segment.afterTime = time;
-    segment.velocity = Vector2(ekf.getVelocity());
+void CameraBallGroundEKF::predict(Time time, const GeometryData &geometryData, const std::vector<RobotTrajectorySegment>& robotTrajectories) {
+    //TODO: pack this in a function
+    BallTrajectorySegment segment;
+    segment.startPos = Vector2(ekf.getPosition());
+    segment.startTime = ekf.lastUpdated();
+    segment.endPos = Vector2(ekf.getPositionEstimate(time));
+    segment.endTime = time;
+    segment.startVel = Vector2(ekf.getVelocity());
+    segment.acc = ekf.getAcc();
+    segment.dt = (segment.endTime-segment.startTime).asSeconds();
+    segment.acceleration =  Vector2(ekf.getVelocity()).normalize() * (-ekf.getAcc());
     //TODO: make sure collision detection and reflection calculation are seperated so we can pass velocity as a function of time
-    if (!(segment.beforePos == segment.afterPos)) {
+    if (!(segment.startPos == segment.endPos)) {
+
+        for(const auto& trajectory : robotTrajectories){
+            if(auto col = CollisionChecker::checkRobotConstVel(segment,trajectory)){
+            }
+        }
+
+        if(auto col = CollisionChecker::getFieldGoalWallCollision(segment,geometryData)){
+            auto result = CollisionChecker::fieldCollideAndReflect(segment,*col);
+            std::cerr<<"goal collision at "<<result.position<<std::endl;
+        }
+
         auto collision = CollisionChecker::getFieldOutsideWallCollision(segment, geometryData);
+
         if (collision) {
-            double collisionVel = ekf.getVelocityEstimate(collision->collisionTime).norm();
-            ekf.predict(collision->collisionTime);
-            ekf.setVelocity(collision->outVelocity);
+            auto collisionResult = CollisionChecker::fieldCollideAndReflect(segment,*collision);
+            double collisionVel = ekf.getVelocityEstimate(collisionResult.collisionTime).norm();
+            ekf.predict(collisionResult.collisionTime);
+            ekf.setVelocity(collisionResult.outVelocity);
             ekf.addUncertainty(0.05, std::min(0.1, collisionVel * 0.1));
-            std::cout << "Collision at " << collision->ballCollisionPos << " filter state: "
+            std::cout << "Collision at " << collisionResult.position << " filter state: "
                       << Vector2(ekf.getPosition())
-                      << "vel: " << collision->outVelocity
+                      << "vel: " << collisionResult.outVelocity
                       << std::endl;
 
         }

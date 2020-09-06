@@ -7,6 +7,9 @@
 #include "RobotFilter.h"
 #include "BallFilter.h"
 #include <vision/DetectionFrame.h>
+#include <protobuf/RobotInfo.pb.h>
+#include <world/RobotParameters.h> //TODO: refactor robot relevant things (e.g. RobotID, RobotParameters etc.) to a library and remove world from library again
+
 
 /**
  * @author Rolf van der Hulst
@@ -29,17 +32,23 @@ class WorldFilter {
      */
     void updateGeometry(const proto::SSL_GeometryData& geometry);
 
+    void updateRobotParameters(const proto::TeamRobotInfo& robotInfo);
+
    private:
     typedef std::map<int, std::vector<RobotFilter>> robotMap;
     robotMap blue;
     robotMap yellow;
     std::vector<BallFilter> balls; // A list containing all filters which are tracking balls
     GeometryData geometryData;
+    RobotParameters blueParams;
+    RobotParameters yellowParams;
     const int MAX_ROBOTFILTERS = 5;
     const int MAX_BALLFILTERS = 8;
 
+    void processFrame(const DetectionFrame& frame);
     void processRobots(const DetectionFrame& frame, bool blueBots);
-    void processBalls(const DetectionFrame& frame);
+    void processBalls(const DetectionFrame& frame, const std::vector<RobotTrajectorySegment>& robotTrajectories);
+    [[nodiscard]] std::vector<RobotTrajectorySegment> getPreviousFrameTrajectories(bool isBlue, int cameraID) const;
 
     static void predictRobots(const DetectionFrame &frame, robotMap &robots);
     void updateRobots(bool blueBots, robotMap &robots, const std::vector<RobotObservation> &detectedRobots);

@@ -20,10 +20,12 @@ public:
      * @param untilTime
      * @return true if this filter can be removed (e.g. is empty), false otherwise
      */
-    bool processNotSeen(const int& cameraID, const Time& time);
+    bool processNotSeen(int cameraID, const Time& time);
 
     double getHealth() const;
     FilteredRobot mergeRobots(const Time& time) const;
+
+    std::optional<RobotTrajectorySegment> getLastFrameTrajectory(int cameraID, const RobotParameters& parameters) const;
 private:
     int robotID;
     bool isBlue;

@@ -25,24 +25,30 @@ CameraBallFilter_v2::CameraBallFilter_v2(const BallObservation& observation, Eig
 }
 
 void CameraBallFilter_v2::predict(const Time& time, const GeometryData& geometryData ) {
-    CollisionChecker::SimpleBallSegment segment;
-    segment.beforePos = Vector2(positionFilter.getPosition());
-    segment.beforeTime = positionFilter.lastUpdated();
-    segment.afterPos = Vector2(positionFilter.getPositionEstimate(time));
-    segment.afterTime = time;
-    segment.velocity = Vector2(positionFilter.getVelocity());
-    if(! (segment.beforePos == segment.afterPos)) {
+    //TOOD: make this a neat constructor and add acceleration to segment
+    //TODO: check if acc zero works nicely
+    BallTrajectorySegment segment;
+    segment.startPos = Vector2(positionFilter.getPosition());
+    segment.startTime = positionFilter.lastUpdated();
+    segment.endPos = Vector2(positionFilter.getPositionEstimate(time));
+    segment.endTime = time;
+    segment.startVel = Vector2(positionFilter.getVelocity());
+    segment.acc = 0;
+    segment.acceleration = Vector2(0,0);
+    if(! (segment.startPos == segment.endPos)) {
         auto collision = CollisionChecker::getFieldOutsideWallCollision(segment, geometryData);
         if (collision) {
+            auto collisionResult = CollisionChecker::fieldCollideAndReflect(segment,*collision);
             double collisionVel = positionFilter.getVelocity().norm();
-            positionFilter.predict(collision->collisionTime);
-            positionFilter.setVelocity(collision->outVelocity);
+            positionFilter.predict(collisionResult.collisionTime);
+            //TODO: assert prediction and collision pos are the same
+            positionFilter.setVelocity(collisionResult.outVelocity);
             positionFilter.addUncertainty(0.05,std::min(0.1,collisionVel*0.1));
             Eigen::Vector2d posUnc = positionFilter.getPositionUncertainty();
             Eigen::Vector2d velUnc = positionFilter.getVelocityUncertainty();
-            std::cout << "Collision at " << collision->ballCollisionPos << " filter state: "
+            std::cout << "Collision at " << collisionResult.position << " filter state: "
                       << Vector2(positionFilter.getPosition())
-                      << "vel: "<<collision->outVelocity
+                      << "vel: "<< collisionResult.outVelocity
                       << std::endl;
 
         }

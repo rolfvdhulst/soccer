@@ -14,6 +14,7 @@ const std::vector<RobotState> &WorldState::getTeam(WorldTeam team) const {
     case WorldTeam::US: return getUs();
     case WorldTeam::THEM: return getThem();
     }
+    return{};
 }
 const std::vector<RobotState> &WorldState::getAllRobots() const {
     return robots;

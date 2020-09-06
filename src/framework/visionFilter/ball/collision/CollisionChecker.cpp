@@ -49,26 +49,30 @@ namespace CollisionChecker{
 
     std::optional<CollisionPreliminaryResult> getFieldGoalWallCollision(const BallTrajectorySegment& ballSegment, const GeometryData& geometryData){
         LineSegment ballPath = ballSegment.path();
+        //TODO: check these values with geometry from SSL!
         const double ballRadius = 0.021333; //TODO: fix this being local
-        std::optional<CollisionPreliminaryResult> bestCollision = std::nullopt;
+        const double halfFieldLength = geometryData.field.getFieldLength()*0.5 + 0.5*geometryData.field.getLineThickness();
+        const double halfGoalWidth = geometryData.field.getGoalWidth()*0.5;
+        const double goalDepth = geometryData.field.getGoalDepth();
+        const double goalWallWidth = geometryData.field.getGoalWallThickness();
 
+        std::optional<CollisionPreliminaryResult> bestCollision = std::nullopt;
         //Check both goals
         //TODO: check if goal coordinates correspond to field properly and fill in
         for(double dir : {-1.0, 1.0}){
             //Define goal with a margin
-            Vector2 backLeft;
-            Vector2 frontRightPostRight;
-            Rectangle rect(backLeft,frontRightPostRight);
-            if(!rect.containsOrOverlaps(ballPath)){//pruning: if the line does not overlap this (which is a much faster check), there's 100% no collisions
+            Vector2 backLeft = Vector2(halfFieldLength+goalDepth+goalWallWidth+ballRadius,halfGoalWidth+goalWallWidth+ballRadius) * dir;
+            Vector2 frontRightPostRight = Vector2(halfFieldLength-ballRadius,-(halfGoalWidth+goalWallWidth+ballRadius)) * dir ;
+            BoundingBox2D rect(backLeft,frontRightPostRight);
+            if(!rect.doesIntersect(ballPath)){//pruning: if the line does not overlap this (which is a much faster check), there's 100% no collisions
                 continue;
             };
-
-            Vector2 backRight;
-            Vector2 frontRightPostLeft;
-            Vector2 insideRight;
-            Vector2 insideLeft;
-            Vector2 frontLeftPostRight;
-            Vector2 frontLeftPostLeft;
+            Vector2 backRight = Vector2(halfFieldLength+goalDepth+goalWallWidth+ballRadius,-(halfGoalWidth+goalWallWidth+ballRadius)) * dir;
+            Vector2 frontRightPostLeft = Vector2(halfFieldLength-ballRadius,-(halfGoalWidth-ballRadius)) * dir ;
+            Vector2 insideRight = Vector2(halfFieldLength + goalDepth -ballRadius,-(halfGoalWidth-ballRadius)) * dir ;
+            Vector2 insideLeft = Vector2(halfFieldLength + goalDepth -ballRadius,halfGoalWidth-ballRadius) * dir ;
+            Vector2 frontLeftPostRight = Vector2(halfFieldLength -ballRadius,halfGoalWidth-ballRadius) * dir ;
+            Vector2 frontLeftPostLeft = Vector2(halfFieldLength -ballRadius,halfGoalWidth+goalWallWidth+ballRadius) * dir ;
 
             Polygon<8> goalWall(frontRightPostRight,frontRightPostLeft,insideRight,insideLeft,frontLeftPostRight,
                                 frontLeftPostLeft,backLeft,backRight);
@@ -78,16 +82,18 @@ namespace CollisionChecker{
             }
             auto boundary = goalWall.getBoundary();
             int i = 0; // we count to check which goal segment we're checking. Changing the polygon WILL change this!
+
             for(const auto& line : boundary){
                 std::optional<double> collisionFraction = ballPath.intersectsParametrize(line);
                 if(collisionFraction){
                     if(!bestCollision || *collisionFraction < bestCollision->distanceFraction){
                         CollisionPreliminaryResult result;
                         result.distanceFraction = *collisionFraction;
-                        Vector2 dir = line.direction();
-                        result.normalDir =  Vector2(dir.y(),-dir.x());
+                        Vector2 lineDir = line.direction();
+                        result.normalDir =  Vector2(lineDir.y(),-lineDir.x());
                         result.type = (i>0 && i <4) ? CollisionType::GOAL_INSIDE : CollisionType::GOAL_OUTSIDE;
                         //If the collision point is closer or does not exist, we register it as the best point
+                        bestCollision = result;
                     }
                 }
                 ++i;//TODO: check which lines are collided with in a more pretty way?
@@ -122,7 +128,7 @@ namespace CollisionChecker{
         double restitution = getRestitution(preliminary.type);
         Vector2 outVel = (afterLinePos-collisionPos).stretchToLength( restitution*collisionVel.length());
 
-        //TODO: make this constructor
+        //TODO: make this a constructor
         Collision collision;
         collision.collisionTime = segment.startTime + Time(time);
         collision.dt = time;
@@ -132,6 +138,120 @@ namespace CollisionChecker{
         return collision;
     }
 
+    std::optional<RobotCollisionPreliminaryResult> checkRobotConstVel(const BallTrajectorySegment& ballSegment, const RobotTrajectorySegment& trajectory){
+        //Take the robot as frame of reference, this makes the calculations a bit easier to do:
+        //TODO: check if robot and ball dt's are the same
+        double dt = ballSegment.dt;
+        const double ballRadius = 0.021333;//TODO: fix constant hardcoded
+        if(ballSegment.dt != trajectory.dt && trajectory.dt != 0.0){ //If robots are just initialized dt == 0.0 happens occasionally
+            //In that case we can still use the calculations, as then the velocities are still estimated ok
+            std::cerr<<"Times don't match!: "<<ballSegment.dt-trajectory.dt<<std::endl;
+        }
+
+        LineSegment ballPath(ballSegment.startPos,ballSegment.endPos-trajectory.vel*dt);
+
+        BoundingBox2D robotBox = trajectory.startPos.boundingBox();
+        robotBox.expand(ballRadius);
+        if(!robotBox.doesIntersect(ballPath)){
+            return std::nullopt;
+        }
+        //TODO: add bounding box test? See if this is faster
+        Circle robotCircle(trajectory.startPos.pos(),trajectory.startPos.radius()+ballRadius);
+        std::vector<double>  intersectTs = robotCircle.intersectionParametrized(ballPath);
+        if(intersectTs.empty()){
+            return std::nullopt;
+        }
+        std::cout<<"Found ball intersections!"<<std::endl;
+        double t = intersectTs.size() == 1 ? intersectTs[0] : fmin(intersectTs[0],intersectTs[1]); // Get the smallest intersection time
+        double circleTime = solveCollisionTime(ballSegment,trajectory,t);
+        Angle circleAngle = trajectory.startPos.angle() + trajectory.angVel*dt;
+        Vector2 pointOnCircle = ballPath.getPos(t);
+        RobotShape circleStartBot(trajectory.startPos.pos(),trajectory.startPos.centerToFrontDist()+ballRadius,
+                                  trajectory.startPos.radius()+ballRadius,circleAngle);
+        if(circleStartBot.contains(ballSegment.startPos)){
+            std::cout<<"Ball in robot"<<std::endl;
+            return std::nullopt;//Ball is already colliding, we don't double count
+        }
+        if(!circleStartBot.inFrontOfDribbler(pointOnCircle)){
+            //Hull collision. Things are fairly easy
+            RobotCollisionPreliminaryResult result;
+            result.segment = trajectory;
+            result.dt = circleTime;
+            result.normalDir = pointOnCircle-circleStartBot.pos();
+            result.type = trajectory.isBlue ? CollisionType::BLUE_BOT_HULL : CollisionType::YELLOW_BOT_HULL;
+            std::cout<<"Hull collision!"<<std::endl;
+            return result;
+        }else{
+            double minSearch = circleTime;
+            double maxSearch = intersectTs.size() > 1 ? fmax(intersectTs[0],intersectTs[1]) : dt;
+            //(Possible) front collision. This involves a formula which has no analytical roots so we do bisection search
+            //TODO: fix constructor
+            RobotConstVelModel model;
+            model.startPos = ballSegment.startPos-trajectory.startPos.pos();
+            model.vel = ballSegment.startVel - trajectory.vel;
+            model.acc = ballSegment.acceleration;
+            model.initialAngle = trajectory.startPos.angle().getAngle();
+            model.angVel = trajectory.angVel;
+            model.centerToFront = circleStartBot.centerToFrontDist();
+            std::cout<<"Running front collision model!"<<std::endl;
+            std::optional<double> frontCollisionTime = solveRobotFrontCollisionTime(model,minSearch,maxSearch);
+            if(frontCollisionTime){
+                RobotCollisionPreliminaryResult result;
+                result.segment = trajectory;
+                result.dt = frontCollisionTime.value();
+                Angle collisionAngle(model.initialAngle+model.angVel*dt);
+                result.normalDir = Vector2(collisionAngle);
+                result.type = trajectory.isBlue ? CollisionType::BLUE_BOT_FRONT : CollisionType::YELLOW_BOT_FRONT;
+                std::cout<<"front collision found1"<<std::endl;
+                return result;
+            }else{
+                std::cout<<"front collision model failed!"<<std::endl;
+                return std::nullopt;
+            }
+        }
+    }
+    std::optional<double> solveRobotFrontCollisionTime(RobotConstVelModel model, double minSearch, double maxSearch){
+        //Note minsearch and maxsearch get changed by this function after copying!
+        //First, check if the model has different values on both sides so we can use bisection.
+        assert(model.fvalue(minSearch)>=0);
+        if(model.fvalue(minSearch)*model.fvalue(maxSearch)<0.0){
+            //Bisection method
+            double time = (minSearch + maxSearch)*0.5;
+            //accuracy is 2^-maxIts in time. 20 iterations gives us more than enough accuracy (10^-6 or so)
+            int maxIts = 20;
+            for (int n = 0; n < maxIts ; ++n) {
+                time = (minSearch + maxSearch)*0.5;
+                if(model.fvalue(time)*model.fvalue(minSearch)>=0.0){ //check if signs are opposed or the same
+                    minSearch = time;
+                }else{
+                    maxSearch = time;
+                }
+            }
+            bool converged = model.fvalue(minSearch)*model.fvalue(maxSearch) <= 0.0; //still opposite signs?
+            if(!converged){
+                std::cout<<"no convergence?"<<std::endl;
+            }
+            return converged ? std::optional<double>(time) : std::nullopt;
+        }else{
+            //There's a good chance the ball passes ' in front'  of the robot.
+            // Problem is, that if the robot turns fast enough, this might not be the case(e.g. ball 'enters' and leaves robot again
+            //TODO: this case is unhandled for now, maybe bisection search for smallest sum until a limit resolution?
+            std::cout<<"bad luck"<<std::endl;
+            return std::nullopt;
+        }
+    }
+    double solveCollisionTime(const BallTrajectorySegment& ballSegment, const RobotTrajectorySegment& trajectory,
+                              double lineFraction){
+        double a = 0.5 * ballSegment.acc;
+        double b = (ballSegment.startVel-trajectory.vel).length();
+        double c = - lineFraction*(b*ballSegment.dt+0.5*ballSegment.acc*ballSegment.dt*ballSegment.dt);
+        auto times = solveQuadratic(a,b,c);
+        if(times){
+            return (times->first<=ballSegment.dt) ? times->first : times->second; //we need the smaller root, which is guaranteed <dt through the collision calculation
+        } else{
+            return lineFraction*ballSegment.dt; //use a constant velocity model in case quadratic equation somehow fails. This usually is not far off
+        }
+    }
     double getRestitution(CollisionType type) {
         switch(type){
             case CollisionType::OUTER_WALL:
@@ -146,7 +266,35 @@ namespace CollisionChecker{
                 break;
             case CollisionType::BLUE_BOT_HULL:
                 break;
+            default:
+                std::cerr<<"COULD NOT FIND COLLISION TYPE in resititution table!"<<std::endl;
+                return 0.75;
         }
     }
 
+    double RobotConstVelModel::fvalue(double t) const noexcept{
+        Vector2 ballPos = startPos + vel * t + acc*0.5*t*t;
+        double theta = initialAngle + angVel*t;
+        return ballPos.x()*cos(theta)+ ballPos.y()*sin(theta) - centerToFront; //signed distance to robotLine
+    }
+
+    double RobotConstVelModel::derivative(double t) const noexcept {
+        Vector2 ballPos = startPos + vel * t + acc*0.5*t*t;
+        Vector2 ballSpeed = vel + acc*t;
+        double theta = initialAngle + angVel*t;
+        double cosTheta = cos(theta);
+        double sinTheta = sin(theta);
+        return (ballSpeed.x() + angVel*ballPos.y())*cosTheta + (ballSpeed.y()-angVel*ballPos.x())*sinTheta;
+    }
+
+    std::pair<double, double> RobotConstVelModel::funcAndDerivative(double t) const noexcept {
+        Vector2 ballPos = startPos + vel * t + acc*0.5*t*t;
+        Vector2 ballSpeed = vel + acc*t;
+        double theta = initialAngle + angVel*t;
+        double cosTheta = cos(theta);
+        double sinTheta = sin(theta);
+        double value = ballPos.x()*cosTheta + ballPos.y()*sinTheta - centerToFront;
+        double derivative = (ballSpeed.x() + angVel*ballPos.y())*cosTheta + (ballSpeed.y()-angVel*ballPos.x())*sinTheta;
+        return std::make_pair(value,derivative);
+    }
 }

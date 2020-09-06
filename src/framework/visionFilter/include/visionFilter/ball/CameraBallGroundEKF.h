@@ -10,6 +10,7 @@
 #include <vision/FilteredBall.h>
 #include <math/filters/KalmanFilter.h>
 #include <field/GeometryData.h>
+#include "RobotTrajectorySegment.h"
 
 class CameraBallGroundEKF : public CameraObjectFilter {
 public:
@@ -27,7 +28,7 @@ public:
  * Note this is a permanent update so there is no going back after this is called.
  * @param time The time until we wish to have a prediction of where the robot will be
  */
-    void predict(Time time, const GeometryData& geometryData);
+    void predict(Time time, const GeometryData& geometryData, const std::vector<RobotTrajectorySegment>& robotTrajectories);
 
     [[nodiscard]] bool acceptObservation(const BallObservation &observation) const;
 
