@@ -7,7 +7,7 @@
 #include <utility>
 #include <FilterConstants.h>
 #include <visionMatlab/VisionMatlabLogger.h>
-#include "collision/CollisionChecker.h"
+#include "ball/collision/CollisionChecker.h"
 
 CameraBallGroundEKF::CameraBallGroundEKF(const BallObservation &observation, Eigen::Vector2d velocityEstimate) :
         CameraObjectFilter(0.2, 1 / 60.0, 15, 3, observation.timeCaptured) {
@@ -84,33 +84,33 @@ void CameraBallGroundEKF::predict(Time time, const GeometryData &geometryData, c
     segment.startVel = Vector2(ekf.getVelocity());
     segment.acc = ekf.getAcc();
     segment.dt = (segment.endTime-segment.startTime).asSeconds();
-    segment.acceleration =  Vector2(ekf.getVelocity()).normalize() * (-ekf.getAcc());
-    //TODO: make sure collision detection and reflection calculation are seperated so we can pass velocity as a function of time
-    if (!(segment.startPos == segment.endPos)) {
-
-        for(const auto& trajectory : robotTrajectories){
-            if(auto col = CollisionChecker::checkRobotConstVel(segment,trajectory)){
+    segment.acceleration =  Vector2(ekf.getVelocity()).normalize() * ekf.getAcc(); //TODO: check sign
+    if (!(segment.startPos == segment.endPos)) { //TODO: fix this ball lying still case (maybe just pass velocity 0, acc 0?)
+        int maxCollisions = 3;
+        int i = 0;
+        while (i < maxCollisions){
+            auto collision = getFirstCollision(segment,geometryData,robotTrajectories);
+            if(!collision){
+                break;
             }
-        }
-
-        if(auto col = CollisionChecker::getFieldGoalWallCollision(segment,geometryData)){
-            auto result = CollisionChecker::fieldCollideAndReflect(segment,*col);
-            std::cerr<<"goal collision at "<<result.position<<std::endl;
-        }
-
-        auto collision = CollisionChecker::getFieldOutsideWallCollision(segment, geometryData);
-
-        if (collision) {
-            auto collisionResult = CollisionChecker::fieldCollideAndReflect(segment,*collision);
-            double collisionVel = ekf.getVelocityEstimate(collisionResult.collisionTime).norm();
-            ekf.predict(collisionResult.collisionTime);
-            ekf.setVelocity(collisionResult.outVelocity);
-            ekf.addUncertainty(0.05, std::min(0.1, collisionVel * 0.1));
-            std::cout << "Collision at " << collisionResult.position << " filter state: "
-                      << Vector2(ekf.getPosition())
-                      << "vel: " << collisionResult.outVelocity
-                      << std::endl;
-
+            ekf.predict(collision->collisionTime);
+            ekf.setVelocity(collision->outVelocity);
+            //TODO: base this on collision type. Maybe even pass robot velocity to this to determine uncertainty
+            //TODO: if ball is kicked delay velocity setting until 1 tick later?
+            //ekf.addUncertainty(0.05, std::min(0.1, collisionVel * 0.1));
+//            std::cout << "Collision at " << collisionResult.position << " filter state: "
+//                      << Vector2(ekf.getPosition())
+//                      << "vel: " << collisionResult.outVelocity
+//                      << std::endl;
+            segment.startPos = Vector2(ekf.getPosition());
+            segment.startTime = ekf.lastUpdated();
+            segment.endPos = Vector2(ekf.getPositionEstimate(time));
+            segment.endTime = time;
+            segment.startVel = Vector2(ekf.getVelocity());
+            segment.acc = ekf.getAcc();
+            segment.dt = (segment.endTime-segment.startTime).asSeconds();
+            segment.acceleration =  Vector2(ekf.getVelocity()).normalize() * ekf.getAcc();
+            ++i;
         }
     }
     ekf.predict(time);
@@ -365,4 +365,41 @@ bool CameraBallGroundEKF::processFrame() {
     }
     lastFrameObservations.clear();
     return removeFilter;
+}
+//TODO: move to CollisionChecker file
+std::optional<CollisionChecker::Collision> CameraBallGroundEKF::getFirstCollision(const BallTrajectorySegment& segment, const GeometryData& geometryData, const std::vector<RobotTrajectorySegment>& robotTrajectories){
+    std::optional<CollisionChecker::RobotCollisionPreliminaryResult> firstRobotCollision;
+    for(const auto& trajectory : robotTrajectories){
+        if(auto col = CollisionChecker::checkRobotConstVel(segment,trajectory)){
+            if(!firstRobotCollision || col->dt <=  firstRobotCollision->dt){
+                firstRobotCollision = col;
+            }
+        }
+    }
+    std::optional<CollisionChecker::Collision> robotCollision;
+    if(firstRobotCollision){
+        robotCollision = CollisionChecker::robotCollideAndReflect(firstRobotCollision.value(),segment);
+    }
+    std::optional<CollisionChecker::CollisionPreliminaryResult> firstFieldCollision;
+    if(auto col = CollisionChecker::getFieldGoalWallCollision(segment,geometryData)){
+        firstFieldCollision = col;
+    }
+    if(auto collision = CollisionChecker::getFieldOutsideWallCollision(segment, geometryData)){
+        if(!firstFieldCollision || collision->distanceFraction < firstFieldCollision->distanceFraction){
+            firstFieldCollision = collision;
+        }
+    }
+    std::optional<CollisionChecker::Collision> fieldCollision;
+    if(firstFieldCollision){
+        fieldCollision = CollisionChecker::fieldCollideAndReflect(segment,firstFieldCollision.value());
+    }
+    if(fieldCollision && robotCollision){
+        bool robotFirst = robotCollision->dt <= fieldCollision->dt;
+        return robotFirst ? robotCollision.value() : fieldCollision.value();
+    }else if(fieldCollision){
+        return fieldCollision.value();
+    }else if(robotCollision){
+        return robotCollision.value();
+    }
+    return std::nullopt;
 }

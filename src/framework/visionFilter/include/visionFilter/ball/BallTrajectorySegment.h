@@ -25,6 +25,7 @@ struct BallTrajectorySegment {
 
     [[nodiscard]] LineSegment path() const;
     [[nodiscard]] Vector2 getVelocity(double time) const;
+    [[nodiscard]] Vector2 getPosition(double time) const;
 };
 
 

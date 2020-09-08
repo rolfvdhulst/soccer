@@ -11,6 +11,8 @@
 #include <math/filters/KalmanFilter.h>
 #include <field/GeometryData.h>
 #include "RobotTrajectorySegment.h"
+#include "ball/BallTrajectorySegment.h"
+#include "ball/collision/CollisionChecker.h"
 
 class CameraBallGroundEKF : public CameraObjectFilter {
 public:
@@ -100,6 +102,7 @@ private:
         [[nodiscard]] Eigen::Vector4d state() const;
         [[nodiscard]] Eigen::Matrix4d covariance() const;
     };
+    std::optional<CollisionChecker::Collision> getFirstCollision(const BallTrajectorySegment& segment, const GeometryData& geometryData, const std::vector<RobotTrajectorySegment>& robotTrajectories);
     BallEKF ekf;
     std::vector<BallObservation> lastFrameObservations;
     bool lastCycleWasUpdate = true; //The first message (initialization) counts as an update

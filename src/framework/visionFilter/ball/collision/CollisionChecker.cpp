@@ -2,7 +2,7 @@
 // Created by rolf on 11-08-20.
 //
 
-#include "CollisionChecker.h"
+#include "ball/collision/CollisionChecker.h"
 #include <math/geometry/LineSegment.h>
 #include <math/geometry/Line.h>
 #include <math/general/QuadraticEquation.h>
@@ -133,6 +133,7 @@ namespace CollisionChecker{
         collision.collisionTime = segment.startTime + Time(time);
         collision.dt = time;
         collision.type = preliminary.type;
+        collision.inVelocity = collisionVel;
         collision.outVelocity = outVel;
         collision.position = collisionPos;
         return collision;
@@ -184,7 +185,7 @@ namespace CollisionChecker{
             result.segment = trajectory;
             result.dt = circleTime;
             result.normalDir = initialPoint-circleStartBot.pos();
-            result.type = trajectory.isBlue ? CollisionType::BLUE_BOT_HULL : CollisionType::YELLOW_BOT_HULL;
+            result.type = CollisionType::ROBOT_HULL;
             return result;
         }else{
             double minSearch = circleTime;
@@ -206,7 +207,7 @@ namespace CollisionChecker{
                 result.dt = frontCollisionTime.value();
                 Angle collisionAngle(model.initialAngle+model.angVel*dt);
                 result.normalDir = Vector2(collisionAngle);
-                result.type = trajectory.isBlue ? CollisionType::BLUE_BOT_FRONT : CollisionType::YELLOW_BOT_FRONT;
+                result.type = CollisionType::ROBOT_FRONT;
                 return result;
             }else{
                 return std::nullopt;
@@ -251,20 +252,67 @@ namespace CollisionChecker{
             return lineFraction*ballSegment.dt; //use a constant velocity model in case quadratic equation somehow fails. This usually is not far off
         }
     }
+    Collision robotCollideAndReflect(const RobotCollisionPreliminaryResult &preliminary, const BallTrajectorySegment& segment){
+        Vector2 collisionPos = segment.getPosition(preliminary.dt);
+        Vector2 collisionVel = segment.getVelocity(preliminary.dt);
+
+        //Determine relative collision velocity between the two contact points
+        //We use robot frame of reference for consistency
+        Vector2 robotPointVel = segment.startVel;
+        //Add rotational component for front collisions. Left out for now because I probably fucked it up
+        //Maybe also do so for hull collisions, but that needs better friction estimation between ball and hull
+        /**
+        if(preliminary.type == CollisionType::BLUE_BOT_FRONT || preliminary.type == CollisionType::YELLOW_BOT_FRONT){
+            Vector2 robotPos = preliminary.segment.startPos.pos() + preliminary.segment.vel * preliminary.dt;
+            Angle robotAngle = preliminary.segment.startPos.angle() + preliminary.segment.angVel * preliminary.dt;
+            RobotShape robotAtCollision(robotPos,preliminary.segment.startPos.centerToFrontDist(),preliminary.segment.startPos.radius(),robotAngle);
+            Vector2 robotTouchPos = robotAtCollision.project(collisionPos);//Find the collision position.
+            // Alternatively, this could also be find by the collision normal we passed
+            //TODO: check if this calculation actually makes sense... lol
+            Vector2 arm = robotTouchPos-robotPos;
+            double armLength = arm.length();
+            Vector2 direction(-arm.y(),arm.x());//Rotated 90 degrees
+            Vector2 angularContribution = direction.normalize() * armLength * preliminary.segment.angVel;
+            //TODO: maybe cap the above contribution by some max angular vel
+            //TODO: check if the above vector is pointing the right direction (e.g. if omega is clockwise the signs are wrong)
+            robotPointVel += angularContribution;
+        }
+         */
+        Vector2 relativeVelocity = collisionVel - robotPointVel;
+        //mirror velocity in collision normal
+        //one can also use angles, but that's probably a lot slower
+        Line normalThroughCollision(collisionPos,collisionPos+preliminary.normalDir);
+        Vector2 beforeLinePos = (collisionPos-relativeVelocity);
+        Vector2 projection =  normalThroughCollision.project(beforeLinePos);
+        Vector2 afterLinePos = projection*2.0 - beforeLinePos; // A +(B-A)*2 = B*2 -A
+
+        double restitution = getRestitution(preliminary.type);
+        double outVelLength = restitution * relativeVelocity.length();
+        Vector2 outVel = (afterLinePos-collisionPos).stretchToLength( outVelLength) + preliminary.segment.vel;//back to world coordinates
+
+        //TODO: make this a constructor
+        Collision robot;
+        robot.collisionTime = segment.startTime + Time(preliminary.dt);
+        robot.dt = preliminary.dt;
+        robot.type = preliminary.type;
+        robot.inVelocity = collisionVel;
+        robot.outVelocity = outVel;
+        robot.position = collisionPos;
+        robot.robotID = preliminary.segment.robotID;
+        robot.robotIsBlue = preliminary.segment.isBlue;
+        return robot;
+    }
     double getRestitution(CollisionType type) {
+        //TODO: these need to be tuned or abstracted away through some other way
         switch(type){
             case CollisionType::OUTER_WALL:
             case CollisionType::GOAL_OUTSIDE:
             case CollisionType::GOAL_INSIDE:
                 return 0.75;
-            case CollisionType::YELLOW_BOT_FRONT:
-                break;
-            case CollisionType::BLUE_BOT_FRONT:
-                break;
-            case CollisionType::YELLOW_BOT_HULL:
-                break;
-            case CollisionType::BLUE_BOT_HULL:
-                break;
+            case CollisionType::ROBOT_FRONT:
+                return 0.3;//TODO: figure out this number
+            case CollisionType::ROBOT_HULL:
+                return 0.6; //TODO: figure out this number
             default:
                 std::cerr<<"COULD NOT FIND COLLISION TYPE in resititution table!"<<std::endl;
                 return 0.75;

@@ -21,10 +21,8 @@ namespace CollisionChecker {
         OUTER_WALL= 0,
         GOAL_OUTSIDE= 1,
         GOAL_INSIDE = 2,
-        YELLOW_BOT_FRONT = 3,
-        YELLOW_BOT_HULL = 4,
-        BLUE_BOT_FRONT = 5,
-        BLUE_BOT_HULL = 6
+        ROBOT_FRONT = 3,
+        ROBOT_HULL = 4
     };
 
     struct CollisionPreliminaryResult{
@@ -40,6 +38,8 @@ namespace CollisionChecker {
         double dt;
         Time collisionTime;
         CollisionType type;
+        int robotID = -1;
+        bool robotIsBlue = false;
     };
 
     struct RobotCollisionPreliminaryResult{
@@ -47,11 +47,6 @@ namespace CollisionChecker {
         Vector2 normalDir;
         CollisionType type;
         RobotTrajectorySegment segment;
-    };
-    struct RobotCollision{
-        Collision collision;
-        int robotID;
-        bool robotIsBlue;
     };
 
 
@@ -82,12 +77,12 @@ namespace CollisionChecker {
     std::optional<double> solveRobotFrontCollisionTime(RobotConstVelModel model, double minSearch, double maxSearch);
     double solveCollisionTime(const BallTrajectorySegment& ballSegment, const RobotTrajectorySegment& trajectory,
                               double lineFraction);
+    Collision robotCollideAndReflect(const RobotCollisionPreliminaryResult &preliminary, const BallTrajectorySegment& segment);
 
     std::optional<CollisionPreliminaryResult> checkRobotOuterCollision(const BallTrajectorySegment& ballSegment);
 
     std::optional<CollisionPreliminaryResult> checkRobotFrontCollision(const BallTrajectorySegment& ballSegment);
 
-    Collision robotCollideAndReflect(const BallTrajectorySegment&, const CollisionPreliminaryResult& preliminaryResult);
     double getRestitution(CollisionType type);
 };
 

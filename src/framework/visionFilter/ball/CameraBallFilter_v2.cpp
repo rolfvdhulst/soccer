@@ -5,7 +5,7 @@
 #include "ball/CameraBallFilter_v2.h"
 #include "FilterConstants.h"
 #include <visionMatlab/VisionMatlabLogger.h>
-#include "collision/CollisionChecker.h"
+#include "ball/collision/CollisionChecker.h"
 
 CameraBallFilter_v2::CameraBallFilter_v2(const BallObservation& observation, Eigen::Vector2d velocityEstimate)  :
         CameraObjectFilter(0.2, 1 / 60.0, 15, 3, observation.timeCaptured)

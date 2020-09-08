@@ -56,7 +56,7 @@ add_library(visionFilter
         ball/CameraBallFilter_v2.cpp
         include/visionFilter/ball/CameraBallFilter_v2.h
         ball/collision/CollisionChecker.cpp
-        ball/collision/CollisionChecker.h
+        include/visionFilter/ball/collision/CollisionChecker.h
         ball/collision/CollisionCalculations.cpp
         ball/collision/CollisionCalculations.h
         ball/BallTrajectorySegment.cpp
