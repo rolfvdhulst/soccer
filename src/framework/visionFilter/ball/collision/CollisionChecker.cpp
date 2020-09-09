@@ -146,7 +146,7 @@ namespace CollisionChecker{
         const double ballRadius = 0.021333;//TODO: fix constant hardcoded
         if(ballSegment.dt != trajectory.dt && trajectory.dt != 0.0){ //If robots are just initialized dt == 0.0 happens occasionally
             //In that case we can still use the calculations, as then the velocities are still estimated ok
-            std::throw_with_nested("BAD TIMING");
+            //TODO: in case of a collision ballSegment.dt is adjusted, so we need to check if everything still runs as planned...
             return std::nullopt;
         }
 

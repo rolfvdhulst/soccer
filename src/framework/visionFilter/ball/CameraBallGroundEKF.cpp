@@ -98,10 +98,12 @@ void CameraBallGroundEKF::predict(Time time, const GeometryData &geometryData, c
             //TODO: base this on collision type. Maybe even pass robot velocity to this to determine uncertainty
             //TODO: if ball is kicked delay velocity setting until 1 tick later?
             //ekf.addUncertainty(0.05, std::min(0.1, collisionVel * 0.1));
-//            std::cout << "Collision at " << collisionResult.position << " filter state: "
-//                      << Vector2(ekf.getPosition())
-//                      << "vel: " << collisionResult.outVelocity
-//                      << std::endl;
+            std::cout << "Collision at " << collision->position << " filter state: "
+                      << Vector2(ekf.getPosition())
+                      << "vel: " << collision->outVelocity
+                      << "type: " << (int) collision->type
+                      << std::endl;
+
             segment.startPos = Vector2(ekf.getPosition());
             segment.startTime = ekf.lastUpdated();
             segment.endPos = Vector2(ekf.getPositionEstimate(time));
