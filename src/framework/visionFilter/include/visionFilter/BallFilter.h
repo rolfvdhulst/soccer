@@ -10,6 +10,7 @@
 #include "ball/CameraBallFilter_v2.h"
 #include "ball/CameraBallGroundEKF.h"
 #include "RobotTrajectorySegment.h"
+#include <containers/circular_buffer.h>
 
 class BallFilter : public ObjectFilter {
 public:
@@ -22,8 +23,10 @@ public:
 
     double getHealth() const;
 
+    BallObservation lastDetection() const;
 private:
     std::map<int, CameraBallGroundEKF> cameraFilters;
+    circular_buffer<BallObservation,300> acceptedBalls;
 };
 
 

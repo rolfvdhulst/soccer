@@ -112,6 +112,7 @@ FilteredRobot RobotFilter::mergeRobots(const Time &time) const {
     result.angle = Angle(angleOffset+angle).getAngle();
     result.angularVel = angularVel;
     result.id = robotID;
+    result.isBlue = isBlue;
     return result;
 }
 
@@ -119,6 +120,15 @@ std::optional<RobotTrajectorySegment> RobotFilter::getLastFrameTrajectory(int ca
     auto cameraFilter = cameraFilters.find(cameraID);
     if(cameraFilter != cameraFilters.end()){
         return cameraFilter->second.getFrameTrajectory(parameters);
+    }else{
+        return std::nullopt;
+    }
+}
+
+std::optional<FilteredRobot> RobotFilter::getRobot(int cameraID, Time time) const {
+    auto cameraFilter = cameraFilters.find(cameraID);
+    if(cameraFilter != cameraFilters.end()){
+        return cameraFilter->second.getEstimate(time,true);
     }else{
         return std::nullopt;
     }

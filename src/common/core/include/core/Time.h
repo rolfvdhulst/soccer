@@ -11,7 +11,6 @@
 class Time {
    public:
     Time() : timePoint{std::chrono::nanoseconds(0)} {};
-    explicit Time(std::chrono::high_resolution_clock::time_point time_point);
     explicit Time(std::chrono::high_resolution_clock::duration duration);
     explicit Time(double seconds);
     explicit Time(long int nanoseconds) : timePoint{std::chrono::nanoseconds(nanoseconds)} {};
@@ -37,7 +36,7 @@ class Time {
     bool operator!=(const Time &other) const;
 
    private:
-    std::chrono::high_resolution_clock::duration timePoint;
+    std::chrono::steady_clock::duration timePoint;
 };
 
 #endif  // SOCCER_TIME_H

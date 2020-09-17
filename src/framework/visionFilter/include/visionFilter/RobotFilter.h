@@ -24,7 +24,7 @@ public:
 
     double getHealth() const;
     FilteredRobot mergeRobots(const Time& time) const;
-
+    std::optional<FilteredRobot> getRobot(int cameraID, Time time) const;
     std::optional<RobotTrajectorySegment> getLastFrameTrajectory(int cameraID, const RobotParameters& parameters) const;
 private:
     int robotID;

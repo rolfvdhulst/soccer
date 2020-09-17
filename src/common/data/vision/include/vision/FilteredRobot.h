@@ -11,6 +11,7 @@
 struct FilteredRobot {
     [[nodiscard]] proto::WorldRobot asWorldRobot() const;
     int id;
+    bool isBlue;
     Eigen::Vector2d pos;
     Eigen::Vector2d vel;
     double angle;

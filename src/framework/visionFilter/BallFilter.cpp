@@ -7,7 +7,7 @@
 BallFilter::BallFilter(const BallObservation &observation)
         : ObjectFilter(),
           cameraFilters{std::make_pair(observation.cameraID, CameraBallGroundEKF(observation))} {
-
+    acceptedBalls.push_back(observation);
 }
 
 void BallFilter::predictCam(int cameraID, const Time &untilTime, const GeometryData &geometryData,
@@ -73,6 +73,7 @@ bool BallFilter::acceptDetection(const BallObservation &observation) {
     auto cameraFilter = cameraFilters.find(observation.cameraID);
     if (cameraFilter != cameraFilters.end()){
         bool accepted = cameraFilter->second.addObservation(observation);
+        acceptedBalls.push_back(observation);
         return accepted;
     }
     //Check if it makes sense that we see the relative to the other camera's
@@ -93,7 +94,12 @@ bool BallFilter::acceptDetection(const BallObservation &observation) {
         } else{
             cameraFilters.insert(std::make_pair(observation.cameraID,CameraBallGroundEKF(observation)));
         }
+        acceptedBalls.push_back(observation);
     }
     return accepted;
 
+}
+
+BallObservation BallFilter::lastDetection() const {
+    return acceptedBalls.back();
 }

@@ -3,7 +3,8 @@
 #include <protobuf/messages_robocup_ssl_geometry.pb.h>
 #include <field/Camera.h>
 
-
+WorldFilter::WorldFilter() {
+}
 void WorldFilter::updateGeometry(const proto::SSL_GeometryData &geometry) {
     geometryData = GeometryData(geometry);
 }
@@ -11,50 +12,37 @@ void WorldFilter::updateGeometry(const proto::SSL_GeometryData &geometry) {
 proto::World WorldFilter::getWorld(const Time &time) const {
     //TODO: split up in functions for robot and ball
     proto::World world;
-    for (const auto &oneIDFilters : blue) {
-        if (!oneIDFilters.second.empty()) {
+    std::vector<FilteredRobot> blueRobots = getHealthiestRobotsMerged(true,time);
+    for(const auto& blueBot : blueRobots){
+        world.mutable_blue()->Add()->CopyFrom(blueBot.asWorldRobot());
+    }
+    std::vector<FilteredRobot> yellowRobots = getHealthiestRobotsMerged(false,time);
+    for(const auto& yellowBot : yellowRobots){
+        world.mutable_yellow()->Add()->CopyFrom(yellowBot.asWorldRobot());
+    }
+    if(!isTrackingVirtualBalls) {
+        if (!balls.empty()) {
             double maxHealth = -std::numeric_limits<double>::infinity();
-            auto bestFilter = oneIDFilters.second.begin();
-            for (auto robotFilter = oneIDFilters.second.begin();
-                 robotFilter != oneIDFilters.second.end(); ++robotFilter) {
-                double health = robotFilter->getHealth();
+            auto bestFilter = balls.begin();
+            for (auto ballFilter = balls.begin(); ballFilter != balls.end(); ++ballFilter) {
+                double health = ballFilter->getHealth();
                 if (health > maxHealth) {
                     maxHealth = health;
-                    bestFilter = robotFilter;
+                    bestFilter = ballFilter;
                 }
             }
-            FilteredRobot bestRobot = bestFilter->mergeRobots(time);
-            world.mutable_blue()->Add()->CopyFrom(bestRobot.asWorldRobot());
+            FilteredBall bestBall = bestFilter->mergeBalls(time);
+            world.mutable_ball()->CopyFrom(bestBall.asWorldBall());
         }
-    }
-    for (const auto &oneIDFilters : yellow) {
-        if (!oneIDFilters.second.empty()) {
-            double maxHealth = -std::numeric_limits<double>::infinity();
-            auto bestFilter = oneIDFilters.second.begin();
-            for (auto robotFilter = oneIDFilters.second.begin();
-                 robotFilter != oneIDFilters.second.end(); ++robotFilter) {
-                double health = robotFilter->getHealth();
-                if (health > maxHealth) {
-                    maxHealth = health;
-                    bestFilter = robotFilter;
-                }
-            }
-            FilteredRobot bestRobot = bestFilter->mergeRobots(time);
-            world.mutable_yellow()->Add()->CopyFrom(bestRobot.asWorldRobot());
+    }else{
+        auto blueVirtualBalls = virtualBallTracker.getViableVirtualBalls(blueRobots,blueParams);
+        for(const auto& blueVirtualBall : blueVirtualBalls){
+            world.mutable_bluevirtual()->Add()->CopyFrom(blueVirtualBall.asProto());
         }
-    }
-    if (!balls.empty()) {
-        double maxHealth = -std::numeric_limits<double>::infinity();
-        auto bestFilter = balls.begin();
-        for (auto ballFilter = balls.begin(); ballFilter != balls.end(); ++ballFilter) {
-            double health = ballFilter->getHealth();
-            if (health > maxHealth) {
-                maxHealth = health;
-                bestFilter = ballFilter;
-            }
+        auto yellowVirtualBalls = virtualBallTracker.getViableVirtualBalls(yellowRobots,yellowParams);
+        for(const auto& yellowVirtualBall : yellowVirtualBalls){
+            world.mutable_yellowvirtual()->Add()->CopyFrom(yellowVirtualBall.asProto());
         }
-        FilteredBall bestBall = bestFilter->mergeBalls(time);
-        world.mutable_ball()->CopyFrom(bestBall.asWorldBall());
     }
     world.set_time(time.asNanoSeconds());
 
@@ -142,6 +130,18 @@ void WorldFilter::processBalls(const DetectionFrame &frame, const std::vector<Ro
     while (it != balls.end()) {
         bool removeFilter = it->processFrame(frame.cameraID, frame.timeCaptured);
         if (removeFilter) {
+            //TODO: make this if there are no more healthy balls. Probably needs a larger refactor and a rethink of how
+            // invisible balls are handled
+            if(balls.size() == 1 && !isTrackingVirtualBalls){ //TODO; not enable when already tracking virtual balls?
+                std::cout<<"Generating virtual balls!"<<std::endl;
+                isTrackingVirtualBalls = true;
+                auto lastSeenBall = it->lastDetection();
+                std::vector<FilteredRobot> blueBots = getHealthiestRobotsMerged(true,frame.timeCaptured);
+                std::vector<FilteredRobot> yellowBots = getHealthiestRobotsMerged(false,frame.timeCaptured);
+                blueBots.insert(blueBots.end(), std::make_move_iterator(yellowBots.begin()),
+                                    std::make_move_iterator(yellowBots.end()));
+                virtualBallTracker.generateVirtualBalls(blueBots,lastSeenBall);
+            }
             it = balls.erase(it);
         } else {
             it++;
@@ -157,6 +157,7 @@ void WorldFilter::processFrame(const DetectionFrame &frame) {
     trajectories.insert(trajectories.end(), std::make_move_iterator(yellowTrajs.begin()),
                         std::make_move_iterator(yellowTrajs.end()));
     processBalls(frame,trajectories);
+    processForVirtualBalls(frame);
 }
 
 std::vector<RobotTrajectorySegment> WorldFilter::getPreviousFrameTrajectories(bool isBlue, int cameraID) const {
@@ -177,4 +178,72 @@ std::vector<RobotTrajectorySegment> WorldFilter::getPreviousFrameTrajectories(bo
 void WorldFilter::updateRobotParameters(const proto::TeamRobotInfo &robotInfo) {
     blueParams = RobotParameters(robotInfo.blue());
     yellowParams = RobotParameters(robotInfo.yellow());
+}
+
+void WorldFilter::processForVirtualBalls(const DetectionFrame &frame) {
+    if(isTrackingVirtualBalls){
+        bool switchBack = false;
+        constexpr double healthThreshold = 50.0;
+        for(const auto& ballFilter : balls){
+            switchBack |= ballFilter.getHealth() > healthThreshold;
+        }
+        isTrackingVirtualBalls = !switchBack;
+        if(switchBack){
+            std::cout<<"Switch back!"<<std::endl;
+            virtualBallTracker.clearVirtualBalls();
+        }else if(geometryData.cameras.hasCamera(frame.cameraID)){
+            Camera camera = geometryData.cameras.getCamera(frame.cameraID).value();
+            std::vector<FilteredRobot> robots = oneCameraHealthyRobots(true,frame.cameraID,frame.timeCaptured);
+            virtualBallTracker.updateVirtualBalls(robots,camera,blueParams,frame);
+            std::vector<FilteredRobot> yellowBots = oneCameraHealthyRobots(false,frame.cameraID,frame.timeCaptured);
+            virtualBallTracker.updateVirtualBalls(yellowBots,camera,yellowParams,frame);
+        }
+    }
+}
+
+std::vector<FilteredRobot> WorldFilter::getHealthiestRobotsMerged(bool blueBots, Time time) const{
+    std::vector<FilteredRobot> robots;
+    const robotMap& map = blueBots ? blue : yellow;
+    for(const auto& oneIDFilters : map){
+        if(oneIDFilters.second.empty()){
+            continue;;
+        }
+        double maxHealth = -std::numeric_limits<double>::infinity();
+        auto bestFilter = oneIDFilters.second.begin();
+        for (auto robotFilter = oneIDFilters.second.begin();
+             robotFilter != oneIDFilters.second.end(); ++robotFilter) {
+            double health = robotFilter->getHealth();
+            if (health > maxHealth) {
+                maxHealth = health;
+                bestFilter = robotFilter;
+            }
+        }
+        robots.push_back(bestFilter->mergeRobots(time));
+    }
+    return robots;
+}
+
+std::vector<FilteredRobot> WorldFilter::oneCameraHealthyRobots(bool blueBots, int camera_id, Time time) const {
+    std::vector<FilteredRobot> robots;
+    const robotMap& map = blueBots ? blue : yellow;
+    for(const auto& oneIDFilters : map){
+        if(oneIDFilters.second.empty()){
+            continue;;
+        }
+        double maxHealth = -std::numeric_limits<double>::infinity();
+        auto bestFilter = oneIDFilters.second.begin();
+        for (auto robotFilter = oneIDFilters.second.begin();
+             robotFilter != oneIDFilters.second.end(); ++robotFilter) {
+            double health = robotFilter->getHealth();
+            if (health > maxHealth) {
+                maxHealth = health;
+                bestFilter = robotFilter;
+            }
+        }
+        auto robot = bestFilter->getRobot(camera_id,time);
+        if(robot){
+            robots.push_back(robot.value());
+        }
+    }
+    return robots;
 }

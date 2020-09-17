@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+import "Vector2f.proto";
+
+package proto;
+
+message WorldVirtualBall {
+    required Vector2f pos = 1;
+    optional uint32 dribblingRobotID = 2;
+    optional bool teamIsBlue = 3;
+    optional uint32 framesSeenFor = 4;
+    optional uint32 missedFrames = 5;
+}

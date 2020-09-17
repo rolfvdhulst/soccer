@@ -50,5 +50,5 @@ Time Time::timeTo() const { return (*this - now()); }
 //Unfortunately some of our input sources use doubles for times.
 // We need to round to the nearsest nanosecond to prevent small fpe problems from propagating to whole nanoseconds
 Time::Time(double seconds) :
-timePoint{std::chrono::nanoseconds((long) std::round(seconds*1e9))} {
+timePoint{std::chrono::round<std::chrono::nanoseconds>(std::chrono::duration<double>(seconds))} {
 }

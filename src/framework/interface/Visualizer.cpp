@@ -144,6 +144,14 @@ void Visualizer::updateWorld(const proto::World& world) {
     } else {
         ball->hide();
     }
+    blueVirtualBalls.clear();
+    for(const auto& blueVirtualBall : world.bluevirtual()){
+        blueVirtualBalls.push_back(blueVirtualBall);
+    }
+    yellowVirtualBalls.clear();
+    for(const auto& yellowVirtualBall: world.yellowvirtual()){
+        yellowVirtualBalls.push_back(yellowVirtualBall);
+    }
 }
 void Visualizer::refitView() {
     setSceneRect(fieldRect);
@@ -237,6 +245,13 @@ void Visualizer::drawForeground(QPainter* painter, const QRectF& rect) {
     }
     if (showDetections) {
         drawDetectionFrames(painter, usedDetectionFrames, teamRobotInfo);
+    }
+
+    for(const auto& blueVirtual : blueVirtualBalls){
+        drawVirtualBall(painter,blueVirtual,true);
+    }
+    for(const auto& yellowVirtual : yellowVirtualBalls){
+        drawVirtualBall(painter,yellowVirtual,false);
     }
 }
 void Visualizer::clearDetections() { usedDetectionFrames.clear(); }
@@ -452,6 +467,22 @@ void Visualizer::updateRobotInfo(const proto::TeamRobotInfo& robotInfo) {
 void Visualizer::setShowBallVelocity(bool show) {
     showBallVelocity = show;
     ball->showVelocity(showBallVelocity);
+}
+
+void Visualizer::drawVirtualBall(QPainter *painter, const proto::WorldVirtualBall& ball, bool teamIsBlue) {
+    std::cout<<"virtual ball drawn!"<<std::endl;
+    const float radius = 0.02133;  // TODO: fix being constant somewhere
+    painter->setPen(Qt::NoPen);
+    teamIsBlue ? painter->setBrush(Qt::darkBlue): painter->setBrush(Qt::darkRed);
+    painter->setOpacity(1.0);
+    std::cout<<ball.pos().x()<<" "<<ball.pos().y()<<" "<<std::endl;
+    painter->drawEllipse(QPointF(ball.pos().x(),-ball.pos().y()), radius, radius);
+    painter->setBrush(Qt::NoBrush);
+    QPen pen;
+    pen.setWidthF(0.01);
+    teamIsBlue ? pen.setColor(Qt::darkBlue):pen.setColor(Qt::darkRed);
+    painter->setPen(pen);
+    painter->drawEllipse(QPointF(ball.pos().x(),-ball.pos().y()),0.3,0.3);
 }
 
 void Visualizer::Ball::show() {

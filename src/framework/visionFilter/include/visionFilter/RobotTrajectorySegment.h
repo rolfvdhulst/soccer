@@ -19,6 +19,8 @@ struct RobotTrajectorySegment {
     Time endTime;
     bool isBlue;
     int robotID;
+    [[nodiscard]] Vector2 endPos() const;
+    [[nodiscard]] Angle endAngle() const;
 };
 
 

@@ -69,6 +69,7 @@ bool CameraRobotFilter::justUpdated() const {
 FilteredRobot CameraRobotFilter::getEstimate(const Time &time, bool writeUncertainties) const {
     FilteredRobot robot;
     robot.id = botId;
+    robot.isBlue = botIsBlue;
     robot.pos = positionFilter.getPositionEstimate(time);
     robot.vel = positionFilter.getVelocity();
     robot.angle = angleFilter.getPositionEstimate(time);

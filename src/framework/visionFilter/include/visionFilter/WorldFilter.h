@@ -9,7 +9,7 @@
 #include <vision/DetectionFrame.h>
 #include <protobuf/RobotInfo.pb.h>
 #include <world/RobotParameters.h> //TODO: refactor robot relevant things (e.g. RobotID, RobotParameters etc.) to a library and remove world from library again
-
+#include "ball/VirtualBallTracker.h"
 
 /**
  * @author Rolf van der Hulst
@@ -19,7 +19,7 @@
  */
 class WorldFilter {
    public:
-    WorldFilter() = default;
+    WorldFilter();
 
     void process(const std::vector<proto::SSL_DetectionFrame> &frames);
 
@@ -32,13 +32,15 @@ class WorldFilter {
      */
     void updateGeometry(const proto::SSL_GeometryData& geometry);
 
-    void updateRobotParameters(const proto::TeamRobotInfo& robotInfo);
+    void updateRobotParameters(const proto::TeamRobotInfo& robotInfo); //TODO: link to interface
 
    private:
     typedef std::map<int, std::vector<RobotFilter>> robotMap;
     robotMap blue;
     robotMap yellow;
     std::vector<BallFilter> balls; // A list containing all filters which are tracking balls
+    bool isTrackingVirtualBalls = false;
+    VirtualBallTracker virtualBallTracker;
     GeometryData geometryData;
     RobotParameters blueParams;
     RobotParameters yellowParams;
@@ -48,6 +50,9 @@ class WorldFilter {
     void processFrame(const DetectionFrame& frame);
     void processRobots(const DetectionFrame& frame, bool blueBots);
     void processBalls(const DetectionFrame& frame, const std::vector<RobotTrajectorySegment>& robotTrajectories);
+    void processForVirtualBalls(const DetectionFrame& frame);
+    std::vector<FilteredRobot> getHealthiestRobotsMerged(bool blueBots, Time time)  const;
+    std::vector<FilteredRobot> oneCameraHealthyRobots(bool blueBots, int camera_id, Time time) const;
     [[nodiscard]] std::vector<RobotTrajectorySegment> getPreviousFrameTrajectories(bool isBlue, int cameraID) const;
 
     static void predictRobots(const DetectionFrame &frame, robotMap &robots);

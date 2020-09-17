@@ -18,6 +18,7 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
         proto/World.proto
         proto/WorldBall.proto
         proto/WorldRobot.proto
+        proto/WorldVirtualBall.proto
         proto/RobotInfo.proto
         proto/GameState.proto
         proto/FrameLog.proto

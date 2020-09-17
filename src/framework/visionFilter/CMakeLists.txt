@@ -1,3 +1,4 @@
+
 add_library(visionFilter
         VisionFilter.cpp
         include/visionFilter/VisionFilter.h
@@ -63,11 +64,11 @@ add_library(visionFilter
         include/visionFilter/ball/BallTrajectorySegment.h
         RobotTrajectorySegment.cpp
         include/visionFilter/RobotTrajectorySegment.h
-        )
+        ball/VirtualBallTracker.cpp include/visionFilter/ball/VirtualBallTracker.h)
 target_link_libraries(visionFilter
         PRIVATE math
         PRIVATE core
-        PRIVATE containers
+        PUBLIC containers
         PUBLIC world
         PUBLIC visionMatlab
         PUBLIC vision

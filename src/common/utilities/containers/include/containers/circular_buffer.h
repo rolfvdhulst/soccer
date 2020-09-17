@@ -207,7 +207,7 @@ class circular_buffer{
   {return last_value();}
 
   constexpr const_reference back() const noexcept
-  {return last_value();}
+  {return _m_buff[(_current_offset + _current_size -1) % Size];}
 
   //Comparisons
 };

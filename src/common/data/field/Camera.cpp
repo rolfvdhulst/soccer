@@ -13,7 +13,14 @@ Camera::Camera(const proto::SSL_GeometryCameraCalibration &protoCam)
       distortion{protoCam.distortion()},
       focalLength(protoCam.focal_length()),
       principalPoint{Eigen::Vector2d(protoCam.principal_point_x(), protoCam.principal_point_y())},
-      id{protoCam.camera_id()} {}
+      id{protoCam.camera_id()}{
+    if(protoCam.has_pixel_image_width()){
+        imageWidth = protoCam.pixel_image_width();
+    }
+    if(protoCam.has_pixel_image_height()){
+        imageHeight = protoCam.pixel_image_height();
+    }
+}
 Eigen::Vector3d Camera::worldPos() const {
     return position / 1000.0;  // SSL-vision is in mm!
 }
@@ -72,3 +79,13 @@ Eigen::Vector2d Camera::radialDistortionInv(Eigen::Vector2d &imagePoint) const {
 }
 
 Eigen::Quaterniond Camera::worldToCamRotation() const { return orientation; }
+
+bool Camera::isPositionVisible(const Eigen::Vector3d& fieldPoint, double marginFactor) const {
+    Eigen::Vector2d imagePos = fieldToImage(fieldPoint);
+    double margin = marginFactor * std::max(imageWidth,imageHeight);
+    double minWidth = margin;
+    double maxWidth = imageWidth - margin;
+    double minHeight = margin;
+    double maxHeight = imageHeight - margin;
+    return imagePos.x() >= minWidth && imagePos.x() <= maxWidth && imagePos.y() >= minHeight && imagePos.y() <= maxHeight;
+}
