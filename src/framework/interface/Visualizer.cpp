@@ -470,12 +470,10 @@ void Visualizer::setShowBallVelocity(bool show) {
 }
 
 void Visualizer::drawVirtualBall(QPainter *painter, const proto::WorldVirtualBall& ball, bool teamIsBlue) {
-    std::cout<<"virtual ball drawn!"<<std::endl;
     const float radius = 0.02133;  // TODO: fix being constant somewhere
     painter->setPen(Qt::NoPen);
     teamIsBlue ? painter->setBrush(Qt::darkBlue): painter->setBrush(Qt::darkRed);
     painter->setOpacity(1.0);
-    std::cout<<ball.pos().x()<<" "<<ball.pos().y()<<" "<<std::endl;
     painter->drawEllipse(QPointF(ball.pos().x(),-ball.pos().y()), radius, radius);
     painter->setBrush(Qt::NoBrush);
     QPen pen;

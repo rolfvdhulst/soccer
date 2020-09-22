@@ -4,8 +4,9 @@
 #include <field/Camera.h>
 
 WorldFilter::WorldFilter() {
-    robotTrajectories.reserve(32);
+    robotTrajectories.reserve(32); //An amount which is likely sufficient for entire runtime of the program.
 }
+
 void WorldFilter::updateGeometry(const proto::SSL_GeometryData &geometry) {
     geometryData = GeometryData(geometry);
 }
@@ -13,15 +14,15 @@ void WorldFilter::updateGeometry(const proto::SSL_GeometryData &geometry) {
 proto::World WorldFilter::getWorld(const Time &time) const {
     //TODO: split up in functions for robot and ball
     proto::World world;
-    std::vector<FilteredRobot> blueRobots = getHealthiestRobotsMerged(true,time);
-    for(const auto& blueBot : blueRobots){
+    std::vector<FilteredRobot> blueRobots = getHealthiestRobotsMerged(true, time);
+    for (const auto &blueBot : blueRobots) {
         world.mutable_blue()->Add()->CopyFrom(blueBot.asWorldRobot());
     }
-    std::vector<FilteredRobot> yellowRobots = getHealthiestRobotsMerged(false,time);
-    for(const auto& yellowBot : yellowRobots){
+    std::vector<FilteredRobot> yellowRobots = getHealthiestRobotsMerged(false, time);
+    for (const auto &yellowBot : yellowRobots) {
         world.mutable_yellow()->Add()->CopyFrom(yellowBot.asWorldRobot());
     }
-    if(!isTrackingVirtualBalls) {
+    if (!isTrackingVirtualBalls) {
         if (!balls.empty()) {
             double maxHealth = -std::numeric_limits<double>::infinity();
             auto bestFilter = balls.begin();
@@ -35,13 +36,13 @@ proto::World WorldFilter::getWorld(const Time &time) const {
             FilteredBall bestBall = bestFilter->mergeBalls(time);
             world.mutable_ball()->CopyFrom(bestBall.asWorldBall());
         }
-    }else{
-        auto blueVirtualBalls = virtualBallTracker.getViableVirtualBalls(blueRobots,blueParams);
-        for(const auto& blueVirtualBall : blueVirtualBalls){
+    } else {
+        auto blueVirtualBalls = virtualBallTracker.getViableVirtualBalls(blueRobots, blueParams);
+        for (const auto &blueVirtualBall : blueVirtualBalls) {
             world.mutable_bluevirtual()->Add()->CopyFrom(blueVirtualBall.asProto());
         }
-        auto yellowVirtualBalls = virtualBallTracker.getViableVirtualBalls(yellowRobots,yellowParams);
-        for(const auto& yellowVirtualBall : yellowVirtualBalls){
+        auto yellowVirtualBalls = virtualBallTracker.getViableVirtualBalls(yellowRobots, yellowParams);
+        for (const auto &yellowVirtualBall : yellowVirtualBalls) {
             world.mutable_yellowvirtual()->Add()->CopyFrom(yellowVirtualBall.asProto());
         }
     }
@@ -58,6 +59,17 @@ void WorldFilter::process(const std::vector<proto::SSL_DetectionFrame> &frames) 
     //Sort by time
     std::sort(detectionFrames.begin(), detectionFrames.end(),
               [](const DetectionFrame &lhs, const DetectionFrame &rhs) { return lhs.timeCaptured < rhs.timeCaptured; });
+    for (auto &frame : detectionFrames) {
+        auto cameraTime = lastCaptureTimes.find(frame.cameraID);
+        frame.dt = cameraTime == lastCaptureTimes.end() ? 0.0 : (cameraTime->second -
+                                                                 lastCaptureTimes[frame.cameraID]).asSeconds();
+        //TODO: add moving average filter and see how much it helps?
+        //TODO: remove any frames with captures times which differ more than a second from the current time
+    }
+    //Remove frames which are too late. Unfortunate, but once we update the kalman filters there is no going back.
+    //This can also be caused by other teams running e.g. their simulators internally and accidentally broadcasting onto the network
+    detectionFrames.erase(std::remove_if(detectionFrames.begin(), detectionFrames.end(),
+                                         [](const DetectionFrame &frame) { return frame.dt < 0.0; }),detectionFrames.end());
     for (const auto &frame : detectionFrames) {
         processFrame(frame);
     }
@@ -113,7 +125,8 @@ void WorldFilter::predictRobots(const DetectionFrame &frame, robotMap &robots) {
     }
 }
 
-void WorldFilter::processBalls(const DetectionFrame &frame, const std::vector<RobotTrajectorySegment>& robotTrajectories) {
+void
+WorldFilter::processBalls(const DetectionFrame &frame, const std::vector<RobotTrajectorySegment> &robotTrajectories) {
     for (auto &filter : balls) {
         filter.predictCam(frame.cameraID, frame.timeCaptured, geometryData, robotTrajectories);
     }
@@ -133,15 +146,15 @@ void WorldFilter::processBalls(const DetectionFrame &frame, const std::vector<Ro
         if (removeFilter) {
             //TODO: make this if there are no more healthy balls. Probably needs a larger refactor and a rethink of how
             // invisible balls are handled
-            if(balls.size() == 1 && !isTrackingVirtualBalls){ //TODO; not enable when already tracking virtual balls?
-                std::cout<<"Generating virtual balls!"<<std::endl;
+            if (balls.size() == 1 && !isTrackingVirtualBalls) { //TODO; not enable when already tracking virtual balls?
+                std::cout << "Generating virtual balls!" << std::endl;
                 isTrackingVirtualBalls = true;
                 auto lastSeenBall = it->lastDetection();
-                std::vector<FilteredRobot> blueBots = getHealthiestRobotsMerged(true,frame.timeCaptured);
-                std::vector<FilteredRobot> yellowBots = getHealthiestRobotsMerged(false,frame.timeCaptured);
+                std::vector<FilteredRobot> blueBots = getHealthiestRobotsMerged(true, frame.timeCaptured);
+                std::vector<FilteredRobot> yellowBots = getHealthiestRobotsMerged(false, frame.timeCaptured);
                 blueBots.insert(blueBots.end(), std::make_move_iterator(yellowBots.begin()),
-                                    std::make_move_iterator(yellowBots.end()));
-                virtualBallTracker.generateVirtualBalls(blueBots,lastSeenBall);
+                                std::make_move_iterator(yellowBots.end()));
+                virtualBallTracker.generateVirtualBalls(blueBots, lastSeenBall);
             }
             it = balls.erase(it);
         } else {
@@ -156,11 +169,11 @@ void WorldFilter::processFrame(const DetectionFrame &frame) {
     robotTrajectories.clear();
     getPreviousFrameTrajectories(true, frame.cameraID);
     getPreviousFrameTrajectories(false, frame.cameraID);
-    processBalls(frame,robotTrajectories);
+    processBalls(frame, robotTrajectories);
     processForVirtualBalls(frame);
 }
 
-void WorldFilter::getPreviousFrameTrajectories(bool isBlue, int cameraID){
+void WorldFilter::getPreviousFrameTrajectories(bool isBlue, int cameraID) {
     const robotMap &robots = isBlue ? blue : yellow;
     const RobotParameters &params = isBlue ? blueParams : yellowParams;
     for (const auto &oneIDFilters : robots) {
@@ -179,31 +192,30 @@ void WorldFilter::updateRobotParameters(const proto::TeamRobotInfo &robotInfo) {
 }
 
 void WorldFilter::processForVirtualBalls(const DetectionFrame &frame) {
-    if(isTrackingVirtualBalls){
+    if (isTrackingVirtualBalls) {
         bool switchBack = false;
         constexpr double healthThreshold = 50.0;
-        for(const auto& ballFilter : balls){
+        for (const auto &ballFilter : balls) {
             switchBack |= ballFilter.getHealth() > healthThreshold;
         }
         isTrackingVirtualBalls = !switchBack;
-        if(switchBack){
-            std::cout<<"Switch back!"<<std::endl;
+        if (switchBack) {
             virtualBallTracker.clearVirtualBalls();
-        }else if(geometryData.cameras.hasCamera(frame.cameraID)){
+        } else if (geometryData.cameras.hasCamera(frame.cameraID)) {
             Camera camera = geometryData.cameras.getCamera(frame.cameraID).value();
-            std::vector<FilteredRobot> robots = oneCameraHealthyRobots(true,frame.cameraID,frame.timeCaptured);
-            virtualBallTracker.updateVirtualBalls(robots,camera,blueParams,frame);
-            std::vector<FilteredRobot> yellowBots = oneCameraHealthyRobots(false,frame.cameraID,frame.timeCaptured);
-            virtualBallTracker.updateVirtualBalls(yellowBots,camera,yellowParams,frame);
+            std::vector<FilteredRobot> robots = oneCameraHealthyRobots(true, frame.cameraID, frame.timeCaptured);
+            virtualBallTracker.updateVirtualBalls(robots, camera, blueParams, frame);
+            std::vector<FilteredRobot> yellowBots = oneCameraHealthyRobots(false, frame.cameraID, frame.timeCaptured);
+            virtualBallTracker.updateVirtualBalls(yellowBots, camera, yellowParams, frame);
         }
     }
 }
 
-std::vector<FilteredRobot> WorldFilter::getHealthiestRobotsMerged(bool blueBots, Time time) const{
+std::vector<FilteredRobot> WorldFilter::getHealthiestRobotsMerged(bool blueBots, Time time) const {
     std::vector<FilteredRobot> robots;
-    const robotMap& map = blueBots ? blue : yellow;
-    for(const auto& oneIDFilters : map){
-        if(oneIDFilters.second.empty()){
+    const robotMap &map = blueBots ? blue : yellow;
+    for (const auto &oneIDFilters : map) {
+        if (oneIDFilters.second.empty()) {
             continue;;
         }
         double maxHealth = -std::numeric_limits<double>::infinity();
@@ -223,9 +235,9 @@ std::vector<FilteredRobot> WorldFilter::getHealthiestRobotsMerged(bool blueBots,
 
 std::vector<FilteredRobot> WorldFilter::oneCameraHealthyRobots(bool blueBots, int camera_id, Time time) const {
     std::vector<FilteredRobot> robots;
-    const robotMap& map = blueBots ? blue : yellow;
-    for(const auto& oneIDFilters : map){
-        if(oneIDFilters.second.empty()){
+    const robotMap &map = blueBots ? blue : yellow;
+    for (const auto &oneIDFilters : map) {
+        if (oneIDFilters.second.empty()) {
             continue;;
         }
         double maxHealth = -std::numeric_limits<double>::infinity();
@@ -238,8 +250,8 @@ std::vector<FilteredRobot> WorldFilter::oneCameraHealthyRobots(bool blueBots, in
                 bestFilter = robotFilter;
             }
         }
-        auto robot = bestFilter->getRobot(camera_id,time);
-        if(robot){
+        auto robot = bestFilter->getRobot(camera_id, time);
+        if (robot) {
             robots.push_back(robot.value());
         }
     }

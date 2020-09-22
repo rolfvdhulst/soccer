@@ -45,6 +45,8 @@ class WorldFilter {
     RobotParameters blueParams;
     RobotParameters yellowParams;
     std::vector<RobotTrajectorySegment> robotTrajectories;
+    std::map<int,Time> lastCaptureTimes;
+
     const int MAX_ROBOTFILTERS = 5;
     const int MAX_BALLFILTERS = 8;
 

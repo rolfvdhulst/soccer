@@ -102,10 +102,22 @@ private:
         [[nodiscard]] Eigen::Vector4d state() const;
         [[nodiscard]] Eigen::Matrix4d covariance() const;
     };
+
     std::optional<CollisionChecker::Collision> getFirstCollision(const BallTrajectorySegment& segment, const GeometryData& geometryData, const std::vector<RobotTrajectorySegment>& robotTrajectories);
     BallEKF ekf;
     std::vector<BallObservation> lastFrameObservations;
     bool lastCycleWasUpdate = true; //The first message (initialization) counts as an update
+public:
+
+    struct PredictedBall{
+        Eigen::Vector2d position;
+        int cameraID;
+        std::vector<CollisionChecker::Collision> collisions;
+    };
+    struct PredictedBalls{
+        std::vector<PredictedBall> predictedBalls;
+        enum Type{};
+    };
 };
 
 

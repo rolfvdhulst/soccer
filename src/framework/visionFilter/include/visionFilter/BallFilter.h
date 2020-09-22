@@ -19,11 +19,11 @@ public:
     bool acceptDetection(const BallObservation& observation);
     bool processFrame(int cameraID, Time time);
 
-    FilteredBall mergeBalls(const Time& time) const;
+    [[nodiscard]] FilteredBall mergeBalls(const Time& time) const;
 
-    double getHealth() const;
+    [[nodiscard]] double getHealth() const;
 
-    BallObservation lastDetection() const;
+    [[nodiscard]] BallObservation lastDetection() const;
 private:
     std::map<int, CameraBallGroundEKF> cameraFilters;
     circular_buffer<BallObservation,300> acceptedBalls;
