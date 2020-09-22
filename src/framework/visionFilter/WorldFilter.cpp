@@ -4,6 +4,7 @@
 #include <field/Camera.h>
 
 WorldFilter::WorldFilter() {
+    robotTrajectories.reserve(32);
 }
 void WorldFilter::updateGeometry(const proto::SSL_GeometryData &geometry) {
     geometryData = GeometryData(geometry);
@@ -152,28 +153,24 @@ void WorldFilter::processBalls(const DetectionFrame &frame, const std::vector<Ro
 void WorldFilter::processFrame(const DetectionFrame &frame) {
     processRobots(frame, true);
     processRobots(frame, false);
-    std::vector<RobotTrajectorySegment> trajectories = getPreviousFrameTrajectories(true, frame.cameraID);
-    std::vector<RobotTrajectorySegment> yellowTrajs = getPreviousFrameTrajectories(false, frame.cameraID);
-    trajectories.insert(trajectories.end(), std::make_move_iterator(yellowTrajs.begin()),
-                        std::make_move_iterator(yellowTrajs.end()));
-    processBalls(frame,trajectories);
+    robotTrajectories.clear();
+    getPreviousFrameTrajectories(true, frame.cameraID);
+    getPreviousFrameTrajectories(false, frame.cameraID);
+    processBalls(frame,robotTrajectories);
     processForVirtualBalls(frame);
 }
 
-std::vector<RobotTrajectorySegment> WorldFilter::getPreviousFrameTrajectories(bool isBlue, int cameraID) const {
+void WorldFilter::getPreviousFrameTrajectories(bool isBlue, int cameraID){
     const robotMap &robots = isBlue ? blue : yellow;
     const RobotParameters &params = isBlue ? blueParams : yellowParams;
-    std::vector<RobotTrajectorySegment> segments;
-    segments.reserve(16);
     for (const auto &oneIDFilters : robots) {
         for (const auto &bot : oneIDFilters.second) {
             std::optional<RobotTrajectorySegment> trajectory = bot.getLastFrameTrajectory(cameraID, params);
             if (trajectory) {
-                segments.emplace_back(*trajectory);
+                robotTrajectories.emplace_back(*trajectory);
             }
         }
     }
-    return segments;
 }
 
 void WorldFilter::updateRobotParameters(const proto::TeamRobotInfo &robotInfo) {

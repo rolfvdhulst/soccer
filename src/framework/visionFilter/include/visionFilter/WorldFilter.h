@@ -44,6 +44,7 @@ class WorldFilter {
     GeometryData geometryData;
     RobotParameters blueParams;
     RobotParameters yellowParams;
+    std::vector<RobotTrajectorySegment> robotTrajectories;
     const int MAX_ROBOTFILTERS = 5;
     const int MAX_BALLFILTERS = 8;
 
@@ -53,7 +54,7 @@ class WorldFilter {
     void processForVirtualBalls(const DetectionFrame& frame);
     std::vector<FilteredRobot> getHealthiestRobotsMerged(bool blueBots, Time time)  const;
     std::vector<FilteredRobot> oneCameraHealthyRobots(bool blueBots, int camera_id, Time time) const;
-    [[nodiscard]] std::vector<RobotTrajectorySegment> getPreviousFrameTrajectories(bool isBlue, int cameraID) const;
+    void getPreviousFrameTrajectories(bool isBlue, int cameraID);
 
     static void predictRobots(const DetectionFrame &frame, robotMap &robots);
     void updateRobots(bool blueBots, robotMap &robots, const std::vector<RobotObservation> &detectedRobots);
