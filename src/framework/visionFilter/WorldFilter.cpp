@@ -164,11 +164,12 @@ std::vector<RobotTrajectorySegment> WorldFilter::getPreviousFrameTrajectories(bo
     const robotMap &robots = isBlue ? blue : yellow;
     const RobotParameters &params = isBlue ? blueParams : yellowParams;
     std::vector<RobotTrajectorySegment> segments;
+    segments.reserve(16);
     for (const auto &oneIDFilters : robots) {
         for (const auto &bot : oneIDFilters.second) {
             std::optional<RobotTrajectorySegment> trajectory = bot.getLastFrameTrajectory(cameraID, params);
             if (trajectory) {
-                segments.push_back(*trajectory);
+                segments.emplace_back(*trajectory);
             }
         }
     }

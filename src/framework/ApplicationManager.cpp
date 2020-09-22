@@ -35,13 +35,22 @@ void ApplicationManager::run(bool &exit) {
         }
         if(!settings.playingreplay()) {
             proto::FrameLog log;
-            Time before = Time::now();
             receiveVision();
             receiveReferee();
 
             proto::TeamRobotInfo teamRobotInfo = gameStateFilter.getTeamRobotInfo();
 
+            Time before = Time::now();
             proto::World worldState = visionFilter.process(visionPackets, teamRobotInfo);
+            Time after = Time::now();
+            total += (after - before);
+            count ++;
+            if (count%100 == 0) {
+                std::cout << total.asSeconds()*1000/count<<" ms" << std::endl;
+                total = Time(0.0);
+                count = 0;
+            }
+
             proto::GameState gameState = gameStateFilter.update(settings, refereePackets, worldState);
 
             std::optional<proto::SSL_GeometryData> geometryData;
@@ -96,20 +105,13 @@ void ApplicationManager::run(bool &exit) {
             refereePackets.clear();
             visionPackets.clear();
 
-            Time after = Time::now();
-            total += (after - before);
-            count ++;
-            if (count%100 == 0) {
-                std::cout << total.asSeconds()*1000/count<<" ms" << std::endl;
-                total = Time(0.0);
-                count = 0;
-            }
+
         }
         if(settings.has_savebacklog() && settings.savebacklog() && settings.messagecounter() != lastSavedBacklognumber){
             lastSavedBacklognumber = settings.messagecounter();
             backLogger.saveBacklog();
         }
-        this_thread::sleep_for(std::chrono::milliseconds(20));
+        this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 void ApplicationManager::receiveReferee(){
