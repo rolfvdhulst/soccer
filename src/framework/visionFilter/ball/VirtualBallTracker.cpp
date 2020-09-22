@@ -129,7 +129,6 @@ void VirtualBallTracker::generateVirtualBalls(const std::vector<FilteredRobot> &
         }
     }
     if(!virtualBalls.empty()){
-        std::cout<<"virtual Balls: "<<virtualBalls.size()<<std::endl;
         return;
     }
     radius = 1.5;
@@ -138,7 +137,6 @@ void VirtualBallTracker::generateVirtualBalls(const std::vector<FilteredRobot> &
             virtualBalls.emplace_back(robot.id,robot.isBlue);
         }
     }
-    std::cout<<"virtual Balls: "<<virtualBalls.size()<<std::endl;
 }
 
 proto::WorldVirtualBall VirtualBallTracker::VirtualBall::asProto() const {

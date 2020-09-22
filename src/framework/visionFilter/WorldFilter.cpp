@@ -66,7 +66,8 @@ void WorldFilter::process(const std::vector<proto::SSL_DetectionFrame> &frames) 
         //TODO: add moving average filter and see how much it helps?
         //TODO: remove any frames with captures times which differ more than a second from the current time
     }
-    //Remove frames which are too late. Unfortunate, but once we update the kalman filters there is no going back.
+    //Remove frames which are too late. For now we do this, because it's quite hard to go back in time and reconstruct the state of the entire visionFilter
+
     //This can also be caused by other teams running e.g. their simulators internally and accidentally broadcasting onto the network
     detectionFrames.erase(std::remove_if(detectionFrames.begin(), detectionFrames.end(),
                                          [](const DetectionFrame &frame) { return frame.dt < 0.0; }),detectionFrames.end());
@@ -147,7 +148,6 @@ WorldFilter::processBalls(const DetectionFrame &frame, const std::vector<RobotTr
             //TODO: make this if there are no more healthy balls. Probably needs a larger refactor and a rethink of how
             // invisible balls are handled
             if (balls.size() == 1 && !isTrackingVirtualBalls) { //TODO; not enable when already tracking virtual balls?
-                std::cout << "Generating virtual balls!" << std::endl;
                 isTrackingVirtualBalls = true;
                 auto lastSeenBall = it->lastDetection();
                 std::vector<FilteredRobot> blueBots = getHealthiestRobotsMerged(true, frame.timeCaptured);
