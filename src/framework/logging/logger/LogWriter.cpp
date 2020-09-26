@@ -43,7 +43,7 @@ bool LogWriter::addLogFrame(const proto::FrameLog &logFrame,  long long int time
     dataHeader.timestamp = timestamp; //Timestamp should be in nanoseconds
     dataHeader.messageSize = data.size();
 
-    //Write header to file
+    //Write header to file, followed by data
     outStream->write((char *) &dataHeader,sizeof(dataHeader));
     outStream->write(data.data(), data.size());
     return true;
