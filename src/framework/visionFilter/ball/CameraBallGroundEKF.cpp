@@ -57,7 +57,6 @@ void CameraBallGroundEKF::writeLogFile(const Eigen::Vector2d &observation) {
 void CameraBallGroundEKF::update(const BallObservation &observation) {
     ekf.update(observation.position);
     objectSeen(observation.timeCaptured);
-    lastCycleWasUpdate = true;
     writeLogFile(observation.position);
 }
 
@@ -66,63 +65,46 @@ bool CameraBallGroundEKF::updateBallNotSeen(const Time &time) {
     return getHealth() <= 0.0 && consecutiveFramesNotSeen() > 3;
 }
 
-bool CameraBallGroundEKF::acceptObservation(const BallObservation &observation) const {
-    return (observation.position - ekf.getPosition()).squaredNorm() < 0.5 * 0.5;
-}
-
 Eigen::Vector2d CameraBallGroundEKF::getVelocity(const Time &time) const {
     return ekf.getVelocityEstimate(time);
 }
 
-void CameraBallGroundEKF::predict(Time time, const GeometryData &geometryData, const std::vector<RobotTrajectorySegment>& robotTrajectories) {
+CameraBallGroundEKF::PredictedBalls CameraBallGroundEKF::predict(Time time, const GeometryData &geometryData,
+                                                                 const std::vector<RobotTrajectorySegment> &robotTrajectories) const {
     //TODO: pack this in a function
-    BallTrajectorySegment segment;
-    segment.startPos = Vector2(ekf.getPosition());
-    segment.startTime = ekf.lastUpdated();
-    segment.endPos = Vector2(ekf.getPositionEstimate(time));
-    segment.endTime = time;
-    segment.startVel = Vector2(ekf.getVelocity());
-    segment.acc = ekf.getAcc();
-    segment.dt = (segment.endTime-segment.startTime).asSeconds();
-    segment.acceleration =  Vector2(ekf.getVelocity()).normalize() * ekf.getAcc(); //TODO: check sign
-    if (!(segment.startPos == segment.endPos)) { //TODO: fix this ball lying still case (maybe just pass velocity 0, acc 0?)
+    PredictedBalls predictedBalls;
+    BallTrajectorySegment segment = ekf.getSegment(time);
+    PredictedBall ball;
+    ball.position = segment.endPos;
+    predictedBalls.balls.push_back(ball);
+    std::vector<CollisionChecker::Collision> collisions;
+    if (!(segment.startPos ==
+          segment.endPos)) { //TODO: fix this ball lying still case (maybe just pass velocity 0, acc 0?)
         int maxCollisions = 3;
         int i = 0;
-        while (i < maxCollisions){
-            auto collision = getFirstCollision(segment,geometryData,robotTrajectories);
-            if(!collision){
+        while (i < maxCollisions) {
+            auto collision = CollisionChecker::getFirstCollision(segment, geometryData, robotTrajectories);
+            if (!collision) {
                 break;
             }
-            ekf.predict(collision->collisionTime);
-            ekf.setVelocity(collision->outVelocity);
-            //TODO: base this on collision type. Maybe even pass robot velocity to this to determine uncertainty
-            //TODO: if ball is kicked delay velocity setting until 1 tick later?
-            double collisionvelLength = collision->outVelocity.length();
-            ekf.addUncertainty(0.03, std::min(0.1, collisionvelLength * 0.3));
-            std::cout << "Collision at " << collision->position << " filter state: "
-                      << Vector2(ekf.getPosition())
-                      <<" vel: " << collision->outVelocity
-                      <<" type: " << (int) collision->type
-                      <<" robotID: "<< collision->robotID
-                      <<" isBlue: "<<collision->robotIsBlue
-                      <<" dt: " <<collision->dt
-                      <<" i: "<<i
-                      << std::endl;
 
-            segment.startPos = Vector2(ekf.getPosition());
-            segment.startTime = ekf.lastUpdated();
-            segment.endPos = Vector2(ekf.getPositionEstimate(time));
-            segment.endTime = time;
-            segment.startVel = Vector2(ekf.getVelocity());
-            segment.acc = ekf.getAcc();
-            segment.dt = (segment.endTime-segment.startTime).asSeconds();
-            segment.acceleration =  Vector2(ekf.getVelocity()).normalize() * ekf.getAcc();
+            segment.startPos = collision->position;
+            segment.startTime = collision->collisionTime;
+            segment.startVel = collision->outVelocity;
+            segment.acc = ekf.getAcc(); //TODO: remove dependency on ekf (when e.g. sliding is implemented)
+            segment.dt = (segment.endTime - segment.startTime).asSeconds();
+            segment.acceleration = collision->outVelocity.normalize() * ekf.getAcc();
+            segment.endPos = segment.startPos + segment.startVel * segment.dt +
+                             segment.acceleration * segment.dt * segment.dt * 0.5; //TODO: check if ball is lying still
+            collisions.push_back(*collision);
+            PredictedBall predictedBall;
+            predictedBall.collisions = collisions;
+            predictedBall.position = segment.endPos;
+            predictedBalls.balls.push_back(predictedBall);
             ++i;
         }
     }
-    ekf.predict(time);
-
-    lastCycleWasUpdate = false;
+    return predictedBalls;
 }
 
 
@@ -325,15 +307,21 @@ Eigen::Matrix4d CameraBallGroundEKF::BallEKF::covariance() const {
     return P;
 }
 
-bool CameraBallGroundEKF::addObservation(const BallObservation &observation) {
-    bool accepted = acceptObservation(observation);
-    if (accepted) {
-        lastFrameObservations.push_back(observation);
-    }
-    return accepted;
+BallTrajectorySegment CameraBallGroundEKF::BallEKF::getSegment(Time time) const {
+    BallTrajectorySegment segment;
+    segment.startPos = Vector2(getPosition());
+    segment.startTime = lastUpdated();
+    segment.endPos = Vector2(getPositionEstimate(time));
+    segment.endTime = time;
+    segment.startVel = Vector2(getVelocity());
+    segment.acc = getAcc();
+    segment.dt = (segment.endTime - segment.startTime).asSeconds();
+    segment.acceleration = Vector2(getVelocity()).normalize() * getAcc(); //TODO: check sign
+    return segment;
 }
 
 bool CameraBallGroundEKF::processFrame() {
+    //TODO: predict the kalman filter and add uncertainty on colisions here
     bool removeFilter = false;
     if (lastFrameObservations.empty()) {
         removeFilter = updateBallNotSeen(ekf.lastUpdated());
@@ -343,7 +331,7 @@ bool CameraBallGroundEKF::processFrame() {
         //more than one observation. There are a few cases this can happen:
         //1: The ball is seen as two separate balls. This happens occasionally.
         //2: A robot on the frame close to the ball was also detected as a ball.
-        //3: (unlikely): there is more than one ball on the field
+        //3: (unlikely): there is more than one ball on the field and they are very close to eachother
 
         //Sort observations by distance to predicted pos
         Eigen::Vector2d predictedPos = ekf.getPosition();
@@ -357,13 +345,13 @@ bool CameraBallGroundEKF::processFrame() {
         //If it's the ball we merge it by area with any other detections that are close enough
         Eigen::Vector2d bestDetectionPos = lastFrameObservations.front().position;
         std::vector<BallObservation> closeToBest;
-        for(const auto& observation : lastFrameObservations){
-            if((observation.position-bestDetectionPos).norm()<0.04){ //TODO: magic constant for merging two balls
+        for (const auto &observation : lastFrameObservations) {
+            if ((observation.position - bestDetectionPos).norm() < 0.04) { //TODO: magic constant for merging two balls
                 closeToBest.emplace_back(observation);
             }
         }
         BallObservation best = closeToBest[0];
-        if(closeToBest.size()>1){
+        if (closeToBest.size() > 1) {
             best = mergeBallObservationsByArea(closeToBest);
         }
         //TODO: what to do with discarded detections? Maybe make acceptance/nonacceptance a different call hierarchy
@@ -372,41 +360,4 @@ bool CameraBallGroundEKF::processFrame() {
     }
     lastFrameObservations.clear();
     return removeFilter;
-}
-//TODO: move to CollisionChecker file
-std::optional<CollisionChecker::Collision> CameraBallGroundEKF::getFirstCollision(const BallTrajectorySegment& segment, const GeometryData& geometryData, const std::vector<RobotTrajectorySegment>& robotTrajectories){
-    std::optional<CollisionChecker::RobotCollisionPreliminaryResult> firstRobotCollision;
-    for(const auto& trajectory : robotTrajectories){
-        if(auto col = CollisionChecker::checkRobotConstVel(segment,trajectory)){
-            if(!firstRobotCollision || col->dt <=  firstRobotCollision->dt){
-                firstRobotCollision = col;
-            }
-        }
-    }
-    std::optional<CollisionChecker::Collision> robotCollision;
-    if(firstRobotCollision){
-        robotCollision = CollisionChecker::robotCollideAndReflect(firstRobotCollision.value(),segment);
-    }
-    std::optional<CollisionChecker::CollisionPreliminaryResult> firstFieldCollision;
-    if(auto col = CollisionChecker::getFieldGoalWallCollision(segment,geometryData)){
-        firstFieldCollision = col;
-    }
-    if(auto collision = CollisionChecker::getFieldOutsideWallCollision(segment, geometryData)){
-        if(!firstFieldCollision || collision->distanceFraction < firstFieldCollision->distanceFraction){
-            firstFieldCollision = collision;
-        }
-    }
-    std::optional<CollisionChecker::Collision> fieldCollision;
-    if(firstFieldCollision){
-        fieldCollision = CollisionChecker::fieldCollideAndReflect(segment,firstFieldCollision.value());
-    }
-    if(fieldCollision && robotCollision){
-        bool robotFirst = robotCollision->dt <= fieldCollision->dt;
-        return robotFirst ? robotCollision.value() : fieldCollision.value();
-    }else if(fieldCollision){
-        return fieldCollision.value();
-    }else if(robotCollision){
-        return robotCollision.value();
-    }
-    return std::nullopt;
 }

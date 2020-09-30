@@ -345,4 +345,45 @@ namespace CollisionChecker{
         double derivative = (ballSpeed.x() + angVel*ballPos.y())*cosTheta + (ballSpeed.y()-angVel*ballPos.x())*sinTheta;
         return std::make_pair(value,derivative);
     }
+
+    std::optional<Collision> getFirstCollision(const BallTrajectorySegment &segment, const GeometryData &geometryData,
+                                               const std::vector<RobotTrajectorySegment> &robotTrajectories){
+        //First check all robot trajectories and get the first collision
+        std::optional<CollisionChecker::RobotCollisionPreliminaryResult> firstRobotCollision;
+        for(const auto& trajectory : robotTrajectories){
+            if(auto col = CollisionChecker::checkRobotConstVel(segment,trajectory)){
+                if(!firstRobotCollision || col->dt <=  firstRobotCollision->dt){
+                    firstRobotCollision = col;
+                }
+            }
+        }
+        std::optional<CollisionChecker::Collision> robotCollision;
+        if(firstRobotCollision){
+            robotCollision = CollisionChecker::robotCollideAndReflect(firstRobotCollision.value(),segment);
+        }
+        //Get first field collision
+        std::optional<CollisionChecker::CollisionPreliminaryResult> firstFieldCollision;
+        if(auto col = CollisionChecker::getFieldGoalWallCollision(segment,geometryData)){
+            firstFieldCollision = col;
+        }
+        if(auto collision = CollisionChecker::getFieldOutsideWallCollision(segment, geometryData)){
+            if(!firstFieldCollision || collision->distanceFraction < firstFieldCollision->distanceFraction){
+                firstFieldCollision = collision;
+            }
+        }
+        std::optional<CollisionChecker::Collision> fieldCollision;
+        if(firstFieldCollision){
+            fieldCollision = CollisionChecker::fieldCollideAndReflect(segment,firstFieldCollision.value());
+        }
+        //Return the first found collision
+        if(fieldCollision && robotCollision){
+            bool robotFirst = robotCollision->dt <= fieldCollision->dt;
+            return robotFirst ? robotCollision.value() : fieldCollision.value();
+        }else if(fieldCollision){
+            return fieldCollision.value();
+        }else if(robotCollision){
+            return robotCollision.value();
+        }
+        return std::nullopt;
+    }
 }

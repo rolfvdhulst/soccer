@@ -7,13 +7,13 @@
 
 
 class ObjectFilter {
-//public:
-//    [[nodiscard]] int getObjectID() const;
-//    void setObjectID(int id);
-//
-//private:
-//    static int nextObjectID;
-//    int objectID;
+public:
+    [[nodiscard]] int getObjectID() const;
+    void setObjectID(int id);
+
+private:
+    static int nextObjectID;
+    int objectID;
 };
 
 

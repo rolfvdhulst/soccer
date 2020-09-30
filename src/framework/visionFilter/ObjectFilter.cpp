@@ -4,10 +4,10 @@
 
 #include "ObjectFilter.h"
 
-//int ObjectFilter::getObjectID() const {
-//    return objectID;
-//}
-//
-//void ObjectFilter::setObjectID(int id) {
-//    objectID = id;
-//}
+int ObjectFilter::getObjectID() const {
+    return objectID;
+}
+
+void ObjectFilter::setObjectID(int id) {
+    objectID = id;
+}

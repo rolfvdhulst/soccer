@@ -10,11 +10,23 @@ BallFilter::BallFilter(const BallObservation &observation)
     acceptedBalls.push_back(observation);
 }
 
-void BallFilter::predictCam(int cameraID, const Time &untilTime, const GeometryData &geometryData,
-                            const std::vector<RobotTrajectorySegment>& robotTrajectories){
+BallPredictions BallFilter::predictCam(int cameraID, const Time &untilTime, const GeometryData &geometryData,
+                            const std::vector<RobotTrajectorySegment>& robotTrajectories) const{
     auto cameraFilter = cameraFilters.find(cameraID);
     if (cameraFilter != cameraFilters.end()) {
-        cameraFilter->second.predict(untilTime, geometryData,robotTrajectories);
+        auto predictions = cameraFilter->second.predict(untilTime, geometryData,robotTrajectories);
+        BallPredictions prediction;
+        prediction.objectID = getObjectID();
+        prediction.hadRequestedCamera = true;
+        prediction.balls = predictions;
+        return prediction;
+    } else{
+        BallPredictions prediction;
+        prediction.objectID = getObjectID();
+        prediction.hadRequestedCamera = false;
+        //TODO: Loop over all camera's, merge predictions into one and pass this back to check for new balls
+
+        return prediction;
     }
 }
 

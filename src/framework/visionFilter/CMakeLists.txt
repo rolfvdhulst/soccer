@@ -64,7 +64,11 @@ add_library(visionFilter
         include/visionFilter/ball/BallTrajectorySegment.h
         RobotTrajectorySegment.cpp
         include/visionFilter/RobotTrajectorySegment.h
-        ball/VirtualBallTracker.cpp include/visionFilter/ball/VirtualBallTracker.h)
+        ball/VirtualBallTracker.cpp
+        include/visionFilter/ball/VirtualBallTracker.h
+        BallAssigment.cpp
+        include/visionFilter/BallAssigment.h
+        )
 target_link_libraries(visionFilter
         PRIVATE math
         PRIVATE core

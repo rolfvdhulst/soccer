@@ -63,7 +63,8 @@ void WorldFilter::process(const std::vector<proto::SSL_DetectionFrame> &frames) 
         auto cameraTime = lastCaptureTimes.find(frame.cameraID);
         frame.dt = cameraTime == lastCaptureTimes.end() ? 0.0 : (cameraTime->second -
                                                                  lastCaptureTimes[frame.cameraID]).asSeconds();
-        //TODO: add moving average filter and see how much it helps?
+        //TODO: make a realtime option
+        //TODO: add moving average filter per camera and see how much it helps?
         //TODO: remove any frames with captures times which differ more than a second from the current time
     }
     //Remove frames which are too late. For now we do this, because it's quite hard to go back in time and reconstruct the state of the entire visionFilter
@@ -127,10 +128,12 @@ void WorldFilter::predictRobots(const DetectionFrame &frame, robotMap &robots) {
 }
 
 void
-WorldFilter::processBalls(const DetectionFrame &frame, const std::vector<RobotTrajectorySegment> &robotTrajectories) {
-    for (auto &filter : balls) {
-        filter.predictCam(frame.cameraID, frame.timeCaptured, geometryData, robotTrajectories);
+WorldFilter::processBalls(const DetectionFrame &frame, const std::vector<RobotTrajectorySegment> &robotPaths) {
+    std::vector<BallPredictions> predictions;
+    for (const auto &filter : balls) {
+        predictions.push_back(filter.predictCam(frame.cameraID, frame.timeCaptured, geometryData, robotPaths));
     }
+
     for (const auto &detectedBall : frame.balls) {
         bool accepted = false;
         for (BallFilter &ballFilter : balls) {

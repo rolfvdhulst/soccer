@@ -54,8 +54,8 @@ class WorldFilter {
     void processRobots(const DetectionFrame& frame, bool blueBots);
     void processBalls(const DetectionFrame& frame, const std::vector<RobotTrajectorySegment>& robotTrajectories);
     void processForVirtualBalls(const DetectionFrame& frame);
-    std::vector<FilteredRobot> getHealthiestRobotsMerged(bool blueBots, Time time)  const;
-    std::vector<FilteredRobot> oneCameraHealthyRobots(bool blueBots, int camera_id, Time time) const;
+    [[nodiscard]] std::vector<FilteredRobot> getHealthiestRobotsMerged(bool blueBots, Time time)  const;
+    [[nodiscard]] std::vector<FilteredRobot> oneCameraHealthyRobots(bool blueBots, int camera_id, Time time) const;
     void getPreviousFrameTrajectories(bool isBlue, int cameraID);
 
     static void predictRobots(const DetectionFrame &frame, robotMap &robots);

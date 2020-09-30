@@ -25,14 +25,20 @@ public:
      */
     [[nodiscard]] FilteredBall getEstimate(const Time &time, bool writeUncertainties = false) const;
 
-    /**
- * Predicts the state of the robot based on past observations.
- * Note this is a permanent update so there is no going back after this is called.
- * @param time The time until we wish to have a prediction of where the robot will be
- */
-    void predict(Time time, const GeometryData& geometryData, const std::vector<RobotTrajectorySegment>& robotTrajectories);
+    struct PredictedBall{
+        Eigen::Vector2d position;
+        std::vector<CollisionChecker::Collision> collisions;
+    };
 
-    [[nodiscard]] bool acceptObservation(const BallObservation &observation) const;
+    struct PredictedBalls{
+        std::vector<PredictedBall> balls;
+    };
+    class ObservationPredictionPair{
+        PredictedBall prediction;
+        std::vector<BallObservation> observations;
+        int objectID;
+    };
+    [[nodiscard]] PredictedBalls predict(Time time, const GeometryData& geometryData, const std::vector<RobotTrajectorySegment>& robotTrajectories) const;
 
     [[nodiscard]] Eigen::Vector2d getVelocity(const Time &time) const;
 
@@ -52,8 +58,6 @@ public:
     void registerLogFile(const Eigen::Vector2d &observation);
 
     void writeLogFile(const Eigen::Vector2d &observation);
-
-    bool addObservation(const BallObservation &observation);
 
     bool processFrame();
 
@@ -101,23 +105,14 @@ private:
 
         [[nodiscard]] Eigen::Vector4d state() const;
         [[nodiscard]] Eigen::Matrix4d covariance() const;
+
+        [[nodiscard]] BallTrajectorySegment getSegment(Time time) const;
     };
 
-    std::optional<CollisionChecker::Collision> getFirstCollision(const BallTrajectorySegment& segment, const GeometryData& geometryData, const std::vector<RobotTrajectorySegment>& robotTrajectories);
+
     BallEKF ekf;
-    std::vector<BallObservation> lastFrameObservations;
-    bool lastCycleWasUpdate = true; //The first message (initialization) counts as an update
 public:
 
-    struct PredictedBall{
-        Eigen::Vector2d position;
-        int cameraID;
-        std::vector<CollisionChecker::Collision> collisions;
-    };
-    struct PredictedBalls{
-        std::vector<PredictedBall> predictedBalls;
-        enum Type{};
-    };
 };
 
 
