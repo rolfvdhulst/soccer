@@ -2,6 +2,7 @@
 #include <protobuf/messages_robocup_ssl_detection.pb.h>
 #include <protobuf/messages_robocup_ssl_geometry.pb.h>
 #include <field/Camera.h>
+#include "BallAssigment.h"
 
 WorldFilter::WorldFilter() {
     robotTrajectories.reserve(32); //An amount which is likely sufficient for entire runtime of the program.
@@ -133,15 +134,11 @@ WorldFilter::processBalls(const DetectionFrame &frame, const std::vector<RobotTr
     for (const auto &filter : balls) {
         predictions.push_back(filter.predictCam(frame.cameraID, frame.timeCaptured, geometryData, robotPaths));
     }
-
-    for (const auto &detectedBall : frame.balls) {
-        bool accepted = false;
-        for (BallFilter &ballFilter : balls) {
-            accepted |= ballFilter.acceptDetection(detectedBall);
-        }
-        if (!accepted && balls.size() < MAX_BALLFILTERS) {
-            balls.emplace_back(BallFilter(detectedBall));
-        }
+    BallAssignmentResult assignment = assignBalls(predictions,frame.balls);
+    // TODO: update all existing ball filters with their assigned balls. Split them if there are matches on multiple branches
+    //Create new Ball filters for balls that were not assigned
+    for(const auto& newBall : assignment.unpairedBalls){
+        balls.emplace_back(BallFilter(newBall));
     }
     // process balls that weren't seen and remove them if necessary
     auto it = balls.begin();

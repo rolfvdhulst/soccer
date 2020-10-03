@@ -33,7 +33,7 @@ public:
     struct PredictedBalls{
         std::vector<PredictedBall> balls;
     };
-    class ObservationPredictionPair{
+    struct ObservationPredictionPair{
         PredictedBall prediction;
         std::vector<BallObservation> observations;
         int objectID;

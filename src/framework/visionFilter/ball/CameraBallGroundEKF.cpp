@@ -323,41 +323,41 @@ BallTrajectorySegment CameraBallGroundEKF::BallEKF::getSegment(Time time) const 
 bool CameraBallGroundEKF::processFrame() {
     //TODO: predict the kalman filter and add uncertainty on colisions here
     bool removeFilter = false;
-    if (lastFrameObservations.empty()) {
-        removeFilter = updateBallNotSeen(ekf.lastUpdated());
-    } else if (lastFrameObservations.size() == 1) {
-        update(lastFrameObservations.at(0));
-    } else {
-        //more than one observation. There are a few cases this can happen:
-        //1: The ball is seen as two separate balls. This happens occasionally.
-        //2: A robot on the frame close to the ball was also detected as a ball.
-        //3: (unlikely): there is more than one ball on the field and they are very close to eachother
-
-        //Sort observations by distance to predicted pos
-        Eigen::Vector2d predictedPos = ekf.getPosition();
-        std::sort(lastFrameObservations.begin(), lastFrameObservations.end(),
-                  [predictedPos](const BallObservation &first, const BallObservation &second) {
-                      return (first.position - predictedPos).squaredNorm() <
-                             (second.position - predictedPos).squaredNorm();
-                  });
-
-        //Take the one that's closest and use it
-        //If it's the ball we merge it by area with any other detections that are close enough
-        Eigen::Vector2d bestDetectionPos = lastFrameObservations.front().position;
-        std::vector<BallObservation> closeToBest;
-        for (const auto &observation : lastFrameObservations) {
-            if ((observation.position - bestDetectionPos).norm() < 0.04) { //TODO: magic constant for merging two balls
-                closeToBest.emplace_back(observation);
-            }
-        }
-        BallObservation best = closeToBest[0];
-        if (closeToBest.size() > 1) {
-            best = mergeBallObservationsByArea(closeToBest);
-        }
-        //TODO: what to do with discarded detections? Maybe make acceptance/nonacceptance a different call hierarchy
-        //Possibly objects that are 'accepted' are now not used as new object filters
-        update(best);
-    }
-    lastFrameObservations.clear();
+//    if (lastFrameObservations.empty()) {
+//        removeFilter = updateBallNotSeen(ekf.lastUpdated());
+//    } else if (lastFrameObservations.size() == 1) {
+//        update(lastFrameObservations.at(0));
+//    } else {
+//        //more than one observation. There are a few cases this can happen:
+//        //1: The ball is seen as two separate balls. This happens occasionally.
+//        //2: A robot on the frame close to the ball was also detected as a ball.
+//        //3: (unlikely): there is more than one ball on the field and they are very close to eachother
+//
+//        //Sort observations by distance to predicted pos
+//        Eigen::Vector2d predictedPos = ekf.getPosition();
+//        std::sort(lastFrameObservations.begin(), lastFrameObservations.end(),
+//                  [predictedPos](const BallObservation &first, const BallObservation &second) {
+//                      return (first.position - predictedPos).squaredNorm() <
+//                             (second.position - predictedPos).squaredNorm();
+//                  });
+//
+//        //Take the one that's closest and use it
+//        //If it's the ball we merge it by area with any other detections that are close enough
+//        Eigen::Vector2d bestDetectionPos = lastFrameObservations.front().position;
+//        std::vector<BallObservation> closeToBest;
+//        for (const auto &observation : lastFrameObservations) {
+//            if ((observation.position - bestDetectionPos).norm() < 0.04) { //TODO: magic constant for merging two balls
+//                closeToBest.emplace_back(observation);
+//            }
+//        }
+//        BallObservation best = closeToBest[0];
+//        if (closeToBest.size() > 1) {
+//            best = mergeBallObservationsByArea(closeToBest);
+//        }
+//        //TODO: what to do with discarded detections? Maybe make acceptance/nonacceptance a different call hierarchy
+//        //Possibly objects that are 'accepted' are now not used as new object filters
+//        update(best);
+//    }
+//    lastFrameObservations.clear();
     return removeFilter;
 }

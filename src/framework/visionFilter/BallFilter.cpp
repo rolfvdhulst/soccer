@@ -81,36 +81,36 @@ bool BallFilter::processFrame(int cameraID, Time time) {
     return cameraFilters.empty();
 }
 
-bool BallFilter::acceptDetection(const BallObservation &observation) {
-    auto cameraFilter = cameraFilters.find(observation.cameraID);
-    if (cameraFilter != cameraFilters.end()){
-        bool accepted = cameraFilter->second.addObservation(observation);
-        acceptedBalls.push_back(observation);
-        return accepted;
-    }
-    //Check if it makes sense that we see the relative to the other camera's
-    bool accepted = true;
-    for (const auto &filter : cameraFilters) {
-        accepted &= filter.second.acceptObservation(observation);
-    }
-    if (accepted) {
-        if(!cameraFilters.empty()){
-            //We can initialize this new filter with information from the other filters, by giving it the initial speed the others detected
-            //TODO: make this a weighted average (using e.g. filter age / health?)
-            Eigen::Vector2d velocity{0, 0};
-            for (const auto &filter : cameraFilters) {
-                velocity += filter.second.getVelocity(observation.timeCaptured);
-            }
-            velocity /= cameraFilters.size();
-            cameraFilters.insert(std::make_pair(observation.cameraID, CameraBallGroundEKF(observation, velocity)));
-        } else{
-            cameraFilters.insert(std::make_pair(observation.cameraID,CameraBallGroundEKF(observation)));
-        }
-        acceptedBalls.push_back(observation);
-    }
-    return accepted;
-
-}
+//bool BallFilter::acceptDetection(const BallObservation &observation) {
+//    auto cameraFilter = cameraFilters.find(observation.cameraID);
+//    if (cameraFilter != cameraFilters.end()){
+//        bool accepted = cameraFilter->second.addObservation(observation);
+//        acceptedBalls.push_back(observation);
+//        return accepted;
+//    }
+//    //Check if it makes sense that we see the relative to the other camera's
+//    bool accepted = true;
+//    for (const auto &filter : cameraFilters) {
+//        accepted &= filter.second.acceptObservation(observation);
+//    }
+//    if (accepted) {
+//        if(!cameraFilters.empty()){
+//            //We can initialize this new filter with information from the other filters, by giving it the initial speed the others detected
+//            //TODO: make this a weighted average (using e.g. filter age / health?)
+//            Eigen::Vector2d velocity{0, 0};
+//            for (const auto &filter : cameraFilters) {
+//                velocity += filter.second.getVelocity(observation.timeCaptured);
+//            }
+//            velocity /= cameraFilters.size();
+//            cameraFilters.insert(std::make_pair(observation.cameraID, CameraBallGroundEKF(observation, velocity)));
+//        } else{
+//            cameraFilters.insert(std::make_pair(observation.cameraID,CameraBallGroundEKF(observation)));
+//        }
+//        acceptedBalls.push_back(observation);
+//    }
+//    return accepted;
+//
+//}
 
 BallObservation BallFilter::lastDetection() const {
     return acceptedBalls.back();
