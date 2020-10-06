@@ -76,6 +76,7 @@ CameraBallGroundEKF::PredictedBalls CameraBallGroundEKF::predict(Time time, cons
     BallTrajectorySegment segment = ekf.getSegment(time);
     PredictedBall ball;
     ball.position = segment.endPos;
+    ball.time = time;
     predictedBalls.balls.push_back(ball);
     std::vector<CollisionChecker::Collision> collisions;
     if (!(segment.startPos ==
@@ -100,6 +101,7 @@ CameraBallGroundEKF::PredictedBalls CameraBallGroundEKF::predict(Time time, cons
             PredictedBall predictedBall;
             predictedBall.collisions = collisions;
             predictedBall.position = segment.endPos;
+            predictedBall.time = time;
             predictedBalls.balls.push_back(predictedBall);
             ++i;
         }
@@ -266,8 +268,8 @@ Eigen::Vector4d CameraBallGroundEKF::BallEKF::getStateEstimate(double dt) const 
 
 Eigen::Vector4d CameraBallGroundEKF::BallEKF::getStateEstimate(const Time &time) const {
     if (time < lastUpdateTime) {
-        std::cout << "Too late by: " << (lastUpdateTime - time).asMilliSeconds() << " ms" << std::endl;
-        std::__throw_invalid_argument("Bad timestamp");
+//        std::cout << "Too late by: " << (lastUpdateTime - time).asMilliSeconds() << " ms" << std::endl;
+//        std::__throw_invalid_argument("Bad timestamp");
     }
     double frame_dt = (time - lastUpdateTime).asSeconds();
     if (frame_dt <= 0) {
@@ -320,44 +322,26 @@ BallTrajectorySegment CameraBallGroundEKF::BallEKF::getSegment(Time time) const 
     return segment;
 }
 
-bool CameraBallGroundEKF::processFrame() {
-    //TODO: predict the kalman filter and add uncertainty on colisions here
+bool CameraBallGroundEKF::processDetections(const ObservationPredictionPair &opPair){
+    //TODO: add collision detection from observations (not predictions) here to find robot kicks etc.
+    predictFilter(opPair.prediction);
     bool removeFilter = false;
-//    if (lastFrameObservations.empty()) {
-//        removeFilter = updateBallNotSeen(ekf.lastUpdated());
-//    } else if (lastFrameObservations.size() == 1) {
-//        update(lastFrameObservations.at(0));
-//    } else {
-//        //more than one observation. There are a few cases this can happen:
-//        //1: The ball is seen as two separate balls. This happens occasionally.
-//        //2: A robot on the frame close to the ball was also detected as a ball.
-//        //3: (unlikely): there is more than one ball on the field and they are very close to eachother
-//
-//        //Sort observations by distance to predicted pos
-//        Eigen::Vector2d predictedPos = ekf.getPosition();
-//        std::sort(lastFrameObservations.begin(), lastFrameObservations.end(),
-//                  [predictedPos](const BallObservation &first, const BallObservation &second) {
-//                      return (first.position - predictedPos).squaredNorm() <
-//                             (second.position - predictedPos).squaredNorm();
-//                  });
-//
-//        //Take the one that's closest and use it
-//        //If it's the ball we merge it by area with any other detections that are close enough
-//        Eigen::Vector2d bestDetectionPos = lastFrameObservations.front().position;
-//        std::vector<BallObservation> closeToBest;
-//        for (const auto &observation : lastFrameObservations) {
-//            if ((observation.position - bestDetectionPos).norm() < 0.04) { //TODO: magic constant for merging two balls
-//                closeToBest.emplace_back(observation);
-//            }
-//        }
-//        BallObservation best = closeToBest[0];
-//        if (closeToBest.size() > 1) {
-//            best = mergeBallObservationsByArea(closeToBest);
-//        }
-//        //TODO: what to do with discarded detections? Maybe make acceptance/nonacceptance a different call hierarchy
-//        //Possibly objects that are 'accepted' are now not used as new object filters
-//        update(best);
-//    }
-//    lastFrameObservations.clear();
+    if(!opPair.observation.has_value()){
+        removeFilter = updateBallNotSeen(opPair.prediction.time);
+    } else{
+        update(opPair.observation.value());
+    }
     return removeFilter;
+}
+void CameraBallGroundEKF::predictFilter(const PredictedBall &prediction) {
+    for(const auto& collision : prediction.collisions){
+        ekf.predict(collision.collisionTime);
+        //On a collision, reset the filters velocity estimate to that of the collision estimate and add some uncertainty
+        //to the filters estimations to give new observations more weight
+        //assert((collision.position-ekf.getPosition()).length()<(1e-5)); //TODO: figure out why this fails. Probably timing errors
+        //If this fails something is likely either going wrong in prediction assignment or collision checking
+        ekf.setVelocity(collision.outVelocity);
+        ekf.addUncertainty(0.05,0.5);
+    }
+    ekf.predict(prediction.time);
 }

@@ -27,6 +27,8 @@ public:
 
     struct PredictedBall{
         Eigen::Vector2d position;
+        Eigen::Vector2d velocity;
+        Time time;
         std::vector<CollisionChecker::Collision> collisions;
     };
 
@@ -35,7 +37,7 @@ public:
     };
     struct ObservationPredictionPair{
         PredictedBall prediction;
-        std::vector<BallObservation> observations;
+        std::optional<BallObservation> observation;
         int objectID;
     };
     [[nodiscard]] PredictedBalls predict(Time time, const GeometryData& geometryData, const std::vector<RobotTrajectorySegment>& robotTrajectories) const;
@@ -59,7 +61,7 @@ public:
 
     void writeLogFile(const Eigen::Vector2d &observation);
 
-    bool processFrame();
+    bool processDetections(const ObservationPredictionPair& opPair);
 
 private:
     struct BallEKF {
@@ -111,8 +113,8 @@ private:
 
 
     BallEKF ekf;
-public:
-
+private:
+    void predictFilter(const PredictedBall& prediction);
 };
 
 

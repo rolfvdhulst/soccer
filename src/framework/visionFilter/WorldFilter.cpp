@@ -130,20 +130,24 @@ void WorldFilter::predictRobots(const DetectionFrame &frame, robotMap &robots) {
 
 void
 WorldFilter::processBalls(const DetectionFrame &frame, const std::vector<RobotTrajectorySegment> &robotPaths) {
-    std::vector<BallPredictions> predictions;
+    std::map<int,BallPredictions> predictions;
     for (const auto &filter : balls) {
-        predictions.push_back(filter.predictCam(frame.cameraID, frame.timeCaptured, geometryData, robotPaths));
+        predictions[filter.getObjectID()]=filter.predictCam(frame.cameraID, frame.timeCaptured, geometryData, robotPaths);
     }
     BallAssignmentResult assignment = assignBalls(predictions,frame.balls);
-    // TODO: update all existing ball filters with their assigned balls. Split them if there are matches on multiple branches
-    //Create new Ball filters for balls that were not assigned
-    for(const auto& newBall : assignment.unpairedBalls){
-        balls.emplace_back(BallFilter(newBall));
+    if(assignment.observationPredictionPairs.size()!=balls.size()){
+        std::map<int,BallPredictions> predictions;
+        for (const auto &filter : balls) {
+            predictions[filter.getObjectID()]=filter.predictCam(frame.cameraID, frame.timeCaptured, geometryData, robotPaths);
+        }
+        BallAssignmentResult check = assignBalls(predictions,frame.balls);
     }
+    // TODO: Split them if there are matches on multiple branches
     // process balls that weren't seen and remove them if necessary
     auto it = balls.begin();
     while (it != balls.end()) {
-        bool removeFilter = it->processFrame(frame.cameraID, frame.timeCaptured);
+        const auto & opPair = assignment.observationPredictionPairs.at(it->getObjectID());
+        bool removeFilter = it->processDetections(opPair,frame.cameraID);
         if (removeFilter) {
             //TODO: make this if there are no more healthy balls. Probably needs a larger refactor and a rethink of how
             // invisible balls are handled
@@ -160,6 +164,10 @@ WorldFilter::processBalls(const DetectionFrame &frame, const std::vector<RobotTr
         } else {
             it++;
         }
+    }
+    //Create new Ball filters for balls that were not assigned
+    for(const auto& newBall : assignment.unpairedObservations){
+        balls.emplace_back(BallFilter(newBall));
     }
 }
 

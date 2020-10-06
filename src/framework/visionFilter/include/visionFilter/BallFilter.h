@@ -26,7 +26,7 @@ public:
     [[nodiscard]] BallPredictions predictCam(int cameraID, const Time &untilTime, const GeometryData &geometryData,
                                              const std::vector<RobotTrajectorySegment> &robotTrajectorySegments) const;
 
-    bool processFrame(int cameraID, Time time);
+    bool processDetections(const CameraBallGroundEKF::ObservationPredictionPair& detections, int cameraID);
 
     [[nodiscard]] FilteredBall mergeBalls(const Time &time) const;
 

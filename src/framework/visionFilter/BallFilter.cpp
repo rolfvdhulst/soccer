@@ -11,25 +11,27 @@ BallFilter::BallFilter(const BallObservation &observation)
 }
 
 BallPredictions BallFilter::predictCam(int cameraID, const Time &untilTime, const GeometryData &geometryData,
-                            const std::vector<RobotTrajectorySegment>& robotTrajectories) const{
+                                       const std::vector<RobotTrajectorySegment> &robotTrajectories) const {
     auto cameraFilter = cameraFilters.find(cameraID);
     if (cameraFilter != cameraFilters.end()) {
-        auto predictions = cameraFilter->second.predict(untilTime, geometryData,robotTrajectories);
+        auto predictions = cameraFilter->second.predict(untilTime, geometryData, robotTrajectories);
         BallPredictions prediction;
         prediction.objectID = getObjectID();
         prediction.hadRequestedCamera = true;
         prediction.balls = predictions;
         return prediction;
-    } else{
+    } else {
         BallPredictions prediction;
         prediction.objectID = getObjectID();
         prediction.hadRequestedCamera = false;
         //TODO: Loop over all camera's, merge predictions into one and pass this back to check for new balls
-
+        //Ugly temporary hack:
+        for(const auto& camera : cameraFilters){
+            prediction.balls =camera.second.predict(untilTime,geometryData,robotTrajectories);
+        }
         return prediction;
     }
 }
-
 
 
 double BallFilter::getHealth() const {
@@ -67,20 +69,6 @@ FilteredBall BallFilter::mergeBalls(const Time &time) const {
     result.isVisible = isVisible;
     return result;
 }
-
-bool BallFilter::processFrame(int cameraID, Time time) {
-    auto cameraFilter = cameraFilters.find(cameraID);
-    if (cameraFilter == cameraFilters.end()) {
-        return false; //The relevant camera does not exist
-    }
-    //Process all the accepted detections of the frame in the filter
-    bool removeFilter = cameraFilter->second.processFrame();
-    if(removeFilter){
-        cameraFilters.erase(cameraFilter);
-    }
-    return cameraFilters.empty();
-}
-
 //bool BallFilter::acceptDetection(const BallObservation &observation) {
 //    auto cameraFilter = cameraFilters.find(observation.cameraID);
 //    if (cameraFilter != cameraFilters.end()){
@@ -114,4 +102,21 @@ bool BallFilter::processFrame(int cameraID, Time time) {
 
 BallObservation BallFilter::lastDetection() const {
     return acceptedBalls.back();
+}
+
+bool BallFilter::processDetections(const CameraBallGroundEKF::ObservationPredictionPair &detections, int cameraID) {
+    auto cameraFilter = cameraFilters.find(cameraID);
+    if (cameraFilter == cameraFilters.end()) {
+        //If we have detections assigned, then create a new camera filter for this camera
+        if (detections.observation.has_value()){
+            cameraFilters.insert(std::make_pair(cameraID,CameraBallGroundEKF(detections.observation.value(),detections.prediction.velocity)));
+        }
+        return false;
+    }
+    //Process all the accepted detections of the frame in the filter
+    bool removeFilter = cameraFilter->second.processDetections(detections);
+    if (removeFilter) {
+        cameraFilters.erase(cameraFilter);
+    }
+    return cameraFilters.empty();
 }

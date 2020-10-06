@@ -5,7 +5,7 @@
 #ifndef SOCCER_OBJECTFILTER_H
 #define SOCCER_OBJECTFILTER_H
 
-
+//TODO: fix this giving actually unique ID's..
 class ObjectFilter {
 public:
     [[nodiscard]] int getObjectID() const;

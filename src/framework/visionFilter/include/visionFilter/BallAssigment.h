@@ -8,11 +8,22 @@
 #include "BallFilter.h"
 
 struct BallAssignmentResult{
-    std::vector<CameraBallGroundEKF::ObservationPredictionPair> observationPredictionPair;
-    std::vector<BallObservation> unpairedBalls;
+    std::map<int,CameraBallGroundEKF::ObservationPredictionPair> observationPredictionPairs;
+    std::vector<CameraBallGroundEKF::ObservationPredictionPair> splitPairs;
+    std::vector<BallObservation> unpairedObservations;
 };
 
-BallAssignmentResult assignBalls(const std::vector<BallPredictions>& predictions,const std::vector<BallObservation>& observations);
+struct preOPPair{
+    CameraBallGroundEKF::PredictedBall prediction;
+    std::vector<BallObservation> observations;
+    int objectID;
+    [[nodiscard]] double closestObservationDistance() const;
+    [[nodiscard]] std::pair<std::optional<BallObservation>,std::vector<BallObservation>> splitObservations() const;
+};
+
+std::map<int,std::vector<preOPPair>> createInitialAssignment(const std::map<int,BallPredictions> & predictions);
+std::vector<BallObservation> mergeVeryCloseBalls(const std::vector<BallObservation>& observations);
+BallAssignmentResult assignBalls(const std::map<int,BallPredictions> &predictions,const std::vector<BallObservation>& observations);
 
 
 #endif //SOCCER_BALLASSIGMENT_H
