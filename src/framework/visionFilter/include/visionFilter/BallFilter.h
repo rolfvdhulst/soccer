@@ -7,7 +7,6 @@
 
 #include "ObjectFilter.h"
 #include <vision/BallObservation.h>
-#include "ball/CameraBallFilter_v2.h"
 #include "ball/CameraBallGroundEKF.h"
 #include "RobotTrajectorySegment.h"
 #include <containers/circular_buffer.h>

@@ -4,8 +4,6 @@ add_library(visionFilter
         include/visionFilter/VisionFilter.h
         GeometryFilter.cpp
         include/visionFilter/GeometryFilter.h
-        ball/CameraBallFilter.cpp
-        include/visionFilter/ball/CameraBallFilter.h
         CameraRobotFilter.cpp
         include/visionFilter/CameraRobotFilter.h
         WorldFilter.cpp
@@ -54,8 +52,6 @@ add_library(visionFilter
         RobotFilter.cpp include/visionFilter/RobotFilter.h
         ball/CameraBallGroundEKF.cpp
         include/visionFilter/ball/CameraBallGroundEKF.h
-        ball/CameraBallFilter_v2.cpp
-        include/visionFilter/ball/CameraBallFilter_v2.h
         ball/collision/CollisionChecker.cpp
         include/visionFilter/ball/collision/CollisionChecker.h
         ball/collision/CollisionCalculations.cpp

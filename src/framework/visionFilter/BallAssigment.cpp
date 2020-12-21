@@ -133,9 +133,6 @@ std::pair<std::optional<BallObservation>, std::vector<BallObservation>> preOPPai
         return pair;
     }
     //Find the closest to the prediction. TODO: check if this works
-    if(observations.size()>1){
-        double point = 0.0;
-    }
     auto best = std::min_element(observations.begin(),observations.end(),[this](const BallObservation& a, const BallObservation &b){
         return (a.position-prediction.position).squaredNorm()<(b.position-prediction.position).squaredNorm();
     });

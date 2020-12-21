@@ -65,7 +65,6 @@ void WorldFilter::process(const std::vector<proto::SSL_DetectionFrame> &frames) 
         frame.dt = cameraTime == lastCaptureTimes.end() ? 0.0 : (cameraTime->second -
                                                                  lastCaptureTimes[frame.cameraID]).asSeconds();
         //TODO: make a realtime option
-        //TODO: add moving average filter per camera and see how much it helps?
         //TODO: remove any frames with captures times which differ more than a second from the current time
     }
     //Remove frames which are too late. For now we do this, because it's quite hard to go back in time and reconstruct the state of the entire visionFilter
@@ -135,13 +134,6 @@ WorldFilter::processBalls(const DetectionFrame &frame, const std::vector<RobotTr
         predictions[filter.getObjectID()]=filter.predictCam(frame.cameraID, frame.timeCaptured, geometryData, robotPaths);
     }
     BallAssignmentResult assignment = assignBalls(predictions,frame.balls);
-    if(assignment.observationPredictionPairs.size()!=balls.size()){
-        std::map<int,BallPredictions> predictions;
-        for (const auto &filter : balls) {
-            predictions[filter.getObjectID()]=filter.predictCam(frame.cameraID, frame.timeCaptured, geometryData, robotPaths);
-        }
-        BallAssignmentResult check = assignBalls(predictions,frame.balls);
-    }
     // TODO: Split them if there are matches on multiple branches
     // process balls that weren't seen and remove them if necessary
     auto it = balls.begin();
