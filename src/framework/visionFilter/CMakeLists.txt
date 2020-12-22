@@ -10,8 +10,6 @@ add_library(visionFilter
         include/visionFilter/WorldFilter.h
         CameraObjectFilter.cpp
         include/visionFilter/CameraObjectFilter.h
-        ball/BallGroundFilter.cpp
-        include/visionFilter/ball/BallGroundFilter.h
         ball/BallFlyFilter.cpp
         include/visionFilter/ball/BallFlyFilter.h
         ball/stateEstimation/BallStateEstimator.cpp
@@ -21,16 +19,11 @@ add_library(visionFilter
         RobotOrientationFilter.cpp
         include/visionFilter/RobotOrientationFilter.h
         include/visionFilter/FilterConstants.h
-        ball/kickEstimation/chip/ChipEstimator6D.cpp
-        ball/kickEstimation/chip/ChipEstimator6D.h
-        ball/kickEstimation/chip/ChipEstimator5D.cpp
-        ball/kickEstimation/chip/ChipEstimator5D.h
-        ball/kickEstimation/chip/ChipEstimator.cpp
-        ball/kickEstimation/chip/ChipEstimator.h
-        ball/kickEstimation/chip/ChipEstimator6DSingle.cpp
-        ball/kickEstimation/chip/ChipEstimator6DSingle.h
-        ball/kickEstimation/chip/ChipEstimator6DRotated.cpp
-        ball/kickEstimation/chip/ChipEstimator6DRotated.h
+        ball/kick/estimation/chip/ChipEstimator6D.cpp
+        ball/kick/estimation/chip/ChipEstimator5D.cpp
+        ball/kick/estimation/chip/ChipEstimator.cpp
+        ball/kick/estimation/chip/ChipEstimator6DSingle.cpp
+        ball/kick/estimation/chip/ChipEstimator6DRotated.cpp
         ball/kickDetection/VelocityChangeDetector.cpp
         ball/kickDetection/VelocityChangeDetector.h
         ball/kickDetection/VelocityChangeEvent.cpp
@@ -50,8 +43,8 @@ add_library(visionFilter
         ObjectFilter.cpp include/visionFilter/ObjectFilter.h
         BallFilter.cpp include/visionFilter/BallFilter.h
         RobotFilter.cpp include/visionFilter/RobotFilter.h
-        ball/CameraBallGroundEKF.cpp
-        include/visionFilter/ball/CameraBallGroundEKF.h
+        ball/BallGroundFilter.cpp
+        include/visionFilter/ball/BallGroundFilter.h
         ball/collision/CollisionChecker.cpp
         include/visionFilter/ball/collision/CollisionChecker.h
         ball/collision/CollisionCalculations.cpp
@@ -64,6 +57,8 @@ add_library(visionFilter
         include/visionFilter/ball/VirtualBallTracker.h
         BallAssigment.cpp
         include/visionFilter/BallAssigment.h
+        ball/BallGroundEKF.cpp
+        ball/CameraBallFilter.cpp
         )
 target_link_libraries(visionFilter
         PRIVATE math

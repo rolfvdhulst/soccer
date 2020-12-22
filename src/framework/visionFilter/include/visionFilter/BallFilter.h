@@ -7,15 +7,17 @@
 
 #include "ObjectFilter.h"
 #include <vision/BallObservation.h>
-#include "ball/CameraBallGroundEKF.h"
+#include "ball/BallGroundFilter.h"
+#include "ball/BallFlyFilter.h"
 #include "RobotTrajectorySegment.h"
 #include <containers/circular_buffer.h>
 
 class BallPredictions {
 public:
-    CameraBallGroundEKF::PredictedBalls balls;
+    BallGroundFilter::PredictedBalls balls;
     bool hadRequestedCamera;
     int objectID;
+    FlyingPredictions flying_predictions;
 };
 
 class BallFilter : public ObjectFilter {
@@ -25,7 +27,7 @@ public:
     [[nodiscard]] BallPredictions predictCam(int cameraID, const Time &untilTime, const GeometryData &geometryData,
                                              const std::vector<RobotTrajectorySegment> &robotTrajectorySegments) const;
 
-    bool processDetections(const CameraBallGroundEKF::ObservationPredictionPair& detections, int cameraID);
+    bool processDetections(const BallGroundFilter::ObservationPredictionPair& detections, int cameraID);
 
     [[nodiscard]] FilteredBall mergeBalls(const Time &time) const;
 
@@ -34,7 +36,8 @@ public:
     [[nodiscard]] BallObservation lastDetection() const;
 
 private:
-    std::map<int, CameraBallGroundEKF> cameraFilters;
+    std::map<int, BallGroundFilter> groundFilters;
+    BallFlyFilter fly_filter;
     circular_buffer<BallObservation, 300> acceptedBalls;
 };
 

@@ -2,7 +2,7 @@
 // Created by rolf on 19-07-20.
 //
 
-#include "ChipEstimator6DSingle.h"
+#include "ball/kick/estimation/chip/ChipEstimator6DSingle.h"
 
 bool
 ChipEstimator6DSingle::setMatrices(const std::vector<BallObservation> &observationsSinceKick, const CameraMap &camera){

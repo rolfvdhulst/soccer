@@ -8,13 +8,15 @@
 #include "BallFilter.h"
 
 struct BallAssignmentResult{
-    std::map<int,CameraBallGroundEKF::ObservationPredictionPair> observationPredictionPairs;
-    std::vector<CameraBallGroundEKF::ObservationPredictionPair> splitPairs;
+    std::map<int, BallGroundFilter::ObservationPredictionPair> observationPredictionPairs;
+    std::vector<BallGroundFilter::ObservationPredictionPair> splitPairs;
     std::vector<BallObservation> unpairedObservations;
+
+    std::map<int,std::vector<FlyingObservationPredictionPair>> flyingBalls;
 };
 
 struct preOPPair{
-    CameraBallGroundEKF::PredictedBall prediction;
+    BallGroundFilter::PredictedBall prediction;
     std::vector<BallObservation> observations;
     int objectID;
     [[nodiscard]] double closestObservationDistance() const;

@@ -10,7 +10,7 @@ assignBalls(const std::map<int, BallPredictions> &predictions, const std::vector
     auto assignmentMap = createInitialAssignment(predictions);
     //First pass: Simply assign balls to closest target
     for (const auto &observation : observations) {
-        CameraBallGroundEKF::PredictedBall ball;
+        BallGroundFilter::PredictedBall ball;
         double closestDistance = std::numeric_limits<double>::infinity();
         int objectID = -1;
         for (const auto &prediction : predictions) {
@@ -51,16 +51,13 @@ assignBalls(const std::map<int, BallPredictions> &predictions, const std::vector
         if(numberOfSeenPredictions == 0){
             //Choose prediction with most collisions TODO: should probably check if this actually one with most collisions
             const auto& bestPrediction = singleObjectPredictions.second.back();
-            CameraBallGroundEKF::ObservationPredictionPair opPair;
+            BallGroundFilter::ObservationPredictionPair opPair;
             opPair.prediction = bestPrediction.prediction;
             opPair.objectID = bestPrediction.objectID;
 
             assignment.observationPredictionPairs[singleObjectPredictions.first] = opPair;
         } else{
             //Choose the one for which the ball is closest as the direct continuation.
-            if(singleObjectPredictions.second.size()>1){
-                double point = 0.1;
-            }
             const auto bestPrediction = std::min_element(singleObjectPredictions.second.begin(),singleObjectPredictions.second.end(),
                                                          [](const preOPPair& a, const preOPPair&b){
                 return a.closestObservationDistance() < b.closestObservationDistance();
@@ -69,7 +66,7 @@ assignBalls(const std::map<int, BallPredictions> &predictions, const std::vector
             //For the others, make new filters if they have one or more observations
             //For each if it has more than 2 individual observations, pick the closest, use that, and merge any balls that are very close to it with it
             const auto [observed,discarded] = bestPrediction->splitObservations();
-            CameraBallGroundEKF::ObservationPredictionPair opPair;
+            BallGroundFilter::ObservationPredictionPair opPair;
             opPair.prediction = bestPrediction->prediction;
             opPair.objectID = bestPrediction->objectID;
             opPair.observation = observed;
@@ -84,7 +81,7 @@ assignBalls(const std::map<int, BallPredictions> &predictions, const std::vector
                 }
                 const auto [observed,discarded] = it->splitObservations();
                 if(observed.has_value()){
-                    CameraBallGroundEKF::ObservationPredictionPair otherObjectOPPair;
+                    BallGroundFilter::ObservationPredictionPair otherObjectOPPair;
                     otherObjectOPPair.prediction = it->prediction;
                     otherObjectOPPair.objectID = singleObjectPredictions.first;
                     otherObjectOPPair.observation = observed;

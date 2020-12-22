@@ -2,7 +2,7 @@
 // Created by rolf on 19-07-20.
 //
 
-#include "ChipEstimator5D.h"
+#include "ball/kick/estimation/chip/ChipEstimator5D.h"
 
 
 bool ChipEstimator5D::setMatrices(const std::vector<BallObservation> &observationsSinceKick,

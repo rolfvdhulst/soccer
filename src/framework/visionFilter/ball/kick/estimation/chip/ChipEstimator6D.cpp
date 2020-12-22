@@ -2,7 +2,7 @@
 // Created by rolf on 19-07-20.
 //
 
-#include "ChipEstimator6D.h"
+#include "ball/kick/estimation/chip/ChipEstimator6D.h"
 
 std::optional<ChipFitResult>
 ChipEstimator6D::getChipEstimate(const std::vector<BallObservation> &observationsSinceKick,
