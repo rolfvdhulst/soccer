@@ -89,3 +89,12 @@ bool Camera::isPositionVisible(const Eigen::Vector3d& fieldPoint, double marginF
     double maxHeight = imageHeight - margin;
     return imagePos.x() >= minWidth && imagePos.x() <= maxWidth && imagePos.y() >= minHeight && imagePos.y() <= maxHeight;
 }
+Eigen::Vector2d Camera::linearProjectToHorizontalPlane(Eigen::Vector3d objectPos, double planeHeight) const {
+  Eigen::Vector3d origin = worldPos();
+  Eigen::Vector3d rayDirection = objectPos-origin;
+  Eigen::Vector3d planeOrigin(0,0,planeHeight);
+  Eigen::Vector3d planeNormal(0,0,1);
+  double t = rayPlaneIntersection(planeOrigin,planeNormal,origin,rayDirection);
+  Eigen::Vector3d groundPos = origin + t*rayDirection;
+  return Eigen::Vector2d(groundPos.x(),groundPos.y());
+}

@@ -13,6 +13,7 @@ struct BallObservation {
     BallObservation() = default;
     explicit BallObservation(int cameraID, Time timeCaptured, Time timeSent, const proto::SSL_DetectionBall& detectionBall);
     explicit BallObservation(int cameraID, Time timeCaptured, Time timeSent, Eigen::Vector2d position, Eigen::Vector2d pixelPosition, double confidence, unsigned int area, double height);
+    bool operator==(const BallObservation& other) const;
     int cameraID;
     Time timeCaptured;
     Time timeSent;

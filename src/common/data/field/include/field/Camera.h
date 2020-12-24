@@ -21,6 +21,14 @@ class Camera {
      * @return the 3d position where the camera is located
      */
     [[nodiscard]] Eigen::Vector3d worldPos() const;
+
+    /**
+     * All vectors are in meters
+     * @param objectPos 3d position of object to be project to plane
+     * @param planeHeight height of the plane,
+     * @return The vector in meters on the plane
+     */
+    [[nodiscard]] Eigen::Vector2d linearProjectToHorizontalPlane(Eigen::Vector3d objectPos,double planeHeight) const;
     /**
      * @brief Gets the quaternion of the camera that represents it's 3d rotation
      * @return the 3d orientation of the camera

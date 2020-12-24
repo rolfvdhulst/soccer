@@ -13,7 +13,7 @@ BallFilter::BallFilter(const BallObservation &observation)
 BallPredictions BallFilter::predictCam(int cameraID, const Time &untilTime, const GeometryData &geometryData,
                                        const std::vector<RobotTrajectorySegment> &robotTrajectories) const {
   BallPredictions prediction;
-  prediction.flying_predictions = fly_filter.getPredictions();
+  prediction.flying_predictions = fly_filter.getPredictions(untilTime,geometryData.cameras,cameraID);
   auto cameraFilter = groundFilters.find(cameraID);
     if (cameraFilter != groundFilters.end()) {
         auto predictions = cameraFilter->second.predict(untilTime, geometryData, robotTrajectories);

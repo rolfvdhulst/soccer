@@ -210,9 +210,9 @@ TEST(VectorTests, cross) {
 
 TEST(VectorTests, project2) {
     Vector2 direction(2, 2);
-    Vector2 null(2, 0);
-    Vector2 result1 = null.project2(direction);
-    Vector2 result2 = direction.project2(null);
+    Vector2 other(2, 0);
+    Vector2 result1 = other.project2(direction);
+    Vector2 result2 = direction.project2(other);
     EXPECT_DOUBLE_EQ(result1.x(), 1);
     EXPECT_DOUBLE_EQ(result1.y(), 1);
     EXPECT_DOUBLE_EQ(result2.x(), 2);

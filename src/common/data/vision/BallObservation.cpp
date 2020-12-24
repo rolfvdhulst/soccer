@@ -30,6 +30,18 @@ BallObservation::BallObservation(int cameraID, Time timeCaptured, Time timeSent,
                                  height(height){
 
 }
+bool BallObservation::operator==(const BallObservation &other) const {
+  return
+  cameraID == other.cameraID &&
+  timeCaptured == other.timeCaptured &&
+  timeSent == other.timeSent &&
+  position == other.position &&
+  pixelPosition == other.pixelPosition &&
+  area == other.area &&
+  confidence == other.confidence &&
+  height == other.height;
+
+}
 BallObservation mergeBallObservationsByArea(const std::vector<BallObservation>& observations){
     //It's the user's responsibility to ensure all observations are from the same detectionFrame
     unsigned int totalArea = 0;

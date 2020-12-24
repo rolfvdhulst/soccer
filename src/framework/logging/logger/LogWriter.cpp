@@ -5,7 +5,7 @@
 #include "LogWriter.h"
 #include "LogHeader.h"
 #include <fstream>
-#include <thread> //TODO: remove
+
 bool LogWriter::open(QString &file) {
     QByteArray fileNameBytes = file.toUtf8();
     const char *fileName = fileNameBytes.constData();

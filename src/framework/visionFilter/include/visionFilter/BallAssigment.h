@@ -12,7 +12,7 @@ struct BallAssignmentResult{
     std::vector<BallGroundFilter::ObservationPredictionPair> splitPairs;
     std::vector<BallObservation> unpairedObservations;
 
-    std::map<int,std::vector<FlyingObservationPredictionPair>> flyingBalls;
+    std::map<int,FlyingObservationPrediction> flyingBalls;
 };
 
 struct preOPPair{
@@ -26,6 +26,5 @@ struct preOPPair{
 std::map<int,std::vector<preOPPair>> createInitialAssignment(const std::map<int,BallPredictions> & predictions);
 std::vector<BallObservation> mergeVeryCloseBalls(const std::vector<BallObservation>& observations);
 BallAssignmentResult assignBalls(const std::map<int,BallPredictions> &predictions,const std::vector<BallObservation>& observations);
-
 
 #endif //SOCCER_BALLASSIGMENT_H

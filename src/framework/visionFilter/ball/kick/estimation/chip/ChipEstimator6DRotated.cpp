@@ -26,7 +26,7 @@ bool ChipEstimator6DRotated::setMatrices(const std::vector<BallObservation> &obs
     AMatrix.resize(2 * N, 6);
     BVector.resize(2 * N);
 
-    Time firstTime = observationsSinceKick[0].timeCaptured;
+    Time firstTime = observationsSinceKick[0].timeCaptured; //TODO: use lowest time
 
 
     int i = 0;

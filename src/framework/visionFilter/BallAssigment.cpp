@@ -94,7 +94,39 @@ assignBalls(const std::map<int, BallPredictions> &predictions, const std::vector
         }
 
     }
-    //For each object pick the best option.
+    //For all flying balls, simply check if they are close enough and assign them in that case
+    for (const auto& prediction: predictions){
+      for (const auto& flying_prediction : prediction.second.flying_predictions.predictions){
+        FlyingObservationPrediction flying_OP;
+        flying_OP.prediction=flying_prediction;
+        for(const auto& observation : observations){
+          //if observation is close enough to prediction, then we match it
+          if(flying_prediction.isClose(observation)){
+            flying_OP.observations.push_back(observation);
+          }
+        }
+        if(!flying_OP.observations.empty()){
+          assignment.flyingBalls[prediction.first] = flying_OP; //TODO: what is the integer from first here?
+        }
+      }
+    }
+    //TODO: perhaps (not) remove flying obsevations from observation list?
+    auto it = assignment.unpairedObservations.begin();
+    while(it != assignment.unpairedObservations.end()){
+      bool isFlying = false;
+      for(const auto& flyingObservation : assignment.flyingBalls){
+        for(const auto& obs : flyingObservation.second.observations){
+          if(*it == obs){
+            isFlying = true;
+          }
+        }
+      }
+      if(isFlying){
+        it = assignment.unpairedObservations.erase(it);
+      }else{
+        ++it;
+      }
+    }
     return assignment;
 }
 

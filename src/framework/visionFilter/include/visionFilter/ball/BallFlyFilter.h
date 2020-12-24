@@ -11,15 +11,16 @@
 #include <vision/ChipFitResult.h>
 #include <field/CameraMap.h>
 
-class FlyingBallPrediction{
+struct FlyingBallPrediction{
   Eigen::Vector3d world_position;
   Eigen::Vector2d project_ground_pos;
   Time time;
   std::size_t id;
+  [[nodiscard]] bool isClose(const BallObservation& observation) const;
 };
-class FlyingObservationPredictionPair{
+struct FlyingObservationPrediction{
   FlyingBallPrediction prediction;
-  BallObservation observation;
+  std::vector<BallObservation> observations;
 };
 struct FlyingPredictions{
   std::vector<FlyingBallPrediction> predictions;
@@ -40,19 +41,23 @@ class FlightStartEvent{
 
 class SingleBallFlight{
  public:
-  explicit SingleBallFlight(const FlightStartEvent& event);
+  explicit SingleBallFlight(FlightStartEvent  event);
   void addObservation(const BallObservation& observation);
+  [[nodiscard]] FlyingBallPrediction prediction(Time time,const CameraMap& cam_map,int camera_id) const;
   std::optional<ChipFitResult> getFit(const CameraMap& cam_map);
+
   [[nodiscard]] unsigned long maxSingleCamObservations() const;
   [[nodiscard]] std::vector<BallObservation> allObservations() const;
+  [[nodiscard]] unsigned long numberOfObservations() const;
  private:
   FlightStartEvent start_event;
   std::map<int,std::vector<BallObservation>> camObservations;
+  std::optional<ChipFitResult> fit;
 };
 
 class BallFlyFilter {
  public:
-  [[nodiscard]] FlyingPredictions getPredictions() const;
+  [[nodiscard]] FlyingPredictions getPredictions(Time time,const CameraMap& camera_map, int camera_id) const;
   void startPossibleFlight(const FlightStartEvent& start);
   void addObservation(const BallObservation& observation);
  private:
