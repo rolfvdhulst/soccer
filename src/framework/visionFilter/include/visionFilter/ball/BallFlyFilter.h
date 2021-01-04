@@ -11,13 +11,23 @@
 #include <vision/ChipFitResult.h>
 #include <field/CameraMap.h>
 
+
+struct RollingBallPrediction{
+    Eigen::Vector2d predicted_roll_position;
+};
 struct FlyingBallPrediction{
   Eigen::Vector3d world_position;
   Eigen::Vector2d project_ground_pos;
-  Time time;
-  std::size_t id;
+
   [[nodiscard]] bool isClose(const BallObservation& observation) const;
 };
+struct KickedBallPrediction{
+    RollingBallPrediction rolling_prediction;
+    FlyingBallPrediction flying_prediction;
+    Time time;
+    std::size_t id;
+};
+
 struct FlyingObservationPrediction{
   FlyingBallPrediction prediction;
   std::vector<BallObservation> observations;
@@ -25,19 +35,7 @@ struct FlyingObservationPrediction{
 struct FlyingPredictions{
   std::vector<FlyingBallPrediction> predictions;
 };
-enum FlightStartEventType{
-  BOUNCE = 0,
-  ROBOT_FRONT = 1,
-  ROBOT_FRONT_WITH_COMMAND = 2,
 
-};
-class FlightStartEvent{
-  //types: robot front hull collision | bounce | (velocity change)
-  Eigen::Vector3d initial_pos;
-  std::optional<Eigen::Vector3d> initial_vel;
-  Time time;
-  FlightStartEventType type;
-};
 
 class SingleBallFlight{
  public:
@@ -57,7 +55,7 @@ class SingleBallFlight{
 
 class BallFlyFilter {
  public:
-  [[nodiscard]] FlyingPredictions getPredictions(Time time,const CameraMap& camera_map, int camera_id) const;
+  [[nodiscard]] FlyingPredictions   getPredictions(Time time,const CameraMap& camera_map, int camera_id) const;
   void startPossibleFlight(const FlightStartEvent& start);
   void addObservation(const BallObservation& observation);
  private:
