@@ -21,7 +21,7 @@ RefereeState::RefereeState(const proto::RefereeState &gameState) :
         stage{GameStage(gameState.stage())},
         command{GameCommand(gameState.command())},
         commandsSinceStartup{gameState.command_counter()},
-        commandTime{Time(gameState.command_timestamp())},
+        commandTime{Time(static_cast<long int>(gameState.command_timestamp()))},
         usInfo{TeamInfo(gameState.us())},
         themInfo{TeamInfo(gameState.them())}
 {

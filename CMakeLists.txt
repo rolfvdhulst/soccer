@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(soccer)
+
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+
 add_subdirectory(src)
 add_subdirectory(test)
 
@@ -8,6 +11,7 @@ add_subdirectory(test)
 option(CODE_COVERAGE "Enable coverage reports" OFF)
 option(RELEASE "add release flags" OFF)
 option(BENCHMARK "add benchmark flags" OFF)
+
 
 function(target_add_coverage_flags TARGET)
     target_compile_options(${TARGET} PUBLIC

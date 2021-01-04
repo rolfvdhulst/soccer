@@ -7,6 +7,7 @@
 
 #include <protobuf/RobotInfo.h>
 
+#include <math.h>
 
 struct RobotParameters {
   explicit RobotParameters(const proto::RobotInfo &params) :
@@ -16,6 +17,12 @@ struct RobotParameters {
   frontWidth{params.frontwidth()},
   dribblerWidth{params.dribblerwidth()}
   {};
+  RobotParameters() :
+  radius{0.09},
+  centerToFront{cos(0.785)*0.09},
+  height{0.15},
+  frontWidth{sin(0.785)*0.09*2},
+  dribblerWidth{sin(0.785)*0.09*2}{}
   double radius;
   double centerToFront;
   double height;

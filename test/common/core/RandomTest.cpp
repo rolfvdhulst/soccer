@@ -32,15 +32,19 @@ TEST(Random,instance){
   EXPECT_DOUBLE_EQ(distribution(test.instance()),control.getUniform());
 }
 TEST(Random,gaussian){
-    Random gen(42);
-    //Use central limit theorem as test
-    int n = 10000;
-    double sum = 0;
-    for (int kI = 0; kI < n; ++kI) {
-      sum+=gen.getGaussian();
+    int successes = 0;
+    for (int i = 0; i < 100; ++i) {
+        Random gen(i);
+        //Use central limit theorem as test
+        int n = 10000;
+        double sum = 0;
+        for (int kI = 0; kI < n; ++kI) {
+            sum+=gen.getGaussian();
+        }
+        sum /= (double) n;
+        double sigma = 1/sqrt(n);
+        successes += (abs(sum)<=2*sigma);//95 % confidence interval.
     }
-    sum /= (double) n;
-    double sigma = 1/sqrt(n);
-    EXPECT_LE(abs(sum),2*sigma); //95 % confidence interval
-
+    EXPECT_GE(successes,90); //Leave some width for 95% confidence interval.
+    //The actual value is 94, which is a good indication everything works as intended.
 }

@@ -20,6 +20,7 @@ class Visualizer : public QGraphicsView {
         Q_OBJECT
 
     private:
+        //TODO: make these separate classes
         struct Robot{
           QGraphicsPathItem *robot;
           QGraphicsSimpleTextItem *id;
@@ -30,8 +31,12 @@ class Visualizer : public QGraphicsView {
         struct Ball{
           QGraphicsEllipseItem *actual;
           QGraphicsEllipseItem *attentionCircle;
+          QGraphicsLineItem *velocity;
           QGraphicsSimpleTextItem *noBallWarning;
+          double attentionRadius;
           void setPos(qreal x, qreal y);
+          void setVelocity(qreal x, qreal y);
+          void showVelocity(bool show);
           void hide();
           void show();
         };
@@ -61,6 +66,7 @@ class Visualizer : public QGraphicsView {
         void setShowDetections(bool showDetections);
         void setShowPlacementMarker(bool show);
         void setShowCameraOutlines(bool show);
+        void setShowBallVelocity(bool show);
     private slots:
         void updateAll();
 
@@ -79,8 +85,11 @@ class Visualizer : public QGraphicsView {
         void drawDetectionFrame(QPainter *painter, const proto::SSL_DetectionFrame &frame, const proto::TeamRobotInfo &robotInfo);
         void drawDetectionBall(QPainter * painter, const proto::SSL_DetectionBall& ball);
         void drawDetectionRobot(QPainter * painter, const proto::SSL_DetectionRobot& bot, const proto::RobotInfo &info, const QColor &color);
+        void drawVirtualBall(QPainter * painter, const proto::WorldVirtualBall&virtualBall, bool teamIsBlue);
         std::vector<proto::SSL_DetectionFrame> usedDetectionFrames;
         proto::TeamRobotInfo teamRobotInfo;
+        std::vector<proto::WorldVirtualBall> blueVirtualBalls;
+        std::vector<proto::WorldVirtualBall> yellowVirtualBalls;
         void updateRobotInfo(const proto::TeamRobotInfo& robotInfo);
 
         void drawConnectedLines(QPainter * painter, const std::vector<Vector2>& points);
@@ -112,6 +121,7 @@ class Visualizer : public QGraphicsView {
         bool showDetections = false;
         bool showCameraOutlines = false;
         bool showPlacementMarker = true;
+        bool showBallVelocity = false;
 
         double totalZoom = 1.0;
 };

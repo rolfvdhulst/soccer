@@ -10,6 +10,10 @@ const Rectangle &FieldState::getDefenceArea(bool us) const { return us ? leftDef
 const Rectangle &FieldState::getField() const { return field; }
 const Rectangle &FieldState::getMarginField() const { return fieldWithMargin; }
 const Rectangle &FieldState::getField(bool withMargin) const { return withMargin ? fieldWithMargin : field; }
+Rectangle FieldState::getFieldCorrected(double length) const{
+    assert(length < fieldLength && length < fieldWidth); // If not the below constructor will not like you
+    return Rectangle(Vector2(leftX-length, bottomY-length), fieldLength+2*length, fieldWidth+2*length);
+}
 const Rectangle &FieldState::getOurGoalRectangle() const { return leftGoalRectangle; }
 const Rectangle &FieldState::getTheirGoalRectangle() const { return rightGoalRectangle; }
 const Rectangle &FieldState::getGoalRectangle(bool us) const { return us ? leftGoalRectangle : rightGoalRectangle; }

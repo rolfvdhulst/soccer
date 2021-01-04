@@ -145,7 +145,52 @@ std::optional<Vector2> LineSegment::intersects(const LineSegment &line) const {
     }
     return std::nullopt;
 }
+std::optional<double> LineSegment::intersectsParametrize(const LineSegment& line) const{
+    Vector2 p = m_start;
+    Vector2 r = direction();
+    Vector2 q = line.start();
+    Vector2 s = line.direction();
 
+    double uDenom = r.cross(s);
+    double uNumer = (q - p).cross(r);
+    if (uDenom == 0) {
+        if (uNumer == 0) {
+            // Lines are colinear;
+            // if the interval between t0 and t1 intersects [0,1] they lines overlap on this interval
+            double t0 = (q - p).dot(r) / (r.dot(r));
+            double t1 = t0 + s.dot(r) / (r.dot(r));
+            if (t0 < 0) {
+                if (t1 >= 0) {
+                    // interval overlaps, we pick closest point which is from the start to the end of the line (p+0*r);
+                    return 0;
+                }
+            } else if (t0 > 1) {
+                if (t1 <= 1) {
+                    return 1;  // Similar but now we have the end of the line
+                }
+            } else {
+                // we return the point closest to the start of p
+                return fmax(fmin(t0,t1),0);
+            }
+            return std::nullopt;  // there was no intersection with the interval [0,1] so the lineas are colinear but have no overlap
+        } else {
+            return std::nullopt;  // Lines are parallel and nonintersecting
+        }
+    } else {
+        // if we find t and u such that p+tr=q+us for t and u between 0 and 1, we have found a valid intersection.
+        double u = uNumer / uDenom;
+        if (u >= 0 && u <= 1) {
+            double t = (q - p).cross(s) / uDenom;
+            if (t >= 0 && t <= 1) {
+                return t;  // we found a intersection point!
+            }
+        }
+    }
+    return std::nullopt;
+}
+Vector2 LineSegment::getPos(double t) const {
+    return m_start + direction()*t;
+};
 double LineSegment::distanceTo(const Vector2 &point) const { return (this->project(point) - point).length(); }
 
 // same principle but now we do not necessarily have an orthogonal vector but just pick the closest point on the segment

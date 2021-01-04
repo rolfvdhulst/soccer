@@ -2,12 +2,15 @@ syntax = "proto2";
 
 import "WorldBall.proto";
 import "WorldRobot.proto";
+import "WorldVirtualBall.proto";
 
 package proto;
 
 message World {
-    required uint64 time = 1;
+    required int64 time = 1;
     optional WorldBall ball = 3;
     repeated WorldRobot yellow = 4;
     repeated WorldRobot blue = 5;
+    repeated WorldVirtualBall blueVirtual = 6;
+    repeated WorldVirtualBall yellowVirtual = 7;
 }

@@ -16,6 +16,7 @@ struct DetectionFrame {
     int cameraID;
     Time timeCaptured;
     Time timeSent;
+    double dt = 0.0;
     std::vector<BallObservation> balls;
     std::vector<RobotObservation> blue;
     std::vector<RobotObservation> yellow;

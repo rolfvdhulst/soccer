@@ -10,7 +10,7 @@ import "Settings.proto";
 
 message RefereeState{
     //When the referee message containing this information was sent in nanoseconds since epoch
-    required uint64 timeStamp= 1;
+    required int64 timeStamp= 1;
     //The gamestage of the referee corresponding to the stage of the game.
     //These are the 'course states' of the game such 'first half' etc.
     required Referee.Stage stage = 2;

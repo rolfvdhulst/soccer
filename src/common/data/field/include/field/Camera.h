@@ -21,6 +21,14 @@ class Camera {
      * @return the 3d position where the camera is located
      */
     [[nodiscard]] Eigen::Vector3d worldPos() const;
+
+    /**
+     * All vectors are in meters
+     * @param objectPos 3d position of object to be project to plane
+     * @param planeHeight height of the plane,
+     * @return The vector in meters on the plane
+     */
+    [[nodiscard]] Eigen::Vector2d linearProjectToHorizontalPlane(Eigen::Vector3d objectPos,double planeHeight) const;
     /**
      * @brief Gets the quaternion of the camera that represents it's 3d rotation
      * @return the 3d orientation of the camera
@@ -49,6 +57,14 @@ class Camera {
      */
     [[nodiscard]] Eigen::Vector3d imageToField(const Eigen::Vector2d& imagePoint, double assumedHeight) const;
 
+    /**
+     * @brief !! Position is in millimeters, NOT meters!!
+     * Checks if the position is visible. The marginFactor is subtracted from the image boundaries in pixels on each side
+     * And then it is checked if the coordinate produced falls within the acceptable range.
+     * E.g. if marginFactor is 0.1 and the image is 1280x1024 128 pixels are substracted from each side and only the inner
+     * region is considered visible.
+     */
+    [[nodiscard]] bool isPositionVisible(const Eigen::Vector3d& fieldPoint, double marginFactor = 0.0) const;
    private:
     [[nodiscard]] Eigen::Vector2d radialDistortion(Eigen::Vector2d& imagePoint) const;
     [[nodiscard]] double radialDistortion(double radius) const;
@@ -57,11 +73,15 @@ class Camera {
 
     unsigned int id;
     double focalLength;
-    Vector2Eigen principalPoint;
+    Eigen::Vector2d principalPoint;
     Vector3 position;
     Vector3 translation;
     Quaternion orientation;
     double distortion;
+    //The largest values used on a RoboCup so far. This gives position visibility some margin
+    // erroring to a position being visible sooner rather than later. This can be nice in some cases
+    unsigned int imageWidth = 2448;
+    unsigned int imageHeight = 2048;
 };
 
 #endif  // RTT_CAMERA_H

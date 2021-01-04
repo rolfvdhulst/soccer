@@ -17,17 +17,19 @@ proto::World VisionFilter::process(const std::vector<proto::SSL_WrapperPacket>& 
 }
 void VisionFilter::processDetections(const std::vector<proto::SSL_WrapperPacket> &packets) {
     if(hasNewGeometry()){
-        worldFilter.updateCameras(geomFilter.getGeometry());
+        worldFilter.updateGeometry(geomFilter.getGeometry());
     }
+    std::vector<proto::SSL_DetectionFrame> detectionsFrames;
     for (const auto& packet : packets) {
         if(packet.has_detection()){
-            worldFilter.addFrame(packet.detection());
+            detectionsFrames.push_back(packet.detection());
             Time detectionTime(packet.detection().t_capture());
             if (detectionTime> lastPacketTime){
                 lastPacketTime = detectionTime;
             }
         }
     }
+    worldFilter.process(detectionsFrames);
 }
 void VisionFilter::processGeometry(const std::vector<proto::SSL_WrapperPacket> &packets) {
     geometryUpdated = false;

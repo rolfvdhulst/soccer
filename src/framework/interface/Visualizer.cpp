@@ -138,9 +138,19 @@ void Visualizer::updateWorld(const proto::World& world) {
     }
     if (world.has_ball()) {
         ball->setPos(world.ball().pos().x(), -world.ball().pos().y());
+        ball->setVelocity(world.ball().vel().x(),-world.ball().vel().y());
         ball->show();
+        ball->showVelocity(showBallVelocity);
     } else {
         ball->hide();
+    }
+    blueVirtualBalls.clear();
+    for(const auto& blueVirtualBall : world.bluevirtual()){
+        blueVirtualBalls.push_back(blueVirtualBall);
+    }
+    yellowVirtualBalls.clear();
+    for(const auto& yellowVirtualBall: world.yellowvirtual()){
+        yellowVirtualBalls.push_back(yellowVirtualBall);
     }
 }
 void Visualizer::refitView() {
@@ -236,6 +246,13 @@ void Visualizer::drawForeground(QPainter* painter, const QRectF& rect) {
     if (showDetections) {
         drawDetectionFrames(painter, usedDetectionFrames, teamRobotInfo);
     }
+
+    for(const auto& blueVirtual : blueVirtualBalls){
+        drawVirtualBall(painter,blueVirtual,true);
+    }
+    for(const auto& yellowVirtual : yellowVirtualBalls){
+        drawVirtualBall(painter,yellowVirtual,false);
+    }
 }
 void Visualizer::clearDetections() { usedDetectionFrames.clear(); }
 void Visualizer::addDetections(const proto::FrameLog& frame) {
@@ -273,14 +290,17 @@ void Visualizer::drawField(QPainter* painter) {
 }
 void Visualizer::createBall() {
     const float ballRadius = 0.021333f;
-    const float attentionRadius = field.getFieldLength() * 0.015f + ballRadius;
     ball = new Ball();
+    ball->attentionRadius = field.getFieldLength() * 0.015f + ballRadius;
     ball->actual = new QGraphicsEllipseItem();
     ball->actual->setPen(Qt::NoPen);
     ball->actual->setBrush(QColor(255, 140, 0));
     ball->actual->setZValue(100.0);  // TODO: collect and organise
     ball->actual->setRect(QRectF(-ballRadius, -ballRadius, ballRadius * 2, ballRadius * 2));
     ball->attentionCircle = new QGraphicsEllipseItem();
+
+
+    float attentionRadius = ball->attentionRadius;
     QPen pen;
     pen.setColor(Qt::red);
     pen.setWidthF(0.01);
@@ -289,6 +309,15 @@ void Visualizer::createBall() {
     ball->attentionCircle->setOpacity(0.5);
     ball->attentionCircle->setZValue(40.0);  // TODO: collect and organise
     ball->attentionCircle->setRect(QRectF(-attentionRadius, -attentionRadius, attentionRadius * 2, attentionRadius * 2));
+
+    pen.setColor(Qt::lightGray);
+    pen.setWidthF(0.01);
+    ball->velocity = new QGraphicsLineItem();
+    ball->velocity->setPen(pen);
+    ball->velocity->setOpacity(0.6);
+    ball->velocity->setLine(0,0,0,0);
+    ball->velocity->setZValue(110.0); //TODO: collect zvalues and organise
+
     ball->noBallWarning = new QGraphicsSimpleTextItem("NO BALL");
     ball->noBallWarning->setFont(QFont("ubuntu", 1));
     pen.setColor(Qt::red);
@@ -296,6 +325,7 @@ void Visualizer::createBall() {
     ball->hide();
     scene->addItem(ball->actual);
     scene->addItem(ball->attentionCircle);
+    scene->addItem(ball->velocity);
     scene->addItem(ball->noBallWarning);
 }
 void Visualizer::resizeEvent(QResizeEvent* event) {
@@ -433,6 +463,26 @@ void Visualizer::updateSingleFrame(const proto::FrameLog& frame) {
 void Visualizer::updateRobotInfo(const proto::TeamRobotInfo& robotInfo) {
     teamRobotInfo.CopyFrom(robotInfo);  // Copy robotInfo
 }
+
+void Visualizer::setShowBallVelocity(bool show) {
+    showBallVelocity = show;
+    ball->showVelocity(showBallVelocity);
+}
+
+void Visualizer::drawVirtualBall(QPainter *painter, const proto::WorldVirtualBall& ball, bool teamIsBlue) {
+    const float radius = 0.02133;  // TODO: fix being constant somewhere
+    painter->setPen(Qt::NoPen);
+    teamIsBlue ? painter->setBrush(Qt::darkBlue): painter->setBrush(Qt::darkRed);
+    painter->setOpacity(1.0);
+    painter->drawEllipse(QPointF(ball.pos().x(),-ball.pos().y()), radius, radius);
+    painter->setBrush(Qt::NoBrush);
+    QPen pen;
+    pen.setWidthF(0.01);
+    teamIsBlue ? pen.setColor(Qt::darkBlue):pen.setColor(Qt::darkRed);
+    painter->setPen(pen);
+    painter->drawEllipse(QPointF(ball.pos().x(),-ball.pos().y()),0.3,0.3);
+}
+
 void Visualizer::Ball::show() {
     actual->show();
     attentionCircle->show();
@@ -442,11 +492,26 @@ void Visualizer::Ball::hide() {
     actual->hide();
     attentionCircle->hide();
     noBallWarning->show();
+    velocity->hide();
 }
 void Visualizer::Ball::setPos(qreal x, qreal y) {
     actual->setPos(x, y);
     attentionCircle->setPos(x, y);
+    velocity->setPos(x,y);
 }
+
+void Visualizer::Ball::showVelocity(bool show) {
+    velocity->setVisible(show);
+}
+
+void Visualizer::Ball::setVelocity(qreal x,qreal y) {
+    QPointF point(x,y);
+    point/=2.0;
+    point*=attentionRadius;
+    QLineF line(QPointF(0,0),point);
+    velocity->setLine(line);
+}
+
 void Visualizer::PlacementMarker::setPos(qreal x, qreal y) {
     line1->setPos(x, y);
     line2->setPos(x, y);

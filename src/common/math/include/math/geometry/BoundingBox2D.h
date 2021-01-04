@@ -39,10 +39,11 @@ class BoundingBox2D {
 
     bool contains(const Vector2& point);
 
-//    bool doesIntersect(const LineSegment& segment);
+    bool doesIntersect(const LineSegment& segment) const;
 //    bool doesIntersect(const Line& line);
-    bool doesIntersect(const Ray& ray);
+    bool doesIntersect(const Ray& ray) const;
 
+    void expand(double distance);
 
     /**
      * @param other

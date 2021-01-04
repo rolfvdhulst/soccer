@@ -205,3 +205,11 @@ double RobotShape::distanceTo(const Vector2& point) const {
 double RobotShape::squaredDistanceTo(const Vector2 &point) const {
     return (project(point)-point).length2();
 }
+
+double RobotShape::radius() const {
+    return circle.radius();
+}
+
+double RobotShape::centerToFrontDist() const {
+    return centerToFront;
+}

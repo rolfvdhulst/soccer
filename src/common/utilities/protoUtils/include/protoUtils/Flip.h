@@ -24,4 +24,5 @@ void flip(proto::SSL_DetectionFrame* detectionFrame);
 void flip(proto::SSL_DetectionRobot * detectionRobot);
 void flip(proto::SSL_DetectionBall * detectionBall);
 void flip(proto::GameState& gameState);
+void flip(proto::WorldVirtualBall * virtualBall);
 #endif  // SOCCER_FLIP_H

@@ -24,12 +24,12 @@ class Polygon : public Shape {
    * @brief Construct a new Polygon object
    * @param vertices Vertices that will literally be copied to this->vertices
    */
-  explicit Polygon(const std::vector<Vector2>& _vertices){
+  explicit constexpr Polygon(const std::vector<Vector2>& _vertices){
     assert(_vertices.size() == N);
     std::copy_n(std::make_move_iterator(_vertices.begin()),N,vertices.begin());
   }
   template<class ... Args>
-  explicit Polygon(Args &&... args) :vertices{Vector2(args)...}{
+  explicit constexpr Polygon(Args &&... args) :vertices{Vector2(args)...}{
     static_assert(sizeof...(Args) == N, "Invalid number of constructor arguments");
   }
   /**
