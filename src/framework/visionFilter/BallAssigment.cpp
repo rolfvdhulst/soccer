@@ -96,25 +96,25 @@ assignBalls(const std::map<int, BallPredictions> &predictions, const std::vector
     }
     //For all flying balls, simply check if they are close enough and assign them in that case
     for (const auto& prediction: predictions){
-      for (const auto& flying_prediction : prediction.second.flying_predictions.predictions){
-        FlyingObservationPrediction flying_OP;
-        flying_OP.prediction=flying_prediction;
+      for (int i = 0; i < prediction.second.kick_predictions.predictions.size(); ++i) {
+        const auto& kick_prediction = prediction.second.kick_predictions.predictions[i];
+        KickOPPair kick_OP;
+        kick_OP.prediction = kick_prediction;
+        kick_OP.id = i;
         for(const auto& observation : observations){
           //if observation is close enough to prediction, then we match it
-          if(flying_prediction.isClose(observation)){
-            flying_OP.observations.push_back(observation);
+          if( kick_prediction.isCloseGround(observation) || kick_prediction.isCloseChip(observation)){
+            kick_OP.observations.push_back(observation);
           }
         }
-        if(!flying_OP.observations.empty()){
-          assignment.flyingBalls[prediction.first] = flying_OP; //TODO: what is the integer from first here?
-        }
+        assignment.kicked_balls[prediction.first] = kick_OP; //TODO: what is the integer from first here?
       }
     }
     //TODO: perhaps (not) remove flying obsevations from observation list?
     auto it = assignment.unpairedObservations.begin();
     while(it != assignment.unpairedObservations.end()){
       bool isFlying = false;
-      for(const auto& flyingObservation : assignment.flyingBalls){
+      for(const auto& flyingObservation : assignment.kicked_balls){
         for(const auto& obs : flyingObservation.second.observations){
           if(*it == obs){
             isFlying = true;

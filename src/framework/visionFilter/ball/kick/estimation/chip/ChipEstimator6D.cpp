@@ -70,7 +70,7 @@ ChipFitResult ChipEstimator6D::postProcess(const Eigen::VectorXd &solution, bool
     Eigen::Vector3d worldPos(solution(0), solution(2), solution(4));
     Eigen::Vector3d worldVel(solution(1), solution(3), solution(5));
 
-    ChipFitResult result;
+    ChipFitResult result()
     result.kickPos = worldPos;
     result.kickVel = worldVel;
 

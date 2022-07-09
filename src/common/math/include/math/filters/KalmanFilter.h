@@ -88,7 +88,7 @@ class KalmanFilter {
         y = z - (H * X);
         // Variance of innovation
         MatrixOO S = H * P * H.transpose() + R;
-        // compute kalman gain. For small matrices, Eigen's inverse function is efficient but be careful with larger matrices (solve a system of eq's instead)
+        // compute kalman gain. For small matrices, Eigen's inverse function is most efficient
         MatrixSO K = P * H.transpose() * S.inverse();
         // update state with prediction
         X = X + K * y;

@@ -7,16 +7,16 @@
 
 #include <field/CameraMap.h>
 #include <vision/BallObservation.h>
-#include <vision/ChipFitResult.h>
+#include "ball/kick/estimation/chip/ChipFitResult.h"
 
 class ChipEstimator {
 public:
     virtual std::optional<ChipFitResult>
-    getChipEstimate(const std::vector<BallObservation> &observationsSinceKick, const CameraMap &camera, bool computeResiduals = false) = 0;
+    getChipEstimate(bool computeResiduals = false) = 0;
 
-//    virtual std::optional<ChipFitResult> chipEstimation(bool computeResiduals = false) = 0;
-//
-//    virtual bool addDetection(const BallObservation &observation, const CameraMap &camera) = 0;
+    virtual void addObservation(const BallObservation& observation, const Camera& camera) = 0;
+    virtual bool setObservations(const std::vector<BallObservation> &observationsSinceKick, const CameraMap &camera) = 0;
+
 protected:
     virtual ChipFitResult
     postProcess(const Eigen::VectorXd &solution, bool computeResiduals = false) = 0;

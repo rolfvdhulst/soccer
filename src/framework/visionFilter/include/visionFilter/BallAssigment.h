@@ -12,7 +12,7 @@ struct BallAssignmentResult{
     std::vector<BallGroundFilter::ObservationPredictionPair> splitPairs;
     std::vector<BallObservation> unpairedObservations;
 
-    std::map<int,FlyingObservationPrediction> flyingBalls;
+    std::map<int,KickOPPair> kicked_balls;
 };
 
 struct preOPPair{

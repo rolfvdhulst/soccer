@@ -5,7 +5,7 @@
 #include "Random.h"
 #include "Time.h"
 
-Random::Random(long seed) : engine{seed}{
+Random::Random(long seed) : engine(seed){
 
 }
 Random::Random(const Time &time) :

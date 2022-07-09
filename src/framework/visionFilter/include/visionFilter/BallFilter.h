@@ -11,13 +11,14 @@
 #include "ball/BallFlyFilter.h"
 #include "RobotTrajectorySegment.h"
 #include <containers/circular_buffer.h>
+#include "ball/kick/detection/KickEventFilter.h"
 
 class BallPredictions {
 public:
     BallGroundFilter::PredictedBalls balls;
     bool hadRequestedCamera;
     int objectID;
-    FlyingPredictions flying_predictions;
+    KickPredictions kick_predictions;
 };
 
 class BallFilter : public ObjectFilter {
@@ -37,6 +38,7 @@ public:
 
 private:
     std::map<int, BallGroundFilter> groundFilters;
+    KickEventFilter kick_detector;
     BallFlyFilter fly_filter;
     circular_buffer<BallObservation, 300> acceptedBalls;
 };

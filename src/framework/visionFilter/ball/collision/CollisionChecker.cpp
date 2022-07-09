@@ -135,6 +135,7 @@ namespace CollisionChecker{
         collision.type = preliminary.type;
         collision.inVelocity = collisionVel;
         collision.outVelocity = outVel;
+        collision.normal_dir= preliminary.normalDir;
         collision.position = collisionPos;
         return collision;
     }
@@ -298,6 +299,7 @@ namespace CollisionChecker{
         robot.inVelocity = collisionVel;
         robot.outVelocity = outVel;
         robot.position = collisionPos;
+        robot.normal_dir = preliminary.normalDir;
         robot.robotID = preliminary.segment.robotID;
         robot.robotIsBlue = preliminary.segment.isBlue;
         return robot;

@@ -16,10 +16,10 @@ add_library(visionFilter
         RobotOrientationFilter.cpp
         include/visionFilter/RobotOrientationFilter.h
         include/visionFilter/FilterConstants.h
-        ball/kick/estimation/chip/ChipEstimator6D.cpp
-        ball/kick/estimation/chip/ChipEstimator5D.cpp
-        ball/kick/estimation/chip/ChipEstimator.cpp
-        ball/kick/estimation/chip/ChipEstimator6DSingle.cpp
+#        ball/kick/estimation/chip/ChipEstimator6D.cpp
+#        ball/kick/estimation/chip/ChipEstimator5D.cpp
+#        ball/kick/estimation/chip/ChipEstimator.cpp
+#        ball/kick/estimation/chip/ChipEstimator6DSingle.cpp
         ball/kick/estimation/chip/ChipEstimator6DRotated.cpp
         ObjectFilter.cpp include/visionFilter/ObjectFilter.h
         BallFilter.cpp include/visionFilter/BallFilter.h
@@ -28,8 +28,6 @@ add_library(visionFilter
         include/visionFilter/ball/BallGroundFilter.h
         ball/collision/CollisionChecker.cpp
         include/visionFilter/ball/collision/CollisionChecker.h
-        ball/collision/CollisionCalculations.cpp
-        ball/collision/CollisionCalculations.h
         ball/BallTrajectorySegment.cpp
         include/visionFilter/ball/BallTrajectorySegment.h
         RobotTrajectorySegment.cpp
@@ -46,11 +44,19 @@ add_library(visionFilter
         include/visionFilter/ball/kick/detection/KickTrajectory.h
         ball/kick/estimation/chip/ChipTrajectory.cpp
         include/visionFilter/ball/kick/estimation/chip/ChipTrajectory.h
-        ball/kick/detection/FlyingKickFilter.cpp
-        include/visionFilter/ball/kick/detection/FlyingKickFilter.h
         ball/kick/estimation/ground/GroundTrajectory.cpp
         include/visionFilter/ball/kick/estimation/ground/GroundTrajectory.h
-        ball/kick/estimation/ground/GroundTwoPhaseEstimator.cpp include/visionFilter/ball/kick/estimation/ground/GroundTwoPhaseEstimator.h ball/kick/estimation/ground/GroundSlideEstimator.cpp include/visionFilter/ball/kick/estimation/ground/GroundSlideEstimator.h)
+        ball/kick/estimation/ground/GroundTwoPhaseEstimator.cpp
+        include/visionFilter/ball/kick/estimation/ground/GroundTwoPhaseEstimator.h
+        ball/kick/estimation/ground/GroundSlideEstimator.cpp
+        include/visionFilter/ball/kick/estimation/ground/GroundSlideEstimator.h
+        ball/kick/estimation/chip/ChipFitter.cpp
+        ball/kick/estimation/chip/ChipFitResult.cpp
+        ball/kick/detection/KickEventFilter.cpp
+        include/visionFilter/ball/kick/detection/KickEventFilter.h
+        ball/collision/VelocityChangeDetector.cpp
+        include/visionFilter/ball/collision/VelocityChangeDetector.h
+        )
 target_link_libraries(visionFilter
         PRIVATE math
         PRIVATE core

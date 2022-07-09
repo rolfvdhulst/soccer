@@ -136,9 +136,13 @@ WorldFilter::processBalls(const DetectionFrame &frame, const std::vector<RobotTr
     BallAssignmentResult assignment = assignBalls(predictions,frame.balls);
     // TODO: Split them if there are matches on multiple branches
     // process balls that weren't seen and remove them if necessary
+    if(!assignment.kicked_balls.empty()){
+      std::cout<<"kicked: "<<assignment.kicked_balls.size()<<std::endl;
+    }
     auto it = balls.begin();
     while (it != balls.end()) {
         const auto & opPair = assignment.observationPredictionPairs.at(it->getObjectID());
+//        const auto & kickOP = assignment.kicked_balls.at(it->getObjectID());
         bool removeFilter = it->processDetections(opPair,frame.cameraID);
         if (removeFilter) {
             //TODO: make this if there are no more healthy balls. Probably needs a larger refactor and a rethink of how

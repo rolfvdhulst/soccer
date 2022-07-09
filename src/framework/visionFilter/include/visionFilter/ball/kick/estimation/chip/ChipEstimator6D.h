@@ -8,20 +8,20 @@
 
 #include "ChipEstimator.h"
 
-class ChipEstimator6D : public ChipEstimator{
+class ChipEstimator6D {
 public:
     std::optional<ChipFitResult>
-    getChipEstimate(const std::vector<BallObservation> &observationsSinceKick, const CameraMap &camera, bool computeResiduals = false) override;
+    getChipEstimate(const std::vector<BallObservation> &observationsSinceKick, const CameraMap &camera, bool computeResiduals = false);
 
 protected:
-    ChipFitResult postProcess(const Eigen::VectorXd &solution, bool computeResiduals = false) override;
+    ChipFitResult postProcess(const Eigen::VectorXd &solution, bool computeResiduals = false);
 
-    std::optional<Eigen::VectorXd> solve() override;
+    std::optional<Eigen::VectorXd> solve();
 
     std::optional<Eigen::VectorXd> solveL2norm();
     std::optional<Eigen::VectorXd> solveIRLSL1norm();
 
-    bool setMatrices(const std::vector<BallObservation> &observationsSinceKick, const CameraMap &camera) override;
+    bool setMatrices(const std::vector<BallObservation> &observationsSinceKick, const CameraMap &camera);
 };
 
 

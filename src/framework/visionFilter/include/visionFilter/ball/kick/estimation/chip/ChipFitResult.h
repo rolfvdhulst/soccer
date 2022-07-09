@@ -7,12 +7,11 @@
 
 #include <Eigen/Dense>
 #include <core/Time.h>
+#include "ChipTrajectory.h"
 
 struct ChipFitResult {
-    Eigen::Vector3d kickPos;
-    Eigen::Vector3d kickVel;
-    Time kickTime;
-    Eigen::Vector3d predictPosition(Time futureTime) const;
+  ChipFitResult(Eigen::Vector3d position, Eigen::Vector3d velocity, Time time);
+    ChipState state;
     std::optional<Eigen::VectorXd> residuals;
 };
 

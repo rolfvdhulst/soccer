@@ -9,7 +9,7 @@ void BallGroundEKF::update(const Eigen::Vector2d &observation) {
   y = observation - (H * X);
   // Variance of innovation
   Eigen::Matrix2d S = H * P * H.transpose() + R;
-  // compute kalman gain. For small matrices, Eigen's inverse function is efficient but be careful with larger matrices (solve a system of eq's instead)
+  // compute kalman gain. For small matrices, Eigen's inverse function is efficient
   Eigen::Matrix<double, 4, 2> K = P * H.transpose() * S.inverse();
   // update state with prediction
   X = X + K * y;

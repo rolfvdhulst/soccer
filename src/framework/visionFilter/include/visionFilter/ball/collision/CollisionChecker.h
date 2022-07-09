@@ -34,6 +34,7 @@ namespace CollisionChecker {
         Vector2 position;
         Vector2 inVelocity;
         Vector2 outVelocity;
+        Vector2 normal_dir;
         double dt;
         Time collisionTime;
         CollisionType type;

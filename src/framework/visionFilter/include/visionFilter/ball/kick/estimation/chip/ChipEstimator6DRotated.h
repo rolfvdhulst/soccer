@@ -7,21 +7,24 @@
 
 #include "ChipEstimator.h"
 
-class ChipEstimator6DRotated : public ChipEstimator{
-public:
-    std::optional<ChipFitResult>
-    getChipEstimate(const std::vector<BallObservation> &observationsSinceKick, const CameraMap &camera, bool computeResiduals = false) override;
+class ChipEstimator6DRotated {
+ public:
+  ChipEstimator6DRotated() = default;
+  ChipEstimator6DRotated(const BallObservation& observation, const Camera& camera);
+  std::optional<ChipFitResult> getChipEstimate(bool computeResiduals = false);
+  void addObservation(const BallObservation &observation, const Camera &camera);
+  bool setObservations(const std::vector<BallObservation> &observationsSinceKick, const CameraMap &cameras);
+  unsigned long nrOfObservations() const;
+ protected:
+  ChipFitResult postProcess(const Eigen::VectorXd &solution, bool computeResiduals = false);
+  std::optional<Eigen::VectorXd> solve();
 
-protected:
-    ChipFitResult postProcess(const Eigen::VectorXd &solution, bool computeResiduals = false) override;
+  std::optional<Eigen::VectorXd> solveL2norm();
+  std::optional<Eigen::VectorXd> solveIRLSL1norm();
 
-    std::optional<Eigen::VectorXd> solve() override;
-
-    std::optional<Eigen::VectorXd> solveL2norm();
-    std::optional<Eigen::VectorXd> solveIRLSL1norm();
-
-    bool setMatrices(const std::vector<BallObservation> &observationsSinceKick, const CameraMap &camera) override;
+  Time firstTime;
+  Eigen::MatrixXd AMatrix;
+  Eigen::VectorXd BVector;
 };
-
 
 #endif //SOCCER_CHIPESTIMATOR6DROTATED_H

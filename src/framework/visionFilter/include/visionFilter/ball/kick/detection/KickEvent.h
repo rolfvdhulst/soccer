@@ -7,6 +7,7 @@
 
 #include <Eigen/Dense>
 #include <core/Time.h>
+#include <vision/BallObservation.h>
 
 enum KickEventType{
     UNKNOWN = 0,
@@ -15,11 +16,12 @@ enum KickEventType{
     ROBOT_FRONT_UNKNOWN_COMMAND = 3
 };
 
-class KickEvent {
+struct KickEvent {
     KickEventType type;
     Eigen::Vector3d initial_pos;
     std::optional<Eigen::Vector3d> initial_vel;
     Time time;
+    std::vector<BallObservation> observations_since_kick;
 };
 
 

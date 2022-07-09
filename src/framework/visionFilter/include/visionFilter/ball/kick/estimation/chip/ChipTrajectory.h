@@ -22,8 +22,11 @@ public:
     [[nodiscard]] std::optional<ChipState> predictFutureBouncePosition() const;
     [[nodiscard]] std::optional<ChipState> predictWithBounces(Time time, ChipBounceParameters parameters) const;
     void reflectVelocity(ChipBounceParameters parameters, const Eigen::Vector3d& planeNormal = Eigen::Vector3d(0,0,1));
+    [[nodiscard]] Eigen::Vector3d pos() const;
+    Eigen::Vector3d vel() const;
+    Time time() const;
 private:
-    Time time;
+    Time current_time;
     Eigen::Vector3d position;
     Eigen::Vector3d velocity;
 

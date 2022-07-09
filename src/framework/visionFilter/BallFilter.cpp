@@ -5,69 +5,68 @@
 #include "BallFilter.h"
 
 BallFilter::BallFilter(const BallObservation &observation)
-        : ObjectFilter(),
-          groundFilters{std::make_pair(observation.cameraID, BallGroundFilter(observation))} {
-    acceptedBalls.push_back(observation);
+    : ObjectFilter(),
+      groundFilters{std::make_pair(observation.cameraID, BallGroundFilter(observation))} {
+  acceptedBalls.push_back(observation);
 }
 
 BallPredictions BallFilter::predictCam(int cameraID, const Time &untilTime, const GeometryData &geometryData,
                                        const std::vector<RobotTrajectorySegment> &robotTrajectories) const {
   BallPredictions prediction;
-  prediction.flying_predictions = fly_filter.getPredictions(untilTime,geometryData.cameras,cameraID);
+  prediction.kick_predictions = fly_filter.getPredictions(untilTime, geometryData.cameras, cameraID);
   auto cameraFilter = groundFilters.find(cameraID);
-    if (cameraFilter != groundFilters.end()) {
-        auto predictions = cameraFilter->second.predict(untilTime, geometryData, robotTrajectories);
-        prediction.objectID = getObjectID();
-        prediction.hadRequestedCamera = true;
-        prediction.balls = predictions;
-        return prediction;
-    } else {
-        prediction.objectID = getObjectID();
-        prediction.hadRequestedCamera = false;
-        //TODO: Loop over all camera's, merge predictions into one and pass this back to check for new balls
-        //Ugly temporary hack:
-        for(const auto& camera : groundFilters){
-            prediction.balls =camera.second.predict(untilTime,geometryData,robotTrajectories);
-        }
-        return prediction;
+  if (cameraFilter != groundFilters.end()) {
+    auto predictions = cameraFilter->second.predict(untilTime, geometryData, robotTrajectories);
+    prediction.objectID = getObjectID();
+    prediction.hadRequestedCamera = true;
+    prediction.balls = predictions;
+    return prediction;
+  } else {
+    prediction.objectID = getObjectID();
+    prediction.hadRequestedCamera = false;
+    //TODO: Loop over all camera's, merge predictions into one and pass this back to check for new balls
+    //Ugly temporary hack:
+    for (const auto &camera : groundFilters) {
+      prediction.balls = camera.second.predict(untilTime, geometryData, robotTrajectories);
     }
+    return prediction;
+  }
 }
 
-
 double BallFilter::getHealth() const {
-    double maxHealth = 0.0;
-    for (const auto &filter : groundFilters) {
-        maxHealth = fmax(filter.second.getHealth(), maxHealth);
-    }
-    return maxHealth;
+  double maxHealth = 0.0;
+  for (const auto &filter : groundFilters) {
+    maxHealth = fmax(filter.second.getHealth(), maxHealth);
+  }
+  return maxHealth;
 }
 
 FilteredBall BallFilter::mergeBalls(const Time &time) const {
-    double mergeFactor = 1.5;
-    Eigen::Vector2d vel(0, 0);
-    Eigen::Vector2d pos(0, 0);
-    double totalPosUncertainty = 0;
-    double totalVelUncertainty = 0;
-    bool isVisible = false;
-    for (const auto &filter : groundFilters) {
-        FilteredBall ball = filter.second.getEstimate(time, true);
-        //Use the filter health and uncertainties for a weighted average of observations
-        double weight = 100.0 / ball.health;
-        double posWeight = pow(ball.posUncertainty * weight, -mergeFactor);
-        double velWeight = pow(ball.velocityUncertainty * weight, -mergeFactor);
-        pos += ball.pos * posWeight;
-        vel += ball.vel * velWeight;
-        totalPosUncertainty += posWeight;
-        totalVelUncertainty += velWeight;
-        isVisible |= ball.isVisible;
-    }
-    pos /= totalPosUncertainty;
-    vel /= totalVelUncertainty;
-    FilteredBall result;
-    result.pos = pos;
-    result.vel = vel;
-    result.isVisible = isVisible;
-    return result;
+  double mergeFactor = 1.5;
+  Eigen::Vector2d vel(0, 0);
+  Eigen::Vector2d pos(0, 0);
+  double totalPosUncertainty = 0;
+  double totalVelUncertainty = 0;
+  bool isVisible = false;
+  for (const auto &filter : groundFilters) {
+    FilteredBall ball = filter.second.getEstimate(time, true);
+    //Use the filter health and uncertainties for a weighted average of observations
+    double weight = 100.0 / ball.health;
+    double posWeight = pow(ball.posUncertainty * weight, -mergeFactor);
+    double velWeight = pow(ball.velocityUncertainty * weight, -mergeFactor);
+    pos += ball.pos * posWeight;
+    vel += ball.vel * velWeight;
+    totalPosUncertainty += posWeight;
+    totalVelUncertainty += velWeight;
+    isVisible |= ball.isVisible;
+  }
+  pos /= totalPosUncertainty;
+  vel /= totalVelUncertainty;
+  FilteredBall result;
+  result.pos = pos;
+  result.vel = vel;
+  result.isVisible = isVisible;
+  return result;
 }
 //bool BallFilter::acceptDetection(const BallObservation &observation) {
 //    auto cameraFilter = cameraFilters.find(observation.cameraID);
@@ -101,22 +100,31 @@ FilteredBall BallFilter::mergeBalls(const Time &time) const {
 //}
 
 BallObservation BallFilter::lastDetection() const {
-    return acceptedBalls.back();
+  return acceptedBalls.back();
 }
 
 bool BallFilter::processDetections(const BallGroundFilter::ObservationPredictionPair &detections, int cameraID) {
-    auto cameraFilter = groundFilters.find(cameraID);
-    if (cameraFilter == groundFilters.end()) {
-        //If we have detections assigned, then create a new camera filter for this camera
-        if (detections.observation.has_value()){
-            groundFilters.insert(std::make_pair(cameraID, BallGroundFilter(detections.observation.value(), detections.prediction.velocity)));
-        }
-        return false;
+  auto cameraFilter = groundFilters.find(cameraID);
+  if (cameraFilter == groundFilters.end()) {
+    //If we have detections assigned, then create a new camera filter for this camera
+    if (detections.observation.has_value()) {
+      groundFilters.insert(std::make_pair(cameraID,
+                                          BallGroundFilter(detections.observation.value(),
+                                                           detections.prediction.velocity)));
+      kick_detector.addObservation(detections.observation.value());
     }
-    //Process all the accepted detections of the frame in the filter
-    bool removeFilter = cameraFilter->second.processDetections(detections);
-    if (removeFilter) {
-        groundFilters.erase(cameraFilter);
-    }
-    return groundFilters.empty();
+    return false;
+  }
+  //Process all the accepted detections of the frame in the filter
+  bool removeFilter = cameraFilter->second.processDetections(detections);
+
+  if (removeFilter) {
+    groundFilters.erase(cameraFilter);
+    kick_detector.clearCamera(cameraID);
+  }
+  //auto kicked_ball = kick_detector.update(cameraID);
+//  if(kicked_ball){
+//    fly_filter.startPossibleFlight(kicked_ball.value());
+//  }
+  return groundFilters.empty();
 }
