@@ -3,11 +3,17 @@
 //
 
 #include "ObjectFilter.h"
-
+int ObjectFilter::nextObjectID = 0;
 int ObjectFilter::getObjectID() const {
     return objectID;
 }
 
 void ObjectFilter::setObjectID(int id) {
     objectID = id;
+}
+ObjectFilter::ObjectFilter() {
+  {
+    objectID = nextObjectID;
+    nextObjectID++;
+  }
 }
