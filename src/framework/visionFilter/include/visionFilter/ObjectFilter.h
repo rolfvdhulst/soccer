@@ -8,6 +8,7 @@
 //TODO: fix this giving actually unique ID's..
 class ObjectFilter {
 public:
+    ObjectFilter();
     [[nodiscard]] int getObjectID() const;
     void setObjectID(int id);
 
