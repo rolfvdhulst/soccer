@@ -4,9 +4,8 @@
 
 #include "Random.h"
 #include "Time.h"
-#include "iostream"
 
-Random::Random(long seed) : engine{seed}{
+Random::Random(long seed) : engine(seed){
 
 }
 Random::Random(const Time &time) :

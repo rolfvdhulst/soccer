@@ -34,6 +34,8 @@ class Vector2 {
 
     Vector2(const proto::Location &msg) : Vector2(msg.x(), msg.y()){};
 
+    Vector2(const Eigen::Vector2d &vec) : Vector2(vec.x(),vec.y()){};
+
     double &x();
     double &y();
     [[nodiscard]] const double &x() const;

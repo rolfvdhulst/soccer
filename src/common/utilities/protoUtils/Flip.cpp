@@ -33,6 +33,14 @@ void flip(proto::World &world) {
     for (int i = 0; i < world.mutable_yellow()->size(); i++) {
         flipRobot(world.mutable_yellow(i));
     }
+
+    for(int i = 0; i<world.mutable_bluevirtual()->size();i++){
+
+    }
+
+    for(int i = 0; i<world.mutable_yellowvirtual()->size();i++){
+
+    }
 }
 void flipCamera(proto::SSL_GeometryCameraCalibration *camera) {
     camera->set_derived_camera_world_tx(camera->derived_camera_world_tx() * -1);
@@ -142,4 +150,9 @@ void flip(proto::GameState &gameState) {
     }
     // We ignore game events.
     // Technically they should also be flipped as they contain positions and velocities (sometimes) but this quickly becomes a HUGE switch statement
+}
+
+void flip(proto::WorldVirtualBall *virtualBall) {
+    virtualBall->mutable_pos()->set_x(virtualBall->pos().x()*-1);
+    virtualBall->mutable_pos()->set_y(virtualBall->pos().y()*-1);
 }

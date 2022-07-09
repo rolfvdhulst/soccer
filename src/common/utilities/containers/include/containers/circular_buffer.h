@@ -7,14 +7,14 @@
 #include <iterator>
 #include <iostream>
 
-template<typename _Tp, std::size_t _Size>
+template<typename Tp, std::size_t Size>
 class circular_buffer_iterator_type
 {
  private:
-  _Tp * const buffer;
+  Tp * const buffer;
   std::size_t offset;
  public:
-  circular_buffer_iterator_type(_Tp *buffer, std::size_t offset) :buffer{buffer}, offset{offset}{}
+  circular_buffer_iterator_type(Tp *buffer, std::size_t offset) :buffer{buffer}, offset{offset}{}
   bool operator==(const circular_buffer_iterator_type &other){
     return other.buffer == buffer && other.offset == offset; //TODO: iterators invalidated by pushing back elements now?
   }
@@ -40,19 +40,19 @@ class circular_buffer_iterator_type
     offset-=amount;
     return *this;
   }
-  _Tp& operator*() const {
-    return buffer[offset % _Size];
+  Tp& operator*() const {
+    return buffer[offset % Size];
   }
 };
 // need to define the iterator traits for std algorithms
-template<typename _Tp, std::size_t _Size>
-class std::iterator_traits<circular_buffer_iterator_type<_Tp,_Size>>{
+template<typename Tp, std::size_t Size>
+class std::iterator_traits<circular_buffer_iterator_type<Tp,Size>>{
  public:
   using difference_type = std::ptrdiff_t;
   using size_type = std::size_t;
-  using value_type = _Tp;
-  using pointer = _Tp*;
-  using reference = _Tp&;
+  using value_type = Tp;
+  using pointer = Tp*;
+  using reference = Tp&;
   using iterator_category = std::random_access_iterator_tag;
 };
 /**
@@ -60,10 +60,10 @@ class std::iterator_traits<circular_buffer_iterator_type<_Tp,_Size>>{
  * @tparam _Tp
  * @tparam _Size
  */
-template<typename _Tp, std::size_t _Size>
+template<typename Tp, std::size_t Size>
 class circular_buffer{
  public:
-  typedef _Tp 	    			      value_type;
+  typedef Tp 	    			      value_type;
   typedef value_type*			      pointer;
   typedef const value_type*                       const_pointer;
   typedef value_type&                   	      reference;
@@ -71,14 +71,14 @@ class circular_buffer{
   typedef std::size_t                    	      size_type;
   typedef std::ptrdiff_t                   	      difference_type;
 
-  typedef circular_buffer_iterator_type<_Tp,_Size> iterator;
-  typedef circular_buffer_iterator_type<const _Tp, _Size> const_iterator;
+  typedef circular_buffer_iterator_type<Tp,Size> iterator;
+  typedef circular_buffer_iterator_type<const Tp, Size> const_iterator;
   typedef std::reverse_iterator<iterator>	      reverse_iterator;
   typedef std::reverse_iterator<const_iterator>   const_reverse_iterator;
 
  private:
   // the internal array that actually stores the values
-  _Tp _m_buff[_Size];
+  Tp _m_buff[Size];
 
   //The virtual beginning of the circular buffer
   size_type _current_offset;
@@ -86,8 +86,8 @@ class circular_buffer{
   //The current size of the circular buffer
   size_type _current_size;
 
-  _Tp &last_value() {
-    return _m_buff[(_current_offset + _current_size -1) % _Size];
+  Tp &last_value() {
+    return _m_buff[(_current_offset + _current_size -1) % Size];
   }
  public:
   //Default constructor
@@ -95,25 +95,25 @@ class circular_buffer{
 
   }
   //modifying functions
-  _Tp & pop_front(){
-    _Tp &ret = _m_buff[_current_offset++];
-    _current_offset %= _Size;
+  Tp & pop_front(){
+    Tp &ret = _m_buff[_current_offset++];
+    _current_offset %= Size;
     --_current_size;
     return ret;
   }
-  void push_back(const _Tp& value){
+  void push_back(const Tp& value){
     if(_current_size < capacity()){
       ++_current_size;
     } else{
-      ++_current_offset %= _Size;
+      ++_current_offset %= Size;
     }
     last_value() = value;
   }
-  void push_back(_Tp&& value){
+  void push_back(Tp&& value){
     if(_current_size < capacity()){
       ++_current_size;
     } else{
-      ++ _current_offset %= _Size;
+      ++ _current_offset %= Size;
     }
     last_value() = std::move(value);
   }
@@ -127,10 +127,10 @@ class circular_buffer{
   }
 
   constexpr iterator end() noexcept
-  { return iterator{_m_buff,_current_offset+_Size}; }
+  { return iterator{_m_buff,_current_offset+Size}; }
 
   constexpr const_iterator end() const noexcept
-  {return const_iterator{_m_buff,_current_offset+_Size};}
+  {return const_iterator{_m_buff,_current_offset+Size};}
 
   constexpr reverse_iterator rbegin() noexcept
   {return reverse_iterator(end());}
@@ -161,37 +161,41 @@ class circular_buffer{
   {return _current_size;}
 
   constexpr size_type capacity() const noexcept
-  {return _Size;}
+  {return Size;}
 
   constexpr size_type max_size() const noexcept
-  {return _Size;}
+  {return Size;}
 
   constexpr bool empty() const noexcept
   { return size() == 0;}
 
   constexpr bool full() const noexcept
-  {return size() == _Size;}
+  {return size() == Size;}
   //Element access
-  constexpr reference operator[](size_type __n)  noexcept
+  constexpr reference operator[](size_type n)  noexcept
   {}
 
-  constexpr const_reference operator[](size_type __n) const noexcept
+  constexpr const_reference operator[](size_type n) const noexcept
   {}
 
-  constexpr reference at(size_type __n)
+  constexpr reference at(size_type n)
   {
-    if(__n >= _Size){
+    if(n >= Size){
       std::__throw_out_of_range_fmt(__N("circular_buffer::at: __n (which is %zu) "
                                         ">= _Size (which is %zu)"),
-                                    __n, _Size);
+                                    n, Size);
     }
+    return _m_buff[(_current_offset + n) % Size];
   }
   //Result of expression must be lvalue so we use inline boolean as follows:
-  constexpr const_reference at(size_type __n) const
+  constexpr const_reference at(size_type n) const
   {
-//    return __n < _Size ? : (      std::__throw_out_of_range_fmt(__N("circular_buffer::at: __n (which is %zu) "
-//                                                                    ">= _Size (which is %zu)"),
-//                                                                __n, _Size), );
+      if(n >= Size){
+          std::__throw_out_of_range_fmt(__N("circular_buffer::at: __n (which is %zu) "
+                                            ">= _Size (which is %zu)"),
+                                        n, Size);
+      }
+    return  _m_buff[(_current_offset + n) % Size];
   }
   constexpr reference front() noexcept
   {return _m_buff[_current_offset];}
@@ -203,7 +207,7 @@ class circular_buffer{
   {return last_value();}
 
   constexpr const_reference back() const noexcept
-  {return last_value();}
+  {return _m_buff[(_current_offset + _current_size -1) % Size];}
 
   //Comparisons
 };

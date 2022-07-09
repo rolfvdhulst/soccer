@@ -8,3 +8,7 @@ target_include_directories(core
         INTERFACE include
         PRIVATE include/core
         )
+
+target_compile_options(core
+        PRIVATE -std=c++17
+)

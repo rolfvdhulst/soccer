@@ -82,5 +82,5 @@ Angle &Angle::operator=(const double &scalar) {
 
 Angle::operator double() const { return this->angle; }
 double Angle::degrees() const { return toDegrees(this->angle); }
-double toDegrees(double angle) { return angle / M_PI * 180; }
-double toRadians(double angle) { return angle * M_PI / 180; }
+double toDegrees(double angle) { return angle * (180.0/M_PI); }
+double toRadians(double angle) { return angle * (M_PI / 180.0); }

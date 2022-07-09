@@ -109,6 +109,11 @@ class LineSegment : public LineBase {
      * @return std::shared_ptr<Vector2> Vector representation of this intersection
      */
     [[nodiscard]] std::optional<Vector2> intersects(const LineSegment &line) const override;
+
+    [[nodiscard]] std::optional<double> intersectsParametrize(const LineSegment &line) const;
+
+    [[nodiscard]] Vector2 getPos(double t) const;
+
   /**
    * @brief Gets the intersection of the lines
    * See https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection for help

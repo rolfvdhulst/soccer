@@ -11,6 +11,15 @@ void access(){
   double x = s[2];
   exit(0);
 }
+TEST(CircularBufferTest,access){
+  circular_buffer<int,4> test;
+  for (int kI = 0; kI < 6; ++kI) {
+    test.push_back(kI);
+  }
+  EXPECT_EQ(test.at(3),5);
+  EXPECT_EQ(test.at(0),2);
+
+}
 TEST(CircularBufferTest,aTest){
   //TODO: fix more tests
   //ASSERT_EXIT(access(),::testing::KilledBySignal(SIGSEGV),".*");

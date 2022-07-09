@@ -81,18 +81,18 @@ class KalmanFilter {
      * @brief Updates the filter with observation z
      * Is optimized to perform better on small matrices.
      * The inverse method for this is better suited for small matrices
-     * and should always be used if the number of state dimensions is lower than 4.
+     * and should always be used if the number of state dimensions is <= 4
      */
     void update(const VectorO& z) {
         // Compute innovation (error between measurement and state)
         y = z - (H * X);
         // Variance of innovation
         MatrixOO S = H * P * H.transpose() + R;
-        // compute kalman gain. For small matrices, Eigen's inverse function is efficient for small matrices but be careful with larger matrices
+        // compute kalman gain. For small matrices, Eigen's inverse function is most efficient
         MatrixSO K = P * H.transpose() * S.inverse();
         // update state with prediction
         X = X + K * y;
-        // update covariance : P = (I-K*H)*P
+        // update covariance
         P -= K * H * P;
     };
 

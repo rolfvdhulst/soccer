@@ -50,3 +50,7 @@ TEST(Camera, projections) {
         EXPECT_NEAR(inverseImagePos.y(), robot.pixel_y(), 10);
     }
 }
+TEST(Camera,rotationMatrix){
+    Camera testCam(RoboCup2019Cam1());
+    std::cout<<testCam.worldToCamRotation().toRotationMatrix()<<std::endl;
+}

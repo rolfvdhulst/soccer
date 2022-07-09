@@ -133,4 +133,28 @@ const double &Circle::radius() const {
   return m_radius;
 }
 
+std::vector<double> Circle::intersectionParametrized(const LineSegment &segment) const {
+    Vector2 d = segment.direction();
+    Vector2 f = segment.start()-m_center;
+
+    double a = d.dot(d);
+    double b = 2*f.dot(d);
+    double c = f.dot(f)-m_radius*m_radius;
+    //Note the values here are sorted ascending already
+    std::optional<std::pair<double,double>> values = solveQuadraticPositiveA(a,b,c);
+    if(!values){
+        return {};
+    }
+    bool firstInRange = values->first>=0 && values->first <=1;
+    bool secondInRange = values->second>= 0 && values->second <=1;
+    std::vector<double> intersections;
+    if(firstInRange){
+        intersections.push_back(values->first);
+    }
+    if(secondInRange){
+        intersections.push_back(values->second);
+    }
+    return intersections;
+}
+
 std::ostream &operator<<(std::ostream &os, Circle const &circle) { return circle.write(os); }

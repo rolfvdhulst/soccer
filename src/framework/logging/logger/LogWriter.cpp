@@ -5,6 +5,7 @@
 #include "LogWriter.h"
 #include "LogHeader.h"
 #include <fstream>
+
 bool LogWriter::open(QString &file) {
     QByteArray fileNameBytes = file.toUtf8();
     const char *fileName = fileNameBytes.constData();
@@ -28,20 +29,22 @@ void LogWriter::close() {
 }
 bool LogWriter::addLogFrame(const proto::FrameLog &logFrame,  long long int timestamp) {
     QByteArray data;
-    data.resize(logFrame.ByteSize());
-//    if(!logFrame.IsInitialized()){
-//        std::cerr<<"Cannot write uninitialized Log Frame to logfile! Did you set all required fields?"<<std::endl;
-//        return false;
-//    }
+    data.resize(logFrame.ByteSizeLong());
+    if(!logFrame.IsInitialized()){
+        std::cerr<<"Cannot write uninitialized Log Frame to logfile! Did you set all required fields?"<<std::endl;
+        return false;
+    }
     if(!logFrame.SerializeToArray(data.data(),data.size())){
         std::cerr<<"Failed to serialize logFrame"<<std::endl;
         return false;
     }
-    LogDataHeader dataHeader;
+
+    LogDataHeader dataHeader{};
     dataHeader.timestamp = timestamp; //Timestamp should be in nanoseconds
     dataHeader.messageSize = data.size();
 
-    //Write header to file
+    //Write header to file, followed by data
     outStream->write((char *) &dataHeader,sizeof(dataHeader));
-    outStream->write(data.constData(), data.size());
+    outStream->write(data.data(), data.size());
+    return true;
 }

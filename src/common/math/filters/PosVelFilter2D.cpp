@@ -111,3 +111,11 @@ Eigen::Matrix4d PosVelFilter2D::getCovariance() const {
 Eigen::Vector2d PosVelFilter2D::getInnovation() const {
     return filter.y;
 }
+void PosVelFilter2D::addUncertainty(double posUncertainty, double velUncertainty) {
+    Eigen::Matrix4d covariance = filter.covariance();
+    covariance(0,0)+=posUncertainty;
+    covariance(1,1)+=posUncertainty;
+    covariance(2,2)+=velUncertainty;
+    covariance(3,3)+=velUncertainty;
+    filter.setCovariance(covariance);
+}

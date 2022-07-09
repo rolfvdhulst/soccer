@@ -77,7 +77,7 @@ bool BoundingBox2D::contains(const Vector2 &point) {
 }
 //This function can be optimized a lot further, but for now this ain't really necessary.
 //see: https://tavianator.com/fast-branchless-raybounding-box-intersections/
-bool BoundingBox2D::doesIntersect(const Ray &ray) {
+bool BoundingBox2D::doesIntersect(const Ray &ray) const{
   Vector2 rayDir = ray.direction();
   Vector2 origin = ray.start();
   double tmin = -std::numeric_limits<double>::infinity();
@@ -103,7 +103,40 @@ bool BoundingBox2D::doesIntersect(const Ray &ray) {
   return tmax >= tmin && tmax>=0;
 }
 
+//TODO: needs test
+bool BoundingBox2D::doesIntersect(const LineSegment &lineSegment) const{
+    Vector2 rayDir = lineSegment.direction();
+    Vector2 origin = lineSegment.start();
+    double tmin = -std::numeric_limits<double>::infinity();
+    double tmax = std::numeric_limits<double>::infinity();
+    if(rayDir.x() != 0.0){
+        double t1 = (xMin()-origin.x()) / rayDir.x();
+        double t2 = (xMax()-origin.x()) / rayDir.x();
+
+        tmin = fmax(tmin,fmin(t1,t2));
+        tmax = fmin(tmax,fmax(t1,t2));
+    }else if(!(origin.x()<=xMax() && origin.x()>=xMin())){
+        return false;
+    }
+    if(rayDir.y() != 0.0){
+        double t1 = (yMin()-origin.y()) / rayDir.y();
+        double t2 = (yMax()-origin.y()) / rayDir.y();
+
+        tmin = fmax(tmin,fmin(t1,t2));
+        tmax = fmin(tmax,fmax(t1,t2));
+    } else if(!(origin.y()<=yMax() && origin.y()>=yMin())){
+        return false;
+    }
+    return tmax >= tmin && tmax>=0 && tmin<=1;
+}
+
 bool BoundingBox2D::operator==(const BoundingBox2D &other) const{
   return xMin()==other.xMin() && yMin() == other.yMin() && xMax() == other.xMax() && yMax() == other.yMax();
+}
+
+void BoundingBox2D::expand(double distance) {
+    min -=distance;
+    max += distance;
+
 }
 

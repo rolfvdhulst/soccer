@@ -42,6 +42,7 @@ class FieldState {
     [[nodiscard]] const Rectangle& getField() const;
     [[nodiscard]] const Rectangle& getMarginField() const;
     [[nodiscard]] const Rectangle& getField(bool withMargin) const;
+    [[nodiscard]] Rectangle getFieldCorrected(double margin) const;
 
     [[nodiscard]] const Rectangle& getOurGoalRectangle() const;
     [[nodiscard]] const Rectangle& getTheirGoalRectangle() const;
